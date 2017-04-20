@@ -1,4 +1,4 @@
-gestprjsite/settings.py
+gestprjsite/settings_local.py
 
 /static/
 *.pyc
