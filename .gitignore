@@ -1,0 +1,6 @@
+gestprjsite/settings.py
+
+static/
+*.pyc
+
+.idea
