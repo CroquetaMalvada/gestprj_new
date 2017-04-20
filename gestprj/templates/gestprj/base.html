@@ -1,0 +1,112 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!--<link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">-->
+
+    <!--<link id="bootstrap-style" href="{% static 'bootstrap/themes/janux/css/bootstrap.min.css' %}" rel="stylesheet">-->
+    <!--<link id="base-style" href="{% static 'bootstrap/themes/janux/css/style.css' %}" rel="stylesheet">-->
+    <!--<link id="base-style-forms" href="{% static 'bootstrap/themes/janux/css/style-forms.css' %}" rel="stylesheet">-->
+    <!--<link id="base-style-responsive" href="{% static 'bootstrap/themes/janux/css/style-responsive.css' %}"-->
+          <!--rel="stylesheet">-->
+    <!--<link href="{% static 'bootstrap/themes/janux/css/bootstrap-responsive.min.css' %}" rel="stylesheet">-->
+    <link href="{% static 'jqueryui/jquery-ui.min.css' %}" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <!--<link href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css" rel="stylesheet">-->
+    <link href="https://cdn.datatables.net/1.10.11/css/dataTables.jqueryui.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css" rel="stylesheet">
+    <link href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
+
+    <!--<link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">-->
+    <link href="{% static 'css/jquery-confirm.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'css/signin.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'css/docs.min.css' %}" rel="stylesheet" media="screen">
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">-->
+    <!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">-->
+
+    <!--<link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&subset=latin,cyrillic-ext,latin-ext'-->
+          <!--rel='stylesheet' type='text/css'>-->
+
+    <!--<link href="{% static 'css/custom_css.css' %}" rel="stylesheet" type="text/css">-->
+    <!--<link href="{% static 'bootstrap/themes/janux/css/style-forms.css' %}" rel="stylesheet" media="screen"> -->
+    <style>
+        html{
+        height:100%;
+        }
+        body{
+        background-image: url("{% static 'imagenes/fondo.jpg' %}");
+        }
+        .ui-dialog{
+        z-index:9999;
+        }
+        .ui-widget-header{
+        border:none;
+        background:none;
+        color:none;
+        }
+
+    </style>
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!--<script type="text/javascript" src="{% static 'bootstrap/js/jquery.js' %}"></script>-->
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <!--<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>-->
+    <!-- jQuery -->
+
+    <script type="text/javascript" src="{% static 'jqueryui/jquery-ui.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jqueryui/datepicker-ca.js' %}"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="{% static 'jquery/loading.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/sum().js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/jquery-confirm.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js-cookie-master/src/js.cookie.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/funciones_ajax.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/funciones_formulario.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/efectos_projecte_nou.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/funciones_datatables.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/jquery_personal.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/jquery_financament.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/jquery_pressupost.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/jquery_justificacions.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'jquery/contabilidad/datatables_contabilidad.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/contabilidad/funciones_contabilidad.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/date_de.js' %}"></script>
+    <!--<script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.12/sorting/date-de.js"></script>&lt;!&ndash; pasar a local &ndash;&gt;-->
+
+
+
+
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>-->
+
+    <!--<script type="text/javascript" src="{% static 'bootstrap/themes/janux/js/jquery.uploadify-3.1.min.js' %}"></script>-->
+
+</head>
+<body>
+<noscript>
+    <div class="alert alert-block span12 " align="center">
+        <h4 class="alert-heading">Atenció!</h4>
+        <p><br>Necessites instal·lar o activar <a href="http://en.wikipedia.org/wiki/JavaScript"
+                                                  target="_blank">JavaScript</a> per utilitzar
+            aquesta aplicaciò correctament.</p>
+    </div>
+</noscript>
+{% block cabecera %} {% include "gestprj/cabecera.html" %} {% endblock %}
+{% block contenido %}{% endblock %}
+{% block pie %} {% include "gestprj/pie.html" %} {% endblock %}
+<div id="loading" class="text-center">
+    <img src="{% static 'imagenes/loading.gif' %}"/>
+    <h1></h1>
+</div>
+</body>
+
+
+</html>

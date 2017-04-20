@@ -1,0 +1,55 @@
+{% extends "gestprj/base.html" %}
+
+{% block contenido %}
+<div class="content text-center">
+    <h1>Comptes NO assignats a cap Projecte</h1><br><br><br><br>
+    <div class="col-md-10 col-md-offset-1" style="background:white;height:75vh;overflow:scroll;">
+            <div>
+                <p align="left" class="text-left col-md-6">
+                <h2> DE <b>{{ llista_dades.0.data_min }}</b> A <b>{{ llista_dades.0.data_max }}</b></h2>
+                </p>
+                <br><br>
+                <table class="table table-striped table-bordered datatable table_cont" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Compte</th>
+                        <th>Descripció</th>
+                        <th>Càrrec</th>
+                        <th>Ingrés</th>
+                        <th>Saldo</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                            <tr>
+                                <td></td>
+                                <td><b>Totals: </b></td>
+                                {% if projecte.total_saldo > 0 %}
+                                    <td bgcolor="LightGreen"><b>{{ llista_dades.0.total_carrec }}</b></td>
+                                    <td bgcolor="LightGreen"><b>{{ llista_dades.0.total_ingressos }}</b></td>
+                                    <td bgcolor="LightGreen"><b>{{ llista_dades.0.total_saldo}}</b></td>
+                                {% else %}
+                                    <td bgcolor="LightCoral"><b>{{ llista_dades.0.total_carrec }}</b></td>
+                                    <td bgcolor="LightCoral"><b>{{ llista_dades.0.total_ingressos }}</b></td>
+                                    <td bgcolor="LightCoral"><b>{{ llista_dades.0.total_saldo}}</b></td>
+                                {% endif %}
+                            </tr>
+                    </tfoot>
+                    <tbody>
+                        {% for compte in llista_dades.0.comptes %}
+                        <tr>
+                            <td>{{ compte.Cuenta }}</td>
+                            <td>{{ compte.Titulo }}</td>
+                            <td>{{ compte.TotalDebe }}</td>
+                            <td>{{ compte.TotalHaber }}</td>
+                            <td>{{ compte.Saldo }}</td>
+                        </tr>
+                         {% endfor %}
+                    </tbody>
+                </table>
+
+
+            </div>
+        </div>
+</div>
+
+{% endblock %}

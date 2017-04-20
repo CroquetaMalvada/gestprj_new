@@ -1,0 +1,40 @@
+{% extends "gestprj/base.html" %}
+{% block contenido %}
+
+<div id="contenedor_iconos" class="row text-center offset3">
+
+    <a href="/projecte_nou/">
+        <div class="blue span3 opcion" hidden>
+            <h1>CREAR PROJECTE</h1>
+            <hr>
+            <div class="icon-folder-open iconazo"></div>
+
+        </div>
+    </a>
+    <a href="/modificar_projecte/">
+        <div class="blue span3 opcion" hidden>
+            <h1>MODIFICAR PROJECTE</h1>
+            <hr>
+            <div class="icon-pencil iconazo"></div>
+
+        </div>
+    </a>
+    <a href="/llista_projectes/">
+        <div class="blue span3  opcion" hidden>
+            <h1>VEURE PROJECTES</h1>
+            <hr>
+            <div class="icon-eye-open iconazo"></div>
+
+        </div>
+    </a>
+    <a href="/logout/">
+        <div class="blue span3 opcion" hidden>
+            <h1>SORTIR</h1>
+            <hr>
+            <div class="icon-signout iconazo"></div>
+
+        </div>
+    </a>
+                        <script>console.log("{{ tipo }}");</script>
+</div>
+{% endblock %}

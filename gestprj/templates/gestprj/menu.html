@@ -1,0 +1,25 @@
+{% extends "gestprj/base.html" %}
+{% block contenido %}
+    <div class="container">
+        <form class="form-signin" action="/login/" method="post"> {% csrf_token %}
+            <h2 class="form-signin-heading">Iniciar sessió</h2>
+                <input type="text" class="form-control" name="username" placeholder="Nom d'usuari" value="{{ username }}"/><br>
+                <input type="password" class="form-control" name="password" placeholder="Password" value=""/><br>
+                <input type="submit" class="btn btn-lg btn-primary btn-block" value="Entrar"/>
+                {% if errorlogin == True %}
+                <br><br>
+                <div class="alert alert-danger error">
+                  <strong>Error:</strong> Usuari o password incorrectes.
+                </div>
+                {% else %}
+                    {% if errorpermis == True %}
+                        <div class="alert alert-danger error">
+                              <strong>Error:</strong> Aquesta aplicació només està disponible per a Investigadors Principals o Administradors.
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </form>
+    </div>
+
+
+{% endblock %}

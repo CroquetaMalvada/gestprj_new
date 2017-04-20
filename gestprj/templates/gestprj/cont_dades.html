@@ -1,0 +1,163 @@
+{% extends "gestprj/base.html" %}
+
+{% block contenido %}
+<h1 align="center">Fitxa Dades Projecte</h1><br><br>
+    <div class="col-md-10 col-md-offset-1" style="background:white;height:75vh;overflow:scroll;">
+    <div id="accordion">
+            {% for projecte in llista_dades %}
+            <h3>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</h3>
+            <div  class="ui-accordion-content text-left" style="background:lightgray">
+                <h4>IDENTIFICACIÓ</h4>
+                <hr>
+                <div class="col-md-10"><b>Títol:</b>{{ projecte.dades_prj.titol }}</div>
+                <div class="col-md-2"><b>CODI:</b> {{ projecte.codi_resp }} - {{projecte.codi_prj }} </div>
+                <br>
+                <div class="col-md-12"><b>Responsable:</b>{{ projecte.dades_prj.id_resp.id_usuari.nom_usuari }}</div>
+                <br>
+                <div class="col-md-12"><b>Acrònim:</b>{{ projecte.dades_prj.acronim }}</div>
+                <br>
+                <div class="col-md-12"><b>Codi Oficial:</b>{{ projecte.dades_prj.codi_oficial }}</div>
+                <br>
+                <div class="col-md-12"><b>Resum:</b>{{ projecte.dades_prj.resum }}</div>
+                <br>
+                <div class="col-md-12"><b>Comentaris:</b>{{ projecte.dades_prj.comentaris }}</div>
+                <br>
+                <div class="col-md-12"><b>Categoria:</b>{{ projecte.dades_prj.id_categoria.desc_categoria }}</div>
+                <br>
+                <div class="col-md-12"><b>Duració: Inici:</b> {{ projecte.dades_prj.data_inici_prj|date:"d-m-Y" }} <b>Final:</b> {{ projecte.dades_prj.data_fi_prj|date:"d-m-Y" }}</div>
+                <br>
+                <div class="col-md-12"><b>Estat:</b>{{ projecte.dades_prj.id_estat_prj.desc_estat_prj }}</div>
+                <div class="col-md-12"><br><br><br></div>
+                <h4>PERSONAL</h4>
+                <hr>
+                <div class="col-md-12"><u><h5>PROJECTE COORDINAT:</h5></u></div>
+                <div class="col-md-12"><b>Coordinador:</b>
+                    {% if projecte.dades_prj.id_usuari_extern == null %}
+                        {{ projecte.dades_prj.id_resp.id_usuari.nom_usuari }}
+                    {% else %}
+                        {{ projecte.dades_prj.id_usuari_extern.nom_usuari_extern }}
+                    {% endif %}
+                </div>
+                <div class="col-md-12"><u><h5>CENTRES PARTICIPANTS:</h5></u></div>
+                {% for centre in projecte.centres_participants %}
+                    <div class="col-md-12"><b>{{ centre.id_organisme.nom_organisme }}</b></div>
+                {% endfor %}
+                <div class="col-md-12"><u><h5>INVESTIGADORS I PERSONAL DEL CREAF:</h5></u></div>
+                {% for investigador in projecte.participants_creaf %}
+                    <div class="col-md-12"><b>{{ investigador.id_usuari.nom_usuari }}</b></div>
+                {% endfor %}
+                <div class="col-md-12"><u><h5>INVESTIGADORS D'ALTRES CENTRES O INSTITUCIONS:</h5></u></div>
+                {% for investigador in projecte.participants_externs %}
+                    <div class="col-md-12"><b>{{ investigador.id_usuari_extern.nom_usuari_extern }}</b></div>
+                {% endfor %}
+                <div class="col-md-12"><br><br><br></div>
+                <h4>FINANÇAMENT</h4>
+                <hr>
+                <div class="col-md-12"><u><h5>ORGANISMES FINANÇADORS:</h5></u></div>
+                <div class="col-md-10"><b>Nom</b></div>
+                <div class="col-md-2"><b>Import</b></div>
+                {% for financador in projecte.financadors %}
+                    <div class="col-md-10">{{ financador.id_organisme.nom_organisme }}</div>
+                    <div class="col-md-2">{{ financador.import_concedit }}</div>
+                {% endfor %}
+                <div class="col-md-12"><u><h5>ORGANISMES RECEPTORS:</h5></u></div>
+                <div class="col-md-10"><b>Nom</b></div>
+                <div class="col-md-2"><b>Import</b></div>
+                {% for receptor in projecte.receptors %}
+                    <div class="col-md-10">{{ receptor.id_organisme.nom_organisme }}</div>
+                    <div class="col-md-2">{{ receptor.import_rebut }}</div>
+                {% endfor %}
+                <div class="col-md-12"><u><h5>CÀNON I IVA:</h5></u></div>
+                <div class="col-md-3"><b>Cànon Oficial</b></div>
+                <div class="col-md-3"><b>Cànon CREAF</b></div>
+                <div class="col-md-3"><b>Diferència</b></div>
+                <div class="col-md-3"><b>IVA</b></div>
+
+                <div class="col-md-3">{{ projecte.canoniva.percen_canon_oficial }}%</div>
+                <div class="col-md-3">{{ projecte.canoniva.percen_canon_creaf }}%</div>
+                <div class="col-md-3">{{ projecte.canoniva.diferencia_per }}%</div>
+                <div class="col-md-3">{{ projecte.canoniva.percen_iva}}%</div>
+                <div class="col-md-3">{{ projecte.canoniva.canon_oficial }}€</div>
+                <div class="col-md-3">{{ projecte.canoniva.canon_creaf }}€</div>
+                <div class="col-md-3">{{ projecte.canoniva.diferencia_eur }}€</div>
+                <div class="col-md-3">{{ projecte.canoniva.iva}}€</div>
+
+                <div class="col-md-12"><u><h5>CONCESSIONS DE DINERS:</h5></u></div>
+                <div class="col-md-2"><b>Data inicial</b></div>
+                <div class="col-md-2"><b>Data final</b></div>
+                <div class="col-md-2"><b>Concedit</b></div>
+                <div class="col-md-2"><b>IVA</b></div>
+                <div class="col-md-2"><b>Cànon</b></div>
+                <div class="col-md-2"><b>Net</b></div>
+                {% for despesa in projecte.despeses %}
+                    <div class="col-md-2">{{ despesa.data_inici|date:"d-m-Y" }}</div>
+                    <div class="col-md-2">{{ despesa.data_fi|date:"d-m-Y" }}</div>
+                    <div class="col-md-2">{{ despesa.concedit }}</div>
+                    <div class="col-md-2">{{ despesa.iva }}</div>
+                    <div class="col-md-2">{{ despesa.canon }}</div>
+                    <div class="col-md-2">{{ despesa.net }}</div>
+                {% endfor %}
+                <div class="col-md-4"></div>
+                <div class="col-md-8"><hr style="border: 1px solid gray;"></div>
+                <div class="col-md-2"></div>
+                <div class="col-md-2"></div>
+                <div class="col-md-2"><b>{{ projecte.total_concedit }}</b></div>
+                <div class="col-md-2"><b>{{ projecte.total_iva }}</b></div>
+                <div class="col-md-2"><b>{{ projecte.total_canon }}</b></div>
+                <div class="col-md-2"><b>{{ projecte.total_net }}</b></div>
+
+                <div class="col-md-12"><br><br><br></div>
+                {% if projecte.partides.0 %}
+                    <h4>PRESSUPOST</h4>
+                    <hr>
+                    <div class="col-md-4"><b>Partides</b></div>
+                    {% for n in projecte.max_periodes %}
+                        <div class="col-md-1"><b>Període {{ n }}</b></div>
+                    {% endfor %}
+                    {% if projecte.partides.0.import %}
+                        <div class="col-md-1"><b>Import</b></div>
+                    {% else %}
+                        <div class="col-md-1"><b>TOTALS</b></div>
+                    {% endif %}
+                    <div class="col-md-12"><br></div>
+
+                    {% for partida in projecte.partides %}
+                        <div class="col-md-4">{{ partida.concepte }}</div>
+                        {% if partida.import %}
+                                <div class="col-md-1">
+                                    {{ partida.import }}
+                                </div>
+                        {% else %}
+                            {% for periode in partida.periodes %}
+                                <div class="col-md-1">
+                                    {{ periode.importe }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="col-md-1">{{ partida.total }}</div><br>
+                        <div class="col-md-12"><br></div>
+                    {% endfor %}
+
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8"><hr style="border: 1px solid gray;"></div>
+
+                    <div class="col-md-4"><b>TOTALS</b></div>
+                    {% if projecte.partides.0.import %}
+                        <div class="col-md-1"><b>
+                            {{ projecte.total_import_pres }}
+                        </b></div>
+                    {% else %}
+                        {% for total in projecte.totals_pres %}
+                                <div class="col-md-1"><b>
+                                {% if total != 0 %}
+                                    {{ total }}
+                                {% endif %}
+                                </b></div>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+</div>
+{% endblock %}

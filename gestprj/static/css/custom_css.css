@@ -1,0 +1,51 @@
+.color_negro{
+    background-color:#2E2E2E;
+    color:white;
+}
+
+.color_grisclaro{
+    background-color:#E6E6E6 !important;
+}
+
+.iconazo{
+font-size: 150px;
+color: white;
+}
+.titulo{
+width:100%;
+}
+
+.noclose .ui-dialog-titlebar{
+display:none;
+}
+
+.opcion{
+padding:10px;
+white-space: nowrap;
+margin-top:10px;
+
+}
+.opcion:hover{
+border:2px solid black;
+}
+.opcion h1{
+font-size:200%;
+}
+#contenedor_iconos{
+margin-top:10%;
+}
+
+#formulario_nou_projecte input{
+border-color:black;
+}
+
+.bottomaligned {position:absolute; bottom:0;  margin-bottom:7px; left: 0;}
+.bottomright {position:absolute; bottom:0;  margin-bottom:7px; margin:7px; right: 0;}
+.bottomleft {position:absolute; bottom:0;  margin-bottom:70px; left: 100px;}
+.fixedheight { height: 200px;  width: 243px;  position:relative; border:1px solid;}
+
+.ui-widget-header{
+border:none;
+background:none;
+color:none;
+}

@@ -1,0 +1,74 @@
+{% extends "gestprj/base.html" %}
+
+{% block contenido %}
+<div class="content text-center">
+
+    <h1>Seguiment de Ingresos de Projectes</h1><br><br><br><br>
+    <div class="col-md-10 col-md-offset-1" style="background:white;height:75vh;overflow:scroll;">
+        <div id="despeses_accordion">
+            {% for projecte in llista_ingresos %}
+            <h3>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</h3>
+            <div>
+                <p align="left" class="text-left col-md-6">
+                NOM PROJECTE: <b>{{ projecte.dades_prj.id_resp.codi_resp }}{{projecte.dades_prj.codi_prj }} - {{ projecte.dades_prj.acronim }}</b><br>
+                RESPONSABLE: <b>{{ projecte.dades_prj.id_resp.id_usuari.nom_usuari }}</b><br>
+                DE <b>{{ projecte.data_min }}</b> A <b>{{ projecte.data_max }}</b>
+                </p>
+                <p align="right" class="col-md-3">
+                CONCEDIT :<br>
+                IVA: {{ projecte.iva_percen }} % :<br>
+                <br>
+                NET DISPONIBLE:<br>
+                </p>
+                <p align="right" class="col-md-3">
+                <b>{{ projecte.concedit }}</b><br>
+                <b>{{ projecte.iva }}</b><br>
+                <br>
+                <b><u>{{ projecte.net_disponible }}</u></b><br>
+                </p>
+                <br><br>
+                <table class="table table-striped table-bordered datatable table_cont" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Assent.</th>
+                        <th>Compte</th>
+                        <th>Descripció</th>
+                        <th>Ingrés/Facturat</th>
+                        <th>Saldo Pendent</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td><b>Totals: </b></td>
+                                {% if projecte.total_pendiente <= 0 %}
+                                    <td bgcolor="LightGreen"><b>{{ projecte.total_ingresos }}</b></td>
+                                    <td bgcolor="LightGreen"><b>{{ projecte.total_pendiente}}</b></td>
+                                {% else %}
+                                    <td bgcolor="LightCoral"><b>{{ projecte.total_ingresos }}</b></td>
+                                    <td bgcolor="LightCoral"><b>{{ projecte.total_pendiente}}</b></td>
+                                {% endif %}
+                            </tr>
+                    </tfoot>
+                    <tbody>
+                        {% for despesa in projecte.ingresos %}
+                        <tr><!-- Que hay de campos como "Opc2"?-->
+                            <td>{{ despesa.Data }}</td>
+                            <td>{{ despesa.Asiento }}</td>
+                            <td>{{ despesa.Cuenta }}</td>
+                            <td>{{ despesa.Descripcion }}</td>
+                            <td>{{ despesa.Haber }}</td>
+                            <td>{{ despesa.saldo_pendiente}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

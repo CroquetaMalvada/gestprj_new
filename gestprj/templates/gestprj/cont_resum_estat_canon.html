@@ -1,0 +1,75 @@
+{% extends "gestprj/base.html" %}
+
+{% block contenido %}
+<h1 align="center">Resum Cànon Projectes agrupat per Responsablee</h1><br><br>
+    <div class="col-md-12  style="background:white;height:75vh;overflow:scroll;">
+        <div id="accordion">
+            {% for responsable in llista_dades %}
+            <h3>{{ responsable.0.nom_responsable }}</h3>
+            <div>
+                <p align="left" class="text-left col-md-6">
+               CÀNON DELS PROJECTES DEL RESPONSABL: <b>{{ responsable.0.nom_responsable }}</b><br>
+                </p>
+                <p align="right" class="col-md-3">
+                Fins a: <b>{{ responsable.0.data_max }}</b>
+                </p>
+                <table class="table table-striped table-bordered datatable table_cont" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Codi</th>
+                            <th>Nom</th>
+                            <th>Base cànon</th>
+                            <th>%</th>
+                            <th>Cànon CREAF</th>
+                            <th>%</th>
+                            <th>Cànon Oficial</th>
+                            <th>Dif.Cànon</th>
+                            <th>Ingressos</th>
+                            <th>%</th>
+                            <th>Cànon Aplicat</th>
+                            <th>Cànon Pendent Aplicat</th>
+                            <th>Saldo Cànon Oficial</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td><b>Totals: </b></td>
+                                    <td>{{ responsable.0.totals.0.total_base_canon}}</td>
+                                    <td>{{ responsable.0.totals.0.total_percen_1}}</td>
+                                    <td>{{ responsable.0.totals.0.total_canon_creaf}}</td>
+                                    <td>{{ responsable.0.totals.0.total_percen_2}}</td>
+                                    <td>{{ responsable.0.totals.0.total_canon_oficial}}</td>
+                                    <td>{{ responsable.0.totals.0.total_dif_canon}}</td>
+                                    <td>{{ responsable.0.totals.0.total_ingressos}}</td>
+                                    <td>{{ responsable.0.totals.0.total_percen_3}}</td>
+                                    <td>{{ responsable.0.totals.0.total_canon_aplicat}}</td>
+                                    <td>{{ responsable.0.totals.0.total_canon_pendent_aplicar}}</td>
+                                    <td>{{ responsable.0.totals.0.total_saldo_canon_oficial}}</td>
+                                </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for projecte in responsable.0.projectes %}
+                        <tr>
+                            <td>{{ projecte.codi }}</td>
+                            <td>{{ projecte.nom }}</td>
+                            <td>{{ projecte.base_canon }}</td>
+                            <td>{{ projecte.percen_1 }}</td>
+                            <td>{{ projecte.canon_creaf }}</td>
+                            <td>{{ projecte.percen_2 }}</td>
+                            <td>{{ projecte.canon_oficial }}</td>
+                            <td>{{ projecte.dif_canon }}</td>
+                            <td>{{ projecte.ingressos }}</td>
+                            <td>{{ projecte.percen_3 }}</td>
+                            <td>{{ projecte.canon_aplicat }}</td>
+                            <td>{{ projecte.canon_pendent_aplicar }}</td>
+                            <td>{{ projecte.saldo_canon_oficial }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                </table>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+{% endblock %}

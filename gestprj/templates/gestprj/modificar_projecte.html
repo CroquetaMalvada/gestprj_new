@@ -1,0 +1,1101 @@
+{% extends "gestprj/base.html" %}
+{% block contenido %}
+<!--<div class="container-fluid" name="contenedor_total">-->
+<!--<div name="contenedor_general" class="col-md-12 col-md-offset-1">-->
+
+{% if form.errors %}
+{% for field in form %}
+{% for error in field.errors %}
+<div class="alert alert-error">
+    <strong>{{ error|escape }}</strong>
+</div>
+{% endfor %}
+{% endfor %}
+{% for error in form.non_field_errors %}
+<div class="alert alert-error">
+    <strong>{{ error|escape }}</strong>
+</div>
+{% endfor %}
+{% endif %}
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="#" id="general">General</a></li>
+                <script> id_prj = {{ id_projecte }}; </script>
+                {% if not nuevo %}
+                <li><a href="#" id="personal">Personal</a></li>
+                <li><a href="#" id="finançament">Finançament</a></li>
+                <li><a href="#" id="pressupost">Pressupost</a></li>
+                <li><a href="#" id="justificacions">Justificacions</a></li>
+                <div class="bottomleft" name="cont_botones">
+                    <a id="boton_guardar" class="btn btn-confirmacion" href="#">Guardar i continuar</a>
+                </div>
+                {% else %}
+                <div class="bottomleft" name="cont_botones">
+                    <a id="boton_guardar" class="btn btn-confirmacion" href="#">Guardar projecte</a>
+                </div>
+                {% endif %}
+                <!--<li>-->
+                <!--<a class="dropmenu" href="#"><i class="icon-folder-close-alt"></i><span class="hidden-tablet"> Dropdown</span><span class="label label-important"> 3 </span></a>-->
+                <!--<ul>-->
+                <!--<li><a class="submenu" href="submenu.html"><i class="icon-file-alt"></i><span class="hidden-tablet"> Sub Menu 1</span></a></li>-->
+                <!--<li><a class="submenu" href="submenu2.html"><i class="icon-file-alt"></i><span class="hidden-tablet"> Sub Menu 2</span></a></li>-->
+                <!--<li><a class="submenu" href="submenu3.html"><i class="icon-file-alt"></i><span class="hidden-tablet"> Sub Menu 3</span></a></li>-->
+                <!--</ul>-->
+                <!--</li>-->
+
+            </ul>
+        </div>
+        <div id="content" class="col-md-10 col-md-offset-2 main" style="background:white;">
+            <div name="contenedor_formularios"> <!--span10??-->
+
+                <form id="formulario_nou_projecte" action="/projecte_nou/{{ id_projecte }}/" method="post">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div id="contenedor_general" class="col-md-6 col-md-offset-3">
+                        <!--<div id="contenedor_general" class="input-group">-->
+                        <h1 class="page-header">General</h1>
+                        <!--{{ form.id_projecte.errors }}-->
+                        <!--<label for="{{ form.id_projecte.id_for_label }}">Id projecte</label>-->
+                        {{ form.id_projecte.as_hidden}}
+
+                        <div class="form-group">
+                            {{ form.id_resp.errors }}
+                            <h4>Reponsable:</h4>
+                            {{ form.id_resp }}
+                            <br>
+
+                            {{ form.codi_prj.errors }}
+                            <h4>Codi projecte(???):</h4>
+                            {{ form.codi_prj }}
+                        </div>
+                        <hr>
+
+                        {{ form.codi_oficial.errors }}
+                        <h4>Codi oficial:</h4>
+                        {{ form.codi_oficial }}
+                        <br>
+                        {{ form.acronim.errors }}
+                        <h4>Acrónim:</h4>
+                        {{ form.acronim }}
+
+                        <hr>
+
+                        {{ form.titol.errors }}
+                        <h4>Titol:</h4>
+                        {{ form.titol }}
+
+                        <hr>
+
+                        {{ form.resum.errors }}
+                        <h4>Resum:</h4>
+                        {{ form.resum }}
+
+                        <hr>
+
+                        <h4>Categoria:</h4>
+                        <!--<input id="serv_o_subven" name="serv_o_subven" value="1" />-->
+                        {{ form.serv_o_subven }}
+                        {{ form.id_categoria }}
+
+                        <!--<input type="radio" class="servsubv" name="serv_o_subven" value="1" checked> Servei</input>-->
+                        <!--<input type="radio" class="servsubv" name="serv_o_subven" value="2"> Subvencio</input>-->
+                        <select id="id_categoria" name="id_categoria">
+                            {% for categoria in categories %}
+                            <option name="{{ categoria.serv_o_subven }}"
+                                    value="{{ categoria.id_categoria }}">
+                                {{categoria}}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                        <hr>
+                        {{ form.convocatoria.errors }}
+                        <h4>Convocatoria:</h4>
+                        {{ form.convocatoria }}
+                        <br>
+                        {{ form.resolucio.errors }}
+                        <h4>Resolució:</h4>
+                        {{ form.resolucio }}
+
+                        <hr>
+
+                        {{ form.data_inici_prj.errors }}
+                        Data de inici:
+                        {{ form.data_inici_prj }}
+
+                        <!--<script>alert("{{ form.data_fi_prj.data }}");</script>-->
+                        {% if form.data_fi_prj.data == None %}
+                        <input type="checkbox" id="fin" name="fin"/>Finalitzat
+                        {% else %}
+                        <input type="checkbox" id="fin" name="fin" checked/>Finalitzat
+                        {% endif %}
+                        <br>
+
+                        {{ form.data_fi_prj.errors }}
+                        <h4>Data fi:</h4>
+                        {{ form.data_fi_prj }}
+
+                        <hr>
+
+                        {{ form.comentaris.errors }}
+                        <h4>Comentaris:</h4>
+                        {{ form.comentaris }}
+
+                        <hr>
+
+                        <input type="checkbox" id="checkbox_docum_web"/>Entregada la documentació per el web
+                        {{ form.es_docum_web.errors }}
+                        {{ form.es_docum_web }}
+
+
+                        {{ form.data_docum_web.errors }}
+                        {{ form.data_docum_web }}
+                        <br>
+                        {{ form.id_estat_prj.errors }}
+                        <h4>Estat del projecte:</h4>
+                        {{ form.id_estat_prj }}
+
+                    </div>
+                    <div id="contenedor_personal">
+
+                        <h1 class="page-header">Personal</h1>
+                        {{ form.es_coordinat.errors }}
+                        {{ form.es_coordinat }}
+
+                        <br/>
+                        {% if form.es_coordinat.value == "1" or form.es_coordinat.value == "" %}
+                        <input type="checkbox" id="checkbox_coordinat" unchecked/>Projecte coordinat
+                        {% else %}
+                        <input type="checkbox" id="checkbox_coordinat" checked/>Projecte coordinat
+                        {% endif %}
+                        <br>
+                        <!--<input type="text" id="centres_participants"/>-->
+
+                        <div id="div_personal">
+                            <table id="table_centres_participants" class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="mostrar_participants_organismes" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir centre
+                                    participant
+                                </a>
+                                <thead>
+                                <!--<input type="button" href="#" id="mostrar_participants_organismes"-->
+                                <!--value="Afegir un nou centre participant "/>-->
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Centres participants en el projecte:</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+
+                            <br>
+
+                            {% if form.es_coordinat.value == "1" or form.es_coordinat.value == null %}
+                            <input type="radio" id="coordinat_per_creaf" name="coordinat_per" unchecked/>Coordinat pel
+                            CREAF<br>
+                            <input type="radio" id="coordinat_per_altres" name="coordinat_per" unchecked/>Coordinat per
+                            altres
+                            {% else %}
+                            {% if form.es_coordinat.value == "2" %}
+                            <input type="radio" id="coordinat_per_creaf" name="coordinat_per" checked/>Coordinat pel
+                            CREAF<br>
+                            <input type="radio" id="coordinat_per_altres" name="coordinat_per" unchecked/>Coordinat per
+                            altres
+                            {% else %}
+                            {% if form.es_coordinat.value == "4" %}
+                            <input type="radio" id="coordinat_per_creaf" name="coordinat_per" unchecked/>Coordinat pel
+                            CREAF<br>
+                            <input type="radio" id="coordinat_per_altres" name="coordinat_per" checked/>Coordinat per
+                            altres
+                            {% endif %}
+                            {% endif %}
+                            {% endif %}
+                            <div id="cont_coordinat_per">
+                                Coordinador
+                                {{ form.id_usuari_extern.errors }}
+                                {{ form.id_usuari_extern }}
+                                <!--Coordinador<select name="id_organisme">-->
+                                <!--{% if usuaris_externs == None %}-->
+                                <!--<option value="null">Cap</option>-->
+                                <!--{% else %}-->
+                                <!--{% for usuari in usuaris_externs %}-->
+                                <!--<option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}</option>-->
+                                <!--{% endfor %}-->
+                                <!--{% endif %}-->
+                                <!--</select><br>-->
+                            </div>
+                        </div>
+                        <br><br><br><br>
+                        <hr>
+                        <h4>Investigadors i personal del CREAF</h4>
+                        <table id="table_personal_creaf" class="table table-striped table-bordered datatable">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>Nom i cognoms</th>
+                                <th>Justificació hores</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <a class="btn btn-success" id="mostrar_usuaris_creaf" title="Afegir"
+                           href="#">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir usuari
+                            CREAF
+                        </a>
+                        <br><br><br><br>
+                        <hr>
+                        <h4>Investigadors d'altres centres o institucions</h4>
+                        <table id="table_personal_extern" class="table table-striped table-bordered datatable">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>Nom i cognoms</th>
+                                <th>Organització</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <a class="btn btn-success" id="mostrar_usuaris_externs" title="Afegir"
+                           href="#">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir usuari
+                            extern
+                        </a>
+                        <!--{{ form.id_usuari_extern.errors }}-->
+                        <!--<label for="{{ form.id_usuari_extern.id_for_label }}">id usuari extern</label>-->
+                        <!--{{ form.id_usuari_extern }}-->
+
+                    </div>
+
+                    <div id="contenedor_finançament">
+                        <div>
+                            <h1>Finançcament</h1>
+                            <br><br><br>
+                            <h4>Organismes finançadors</h4>
+                            <table id="table_organismes_fin" class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="afegir_organisme_fin" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir organisme
+                                    finançador
+
+                                </a>
+
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Organismes finançadors</th>
+                                    <th>Import</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <br><b>Total(€)</b><input id="total_import_organismes_fin" disabled/>
+                            <br><br><br>
+                            <h4>Organismes receptors</h4>>
+                            <table id="table_organismes_rec" class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="afegir_organisme_rec" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir organisme
+                                    receptor
+                                </a>
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Organismes receptors</th>
+                                    <th>Import</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <br><b>Total(€)</b><input id="total_import_organismes_rec" disabled/>
+
+
+                        </div>
+                        <br><br><br>
+                        <hr>
+
+                        <div>
+                            <h4>Cànon i IVA</h4>
+                            <br><br><br>
+                            <div class="col-md-12">
+                                <div class="col-md-2">
+                                    Cànon oficial
+                                    <input id="canon_oficial_per" class="max4dec" disabled/> % -
+                                    {{ form.canon_oficial.errors }}
+                                    {{ form.canon_oficial }} € -
+                                </div>
+                                <div class="col-md-2">
+                                    Cànon CREAF
+                                    {{ form.percen_canon_creaf.errors }}
+                                    {{ form.percen_canon_creaf }} % =
+                                    <input id="canon_creaf_eur" class="max2dec" disabled/> € =
+                                </div>
+                                <div class="col-md-2">
+                                    Diferència
+                                    <input id="diferencia_per" class="max4dec" disabled/> %
+                                    <input id="diferencia_eur" class="max2dec" disabled/> €
+                                </div>
+                                <div class="col-md-2">
+                                    IVA<br>
+                                    {{ form.percen_iva.errors }}
+                                    {{ form.percen_iva }} %
+                                    <input id="iva_eur" class="max2dec" disabled/> €
+                                </div>
+                            </div>
+                            <br><br><br><br><br><br><br><br><br><br>
+                            Justificació interna de la diferència de cànon:<br>
+                            <table id="table_justificacions_internes"
+                                   class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="afegir_justif_interna" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
+                                    justificació interna
+                                </a>
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Data assentament</th>
+                                    <th>Número assentament</th>
+                                    <th>Descripció</th>
+                                    <th>Import</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <br><b>Total(€)</b><input id="total_import_justificacions_internes" disabled/>
+
+                        </div>
+
+
+                        <div>
+                            <br><br><br><br>
+                            <hr>
+                            <h4>Concessions de diners</h4>
+                            <table id="table_renovacions" class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="afegir_renovacio" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
+                                    concessió/renovació
+                                </a>
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Data inici</th>
+                                    <th>Data final</th>
+                                    <th>Concedit</th>
+                                    <th>IVA</th>
+                                    <th>Cànon</th>
+                                    <th>Net</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th><b>Total(€)</b><input class="max2dec" id="total_concedit_renovacio" disabled/>
+                                    </th>
+                                    <th><input class="max2dec" id="total_iva_renovacio" disabled/></th>
+                                    <th><input class="max2dec" id="total_canon_renovacio" disabled/></th>
+                                    <th><input class="max2dec" id="total_renovacio" disabled/></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </tfoot>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <br>
+
+                        </div>
+                    </div>
+
+
+                    <div id="contenedor_pressupost">
+
+                        <div class=" ">
+                            <h1>Pressupost</h1>
+                            <br><br><br>
+                            <h4>Pressupost</h4>
+                            <table id="table_pressupost" class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="afegir_pressupost" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir pressupost
+                                </a>
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Partida</th>
+                                    <th>Import</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <br><b>Total(€)</b><input id="total_import_pressupost" class="max2dec" disabled/>
+                            <br><br><br><br><br><br>
+                            <hr>
+                            <h4>Periodicitat pressupost</h4>
+                            <table id="table_periodicitat_pressupost"
+                                   class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="afegir_periodicitat_pressupost" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
+                                    periodicitat pressupost
+                                </a>
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Etiqueta</th>
+                                    <th>Data inici</th>
+                                    <th>Data final</th>
+                                    <th>Import</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <br><b>Total(€)</b><input id="total_periodicitat_pressupost" class="max2dec" disabled/>
+                        </div>
+                        <br><br><br><br><br><br>
+                        <hr>
+                        <div>
+                            <h4>Periodicitat partida</h4>
+                            <table id="table_periodicitat_partida" class="table table-striped table-bordered datatable">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Data inici</th>
+                                    <th>Data final</th>
+                                    <th>Import</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <br><b>Total(€)</b><input id="total_periodicitat_partida" class="max2dec" disabled/>
+
+
+                            <br><br><br><br><br><br>
+                            <!--<input type="checkbox"/><b>Desglossament contable</b>-->
+                            <hr>
+                            <h4>Desglossament contable</h4>
+                            <table id="table_desglossament" class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="afegir_desglossament" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
+                                    desglossament
+                                </a>
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Num.Compte</th>
+                                    <th>Clau</th>
+                                    <th>Import</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <div id="contenedor_justificacions">
+
+                        <div>
+                            <h1>Justificacions</h1>
+                            <br><br><br>
+                            <h4>Justificacions del projecte</h4>
+                            <table id="table_justificacions_projecte"
+                                   class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="afegir_justificacio_projecte" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
+                                    justificació projecte
+                                </a>
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Data justificació</th>
+                                    <th>Data inici</th>
+                                    <th>Data final</th>
+                                    <th>Observacions</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div>
+                            <hr>
+                            <br><br><br><br><br><br><br>
+                            <h4>Auditories</h4>
+                            <table id="table_auditories" class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="afegir_auditoria" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir auditoria
+                                </a>
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Data auditoria</th>
+                                    <th>Data inici</th>
+                                    <th>Data final</th>
+                                    <th>Observacions</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                </form>
+
+                <br>
+                <br>
+                <br>
+
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<!--DIALOGS Y MODALS-->
+<div id="dialogs" title=" ">
+
+    <!--<div class="modal hide fade in" id="confirmacion" aria-hidden="false">-->
+    <!--<div class="modal-body">-->
+    <!--<h2 class="text-center" style="color:black;">Estás segur que vols guardar?<br></h2>-->
+    <!--</div>-->
+    <!--<div class="modal-footer text-center">-->
+    <!--<input id="boton_guardar" type="submit" class="btn btn-primary" value="Si,guardar"/>-->
+    <!--<a class="btn" data-dismiss="modal">No,cancel·lar</a>-->
+    <!--</div>-->
+    <!--</div>-->
+
+    <!---->
+    <div id="table_participants_organismes" class="dialogcont" title="Organismes">
+        <table class="table table-striped table-bordered datatable">
+            <a class="btn btn-success" id="mostrar_editar_organismes_participants_crear" title="Afegir"
+               href="#">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear nou organisme
+            </a>
+            <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>Centres participants en el projecte:</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        </a>
+    </div>
+    <!---->
+
+    <!---->
+    <div id="table_usuaris_creaf" class="dialogcont" title="Usuaris CREAF">
+        <table class="table table-striped table-bordered datatable">
+            <a class="btn btn-success" id="mostrar_editar_personal_creaf_crear" title="Afegir"
+               href="#">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear nou personal CREAF
+            </a>
+            <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>Nom i cognoms</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        </a>
+    </div>
+    <!---->
+
+    <!---->
+    <div id="table_usuaris_externs" class="dialogcont" title="Usuaris externs">
+        <table class="table table-striped table-bordered datatable">
+            <a class="btn btn-success" id="mostrar_editar_personal_extern_crear" title="Afegir"
+               href="#">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear personal extern
+            </a>
+            <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>Nom i cognoms</th>
+                <th>Organisme</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        </a>
+    </div>
+    <!---->
+
+    <!---->
+    <div id="table_justificacions_personal" class="dialogcont" title="Justificacions personal">
+        Justificacions de <b><p name="nombre"></p></b>
+        <table class="table table-striped table-bordered datatable">
+            <a class="btn btn-success" id="mostrar_editar_justificacio_personal" title="Afegir"
+               href="#">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear nova justificació
+            </a>
+            <thead>
+            <tr>
+                <th></th>
+                <th>Data inici</th>
+                <th>Data fil</th>
+                <th>Tipus feina</th>
+                <th>Hores treballades</th>
+                <th>Cost x hora</th>
+                <th>Total</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        </a>
+    </div>
+    <!---->
+
+    <div id="editar_organismes_participants" class="dialogcont" title="Editar organismes">
+        <form id="formulario_editar_organismes_participants" action="/gestor_TOrganismes/"
+              method="POST">
+            {% csrf_token %}
+
+            Nom organisme<input type="text" name="nom_organisme"><br>
+            Contacte<input type="text" name="contacte"><br>
+            Adreça<input type="text" name="adreca"><br>
+            Codi postal<input type="text" name="cp"><br>
+            Població<input type="text" name="poblacio"><br>
+            Provincia<input type="text" name="provincia"><br>
+            País<input type="text" name="pais"><br>
+            Telefon 1<input type="text" name="tel1"><br>
+            Telefon 2<input type="text" name="tel2"><br>
+            Fax<input type="text" name="fax"><br>
+            Correu electrónic<input type="text" name="e_mail1"><br>
+            Correu electrónic 2<input type="text" name="e_mail2"><br>
+
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='mostrar_dialog("table_participants_organismes");'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+
+    <div id="editar_usuari_creaf" class="dialogcont" title="Editar usuaris CREAF">
+        <form id="formulario_editar_usuari_creaf" action="/gestor_UsuariCreaf/"
+              method="POST">
+            {% csrf_token %}
+
+            Nom i cognoms<input type="text" name="nom_usuari"><br>
+            Adreça<input type="text" name="adreca"><br>
+            Codi postal<input type="text" name="cp"><br>
+            Població<input type="text" name="poblacio"><br>
+            Provincia<input type="text" name="provincia"><br>
+            País<input type="text" name="pais"><br>
+            Telefon 1<input type="text" name="tel1"><br>
+            Telefon 2<input type="text" name="tel2"><br>
+            Fax<input type="text" name="fax"><br>
+            Correu electrónic<input type="text" name="e_mail1"><br>
+            Correu electrónic 2<input type="text" name="e_mail2"><br>
+            Organisme<select name="id_organisme">
+            {% if organismes == None %}
+            <option value="null">Cap</option>
+            {% else %}
+            {% for organisme in organismes %}
+            <option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}</option>
+            {% endfor %}
+            {% endif %}
+        </select>
+
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='mostrar_dialog("table_usuaris_creaf");'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_usuari_extern" class="dialogcont" title="Editar usuari extern">
+        <form id="formulario_editar_usuari_extern" action="/gestor_UsuariExtern/"
+              method="POST">
+            {% csrf_token %}
+
+            Nom i cognoms<input type="text" name="nom_usuari_extern"><br>
+            Adreça<input type="text" name="adreca"><br>
+            Codi postal<input type="text" name="cp"><br>
+            Població<input type="text" name="poblacio"><br>
+            Provincia<input type="text" name="provincia"><br>
+            País<input type="text" name="pais"><br>
+            Telefon 1<input type="text" name="tel1"><br>
+            Telefon 2<input type="text" name="tel2"><br>
+            Fax<input type="text" name="fax"><br>
+            Correu electrónic<input type="text" name="e_mail1"><br>
+            Correu electrónic 2<input type="text" name="e_mail2"><br>
+            Organisme<select name="id_organisme">
+            {% if organismes == None %}
+            <option value="null">Cap</option>
+            {% else %}
+            {% for organisme in organismes %}
+            <option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}</option>
+            {% endfor %}
+            {% endif %}
+        </select>
+
+
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='mostrar_dialog("table_usuaris_externs");'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_justificacio_personal" class="dialogcont" title="Editar justificació personal">
+        <form id="formulario_editar_justificacio_personal" action="/gestor_JustificPersonal/"
+              method="POST">
+            {% csrf_token %}
+            <!--Data inici<input type="checkbox" id="justificacio_personal_data_inici">-->
+            Data inici: <input name="data_inici"/>
+            <!--Data final<input type="checkbox" id="justificacio_personal_data_fi">-->
+            Data fi: <input name="data_fi"/>
+
+            Tipus de feina: <select name="id_feina">
+            {% if tipus_feines == None %}
+            <option value="null">Cap</option>
+            {% else %}
+            {% for feina in tipus_feines %}
+            <option value={{ feina.id_feina }}>{{ feina.desc_feina }}</option>
+            {% endfor %}
+            {% endif %}
+        </select>
+
+            Hores treballades: <input type="text" name="hores"/>
+            Cost x hores: <input type="text" name="cost_hora"/>
+
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='mostrar_dialog("table_justificacions_personal");'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <!--/////////////FINANÇAMENT-->
+
+    <div id="editar_organisme_fin" class="dialogcont" title="Editar organisme finançador">
+        <form id="formulario_organisme_fin" action="/gestor_OrganismesFin/" method="POST">
+            {% csrf_token %}
+
+            Organisme <select name="id_organisme" style="max-width:300px;">
+            {% if organismes == None %}
+            <option value="null">Cap</option>
+            {% else %}
+            {% for organisme in organismes %}
+            <option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}
+            </option>
+            {% endfor %}
+            {% endif %}
+        </select>
+            <br>
+            Import <input name="import_concedit"/>
+            <br>
+
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_organisme_rec" class="dialogcont" title="Editar organisme receptor">
+        <form id="formulario_organisme_rec" action="/gestor_OrganismesRec/" method="POST">
+            {% csrf_token %}
+
+            Organisme <select name="id_organisme" style="max-width:300px;">
+            {% if organismes == None %}
+            <option value="null">Cap</option>
+            {% else %}
+            {% for organisme in organismes %}
+            <option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}
+            </option>
+            {% endfor %}
+            {% endif %}
+        </select>
+            <br>
+            Import <input name="import_rebut"/>
+            <br>
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_justif_interna" class="dialogcont" title="Editar justificació interna">
+        <form id="formulario_justif_interna" action="/gestor_JustificInternes/" method="POST">
+            {% csrf_token %}
+            Data assentament<input id="id_data_assentament" name="data_assentament"/><br>
+            Número assentament<input name="id_assentament"/><br>
+            Descripció<input name="desc_justif"/><br>
+            Import<input name="import_field"/><br>
+            <br>
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_renovacio" class="dialogcont" title="Editar renovació">
+        <form id="formulario_renovacio" action="/gestor_renovacions/" method="POST">
+            {% csrf_token %}
+            Data inici<input id="data_renovacio_inici" name="data_inici"/><br>
+            Data final<input id="data_renovacio_fi" name="data_fi"/><br>
+            Concedit<input name="import_concedit"/><br>
+            <br>
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_pressupost" class="dialogcont" title="Editar pressupost">
+        <form id="formulario_pressupost" action="/gestor_Pressupost/" method="POST">
+            {% csrf_token %}
+
+            Partida<select name="id_concepte_pres" style="max-width:300px;">
+            {% if partides == None %}
+            <option value="null">Cap</option>
+            {% else %}
+            {% for partida in partides %}
+            <option value={{ partida.id_concepte_pres }}>{{ partida.desc_concepte }}
+            </option>
+            {% endfor %}
+            {% endif %}
+        </select>
+
+            Import<input name="import_field"/><br>
+            <br>
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_periodicitat_pressupost" class="dialogcont" title="Editar periodicitat pressupost">
+        <form id="formulario_periodicitat_pressupost" action="/gestor_PeriodicitatPres/" method="POST">
+            {% csrf_token %}
+            Etiqueta<input id="etiqueta" name="etiqueta"/><br>
+            Data inici<input id="data_periodicitat_pressupost_inici" name="data_inicial"/><br>
+            Data final<input id="data_periodicitat_pressupost_fi" name="data_final"/><br>
+            <br>
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_periodicitat_partida" class="dialogcont" title="Editar periodicitat partida">
+        <form id="formulario_periodicitat_partida" action="/gestor_PeriodicitatPartida/" method="POST">
+            {% csrf_token %}
+            Import<input name="import_field"/><br>
+            <br>
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_desglossament" class="dialogcont" title="Editar desglossament">
+        <form id="formulario_desglossament" action="/gestor_Desglossament/" method="POST">
+            {% csrf_token %}
+            Num.Compte<input name="compte"/>
+            <br>
+            Clau<select name="id_compte" style="max-width:300px;">
+            {% if claus_comptes == None %}
+            <option value="">Cap</option>
+            {% else %}
+            <option value="" default>------</option>
+            {% for clau in claus_comptes %}
+            <option value={{ clau.id_compte }}>{{ clau}}
+            </option>
+            {% endfor %}
+            {% endif %}
+        </select>
+
+            <br>
+            Import<input name="import_field"/><br>
+            Descripció<input name="desc_compte"/><br>
+
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_justificacio_projecte" class="dialogcont" title="Editar justificació projecte">
+        <form id="formulario_justificacio_projecte" action="/gestor_JustificacionsProjecte/" method="POST">
+            {% csrf_token %}
+            Data justificació<input id="data_justificacio_projecte" name="data_justificacio"/><br>
+            Data inici<input id="data_justificacio_projecte_inici" name="data_inici_periode"/><br>
+            Data final<input id="data_justificacio_projecte_final" name="data_fi_periode"/><br>
+            Observacions<input name="comentaris"/><br>
+            <br>
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <div id="editar_auditories" class="dialogcont" title="Editar justificació projecte">
+        <form id="formulario_auditories" action="/gestor_Auditories/" method="POST">
+            {% csrf_token %}
+            Data auditoria<input id="data_auditoria" name="data_auditoria"/><br>
+            Data inici<input id="data_auditoria_inici" name="data_inici_periode"/><br>
+            Data final<input id="data_auditoria_final" name="data_fi_periode"/><br>
+            Observacions<input name="comentaris"/><br>
+            <br>
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+</div>
+
+
+{% endblock %}

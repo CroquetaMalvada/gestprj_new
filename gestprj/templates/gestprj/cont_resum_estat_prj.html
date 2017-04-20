@@ -1,0 +1,56 @@
+{% extends "gestprj/base.html" %}
+
+{% block contenido %}
+<h1 align="center">Resum Estat Projectes</h1><br><br>
+    <div class="col-md-10 col-md-offset-1" style="background:white;height:75vh;overflow:scroll;">
+            <table class="table table-striped table-bordered datatable table_cont" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Codi</th>
+                        <th>Responsable</th>
+                        <th>Concedit</th>
+                        <th>Iva</th>
+                        <th>Cànon Total</th>
+                        <th>Ingressos</th>
+                        <th>Pendent</th>
+                        <th>Despeses</th>
+                        <th>Cànon Aplicat</th>
+                        <th>Disponible Caixa</th>
+                        <th>Disponible Real</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                            <tr>
+                                <td></td>
+                                <td><b>Totals: </b></td>
+                                <td>{{ totals.0.total_concedit}}</td>
+                                <td>{{ totals.0.total_iva}}</td>
+                                <td>{{ totals.0.total_canon_total}}</td>
+                                <td>{{ totals.0.total_ingressos}}</td>
+                                <td>{{ totals.0.total_pendent}}</td>
+                                <td>{{ totals.0.total_despeses}}</td>
+                                <td>{{ totals.0.total_canon_aplicat}}</td>
+                                <td>{{ totals.0.total_disponible_caixa}}</td>
+                                <td>{{ totals.0.total_disponible_real}}</td>
+                            </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for dades in llista_dades %}
+                    <tr>
+                        <td>{{ dades.0.0.cod_responsable }}</td>
+                        <td>{{ dades.0.0.nom_responsable }}</td>
+                        <td>{{ dades.0.0.concedit }}</td>
+                        <td>{{ dades.0.0.iva }}</td>
+                        <td>{{ dades.0.0.canon_total }}</td>
+                        <td>{{ dades.0.0.ingressos }}</td>
+                        <td>{{ dades.0.0.pendent }}</td>
+                        <td>{{ dades.0.0.despeses }}</td>
+                        <td>{{ dades.0.0.canon_aplicat }}</td>
+                        <td>{{ dades.0.0.disponible_caixa }}</td>
+                        <td>{{ dades.0.0.disponible_real }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+    </div>
+{% endblock %}

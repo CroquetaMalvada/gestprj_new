@@ -1,0 +1,101 @@
+{% extends "gestprj/base.html" %}
+
+{% block contenido %}
+<h1 align="center">Estat Pressupostari Projectes</h1><br><br>
+    <div class="col-md-10 col-md-offset-1" style="background:white;height:75vh;overflow:scroll;">
+    <div id="accordion">
+            {% for projecte in llista_estat_pres %}
+            <h3>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</h3>
+           <div>
+                <p align="left" class="text-left col-md-6">
+                NOM PROJECTE: <b>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</b><br>
+                RESPONSABLE: <b>{{ projecte.dades_prj.id_resp.id_usuari.nom_usuari }}</b><br>
+                </p>
+                <p align="right" class="col-md-3">
+                CONCEDIT :<br>
+                IVA: {{ projecte.iva_percen }} % :<br>
+                CÀNON: {{ projecte.canon_percen }} % :<br>
+                <br>
+                NET DISPONIBLE:<br>
+                </p>
+                <p align="right" class="col-md-3">
+                <b>{{ projecte.concedit }}</b><br>
+                <b>{{ projecte.iva }}</b><br>
+                <b>{{ projecte.canon }}</b><br>
+                <br>
+                <b><u>{{ projecte.net_disponible }}</u></b><br>
+                </p>
+                <br><br>
+               {{  projecte.partides.0.periodes.0.num }}
+               {% if projecte.partides.0 %}
+                   {% for periode in projecte.max_periodes %}
+                    <h3>Període {{ n }}</h3>
+                    <table class="table table-striped table-bordered datatable table_llista_despeses" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Partida</th>
+                            <th>Pressupostat</th>
+                            <th>Gastat</th>
+                            <th>Saldo</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                    <td><b>Totals: </b></td>
+                                    {% if projecte.total_disponible > 0 %}
+                                        <td bgcolor="LightGreen"><b>{{ projecte.total_despeses }}</b></td>
+                                        <td bgcolor="LightGreen"><b>{{ projecte.total_disponible}}</b></td>
+                                        <td bgcolor="LightGreen"><b>{{ projecte.total_disponible}}</b></td>
+                                    {% else %}
+                                        <td bgcolor="LightCoral"><b>{{ projecte.total_despeses }}</b></td>
+                                        <td bgcolor="LightCoral"><b>{{ projecte.total_disponible}}</b></td>
+                                        <td bgcolor="LightCoral"><b>{{ projecte.total_disponible}}</b></td>
+                                    {% endif %}
+                                </tr>
+                        </tfoot>
+                        <tbody>
+                            {% for partida in projecte.partides %}
+                            <tr><!-- Que hay de campos como "Opc2"?-->
+                                <td>{{ partida.concepte }}</td>
+                                <td>{{ partida.concepte }}</td>
+                                <td>{{ partida.concepte }}</td>
+                                <td>{{ partida.concepte }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                   {% endfor %}
+               {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+</div>
+<!--DIALOGS Y MODALS-->
+<div id="dialogs" title=" ">
+    <div id="dialog_llista_comptes" class="dialogcont" title="DETALL MOVIMENTS COMPTE:">
+        <table class="table table-striped table-bordered datatable table_llista_comptes" id="table_llista_comptes" width="100%">
+            <!--<a class="btn btn-info" id="imprimir_compte" title="Imprimir" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>-->
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Assent.</th>
+                    <th>Descripció</th>
+                    <th>Càrrec</th>
+                    <th>Ingrés</th>
+                    <th>Saldo</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

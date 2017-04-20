@@ -1,0 +1,96 @@
+{% extends "gestprj/base.html" %}
+
+{% block contenido %}
+<div class="content text-center">
+
+    <h1>Gestió de Projectes</h1>
+    <form id="formulario_projectes_cont" action="/cont_dades/" method="post"><!-- Mantener fuera de la tabla!!-->
+        <div class="col-md-6 col-md-offset-0" style="background:white">
+
+            <table id="table_llista_projectes_cont" class="table table-striped table-bordered datatable" width="100%">
+
+                {% csrf_token %}
+
+
+                <h3>Projectes</h3>
+                <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Estat</th>
+                    <th>Acrónim</th>
+                    <th></th>
+                    <!--<th></th>-->
+                </tr>
+                </thead>
+                <tbody>
+                {% for projecte in llista_projectes %}
+                <tr>
+                    <td><input name="prj_select" type="checkbox" value="{{ projecte.id_resp.codi_resp }}-{{ projecte.codi_prj }}" /></td>
+                    <td>
+                        <!-- CUIDADO AL formatear documento ya que el if añade espacio -->
+                        {% if projecte.codi_id_resp.codi_resp < 10 %}0{% endif %}{{ projecte.id_resp.codi_resp }}{% if projecte.codi_prj < 100 %}0{% endif %}{{ projecte.codi_prj }}
+                    </td>
+
+                    {% if projecte.id_estat_prj.desc_estat_prj == "Tancat" %}
+                    <td style="background:#DC4040">{{ projecte.id_estat_prj }}</td>
+                    {% else %}
+                    <td style="background:#61E66F">{{ projecte.id_estat_prj }}</td>
+                    {% endif %}
+
+                    <td>{{ projecte.acronim }}</td>
+                    <td>{{ projecte.id_resp.id_resp }}</td>
+                    <!--<td><input name="prj_id_resp" value="{{ projecte.id_resp.id_resp }}" /></td>-->
+                </tr>
+                {% endfor %}
+                </tbody>
+
+
+            </table>
+        </div>
+
+        <div class="col-md-3 col-md-offset-0" style="background:white">
+            <table id="table_llista_responsables_cont" class="table table-striped table-bordered datatable"
+                   width="100%">
+                <h3>Selecciò per responsable</h3>
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Nom</th>
+                    <th>Responsable</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for responsable in llista_responsables %}
+                <tr>
+                    <td><input type="checkbox" class="checkbox_responsable"/></td>
+                    <td>{{ responsable.id_usuari.nom_usuari }}</td>
+                    <td>{{ responsable.id_resp }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-3 col-md-offset-0 text-left" style="background:white">
+            <h4>Llistat</h4>
+            <input name="opcio_cont" type="radio" value="1" checked/>Fitxa Dades Projectes<br>
+            <hr>
+            <input name="opcio_cont" type="radio" value="2" />Estat Pressupostari Projectes<br>
+            <input name="opcio_cont" type="radio" value="3" />Seguiment Despeses Projectes<br>
+            <input name="opcio_cont" type="radio" value="4" />Seguiment Ingressos Projectes<br>
+            <input name="opcio_cont" type="radio" value="5" />Fitxa Major Projectes (Ingressos i Despeses)<br>
+            <hr>
+            <input name="opcio_cont" type="radio" value="6" />Estat Projectes per Responsable<br>
+            <input name="opcio_cont" type="radio" value="7" />Resum Fitxa Major Projectes per Comptes<br>
+            <input name="opcio_cont" type="radio" value="8" />Resum Estat Projectes<br>
+            <input name="opcio_cont" type="radio" value="9" />Resum Estat Cànon Projectes per Responsable<br>
+            <input name="opcio_cont" type="radio" value="10" />Comptes NO assignats a cap projecte<br>
+            <h4>Selecció del Llistat</h4>
+            Des de:<input id="data_min" name="data_min"/><br>
+            Fins a:<input id="data_max" name="data_max"/><br>
+            <input type="submit" value="CONTINUAR">
+        </div>
+    </form>
+</div>
+{% endblock %}
