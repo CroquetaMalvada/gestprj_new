@@ -12,8 +12,8 @@
                 NOM PROJECTE: <b>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</b><br>
                 RESPONSABLE: <b>{{ projecte.dades_prj.id_resp.id_usuari.nom_usuari }}</b><br>
                 DE <b>{{ projecte.data_min }}</b> A <b>{{ projecte.data_max }}</b>
-                        <input id="data_min" value="{{ projecte.data_min }}" hideen/>
-                        <input id="data_max" value="{{ projecte.data_max }}" hideen/>
+                        <input id="data_min" value="{{ projecte.data_min }}" style="display: none;"/>
+                        <input id="data_max" value="{{ projecte.data_max }}" style="display: none;"/>
                 </p>
                 <p align="right" class="col-md-3">
                 CONCEDIT :<br>
@@ -23,14 +23,14 @@
                 NET DISPONIBLE:<br>
                 </p>
                 <p align="right" class="col-md-3">
-                <b>{{ projecte.concedit }}</b><br>
-                <b>{{ projecte.iva }}</b><br>
-                <b>{{ projecte.canon }}</b><br>
-                <br>
-                <b><u>{{ projecte.net_disponible }}</u></b><br>
+                    <b class="datos_contables">{{ projecte.concedit }}</b><br>
+                    <b class="datos_contables">{{ projecte.iva }}</b><br>
+                    <b class="datos_contables">{{ projecte.canon }}</b><br>
+                    <br>
+                    <b><u class="datos_contables">{{ projecte.net_disponible }}</u></b><br>
                 </p>
                 <br><br>
-                <table class="table table-striped table-bordered datatable table_cont" width="100%">
+                <table class="table table-striped table-bordered datatable table_resum_fitxa_major_prj" width="100%">
                     <thead>
                     <tr>
                         <th>Compte</th>
@@ -82,7 +82,7 @@
 <!--DIALOGS Y MODALS-->
 <div id="dialogs" title=" ">
     <div id="dialog_llista_comptes" class="dialogcont" title="DETALL MOVIMENTS COMPTE:">
-        <table class="table table-striped table-bordered datatable table_llista_comptes" id="table_llista_comptes" width="100%">
+        <table class="table table-striped table-bordered datatable" id="table_llista_comptes" width="100%">
             <!--<a class="btn btn-info" id="imprimir_compte" title="Imprimir" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>-->
             <thead>
                 <tr>

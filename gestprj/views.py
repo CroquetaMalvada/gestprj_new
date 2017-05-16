@@ -619,6 +619,14 @@ def cont_estat_pres(request):
     context = {'llista_estat_pres': llista_estat_pres, 'titulo': "ESTAT PRESSUPOSTARI"}
     return render(request, 'gestprj/cont_estat_pres.html', context)
 
+def ListDespesesCompte(request,id_partida,cod,data_min,data_max):
+    if int(id_partida) != 0:
+        fetch = consultes_cont.DespesesCompte(id_partida,cod,data_min,data_max)
+        resultado = json.dumps(fetch)
+        return HttpResponse(resultado, content_type='application/json')
+    else:
+        return HttpResponse([{}], content_type='application/json')
+
 # DESPESES PROJECTE
 
 @login_required(login_url='/menu/')

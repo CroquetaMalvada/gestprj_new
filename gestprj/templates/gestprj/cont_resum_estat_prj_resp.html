@@ -13,7 +13,7 @@
                 <p align="right" class="col-md-3">
                 Fins a: <b>{{ responsable.0.data_max }}</b>
                 </p>
-                <table class="table table-striped table-bordered datatable table_cont" width="100%">
+                <table class="table table-striped table-bordered datatable table_resum_estat_prj_resp" width="100%">
                         <thead>
                         <tr>
                             <th>Codi</th>
@@ -33,15 +33,27 @@
                                 <tr>
                                     <td></td>
                                     <td><b>Totals: </b></td>
-                                    <td>{{ responsable.0.totals.0.total_concedit}}</td>
-                                    <td>{{ responsable.0.totals.0.total_iva}}</td>
-                                    <td>{{ responsable.0.totals.0.total_canon_total}}</td>
-                                    <td>{{ responsable.0.totals.0.total_ingressos}}</td>
-                                    <td>{{ responsable.0.totals.0.total_pendent}}</td>
-                                    <td>{{ responsable.0.totals.0.total_despeses}}</td>
-                                    <td>{{ responsable.0.totals.0.total_canon_aplicat}}</td>
-                                    <td>{{ responsable.0.totals.0.total_disponible_caixa}}</td>
-                                    <td>{{ responsable.0.totals.0.total_disponible_real}}</td>
+                                    {% if responsable.0.totals.0.total_disponible_real > 0 %}
+                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_concedit}}</b></td>
+                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_iva}}</b></td>
+                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_canon_total}}</b></td>
+                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_ingressos}}</b></td>
+                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_pendent}}</b></td>
+                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_despeses}}</b></td>
+                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_canon_aplicat}}</b></td>
+                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_disponible_caixa}}</b></td>
+                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_disponible_real}}</b></td>
+                                    {% else %}
+                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_concedit}}</b></td>
+                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_iva}}</b></td>
+                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_canon_total}}</b></td>
+                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_ingressos}}</b></td>
+                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_pendent}}</b></td>
+                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_despeses}}</b></td>
+                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_canon_aplicat}}</b></td>
+                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_disponible_caixa}}</b></td>
+                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_disponible_real}}</b></td>
+                                    {% endif %}
                                 </tr>
                         </tfoot>
                         <tbody>

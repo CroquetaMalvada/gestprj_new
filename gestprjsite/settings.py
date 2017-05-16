@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'gestprj',
     'rest_framework',
 )
@@ -69,15 +70,18 @@ WSGI_APPLICATION = 'gestprjsite.wsgi.application'
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-es'
+
+DATE_FORMAT = 'd-m-Y'
 
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+# USE_L10N = True Deshabilitado porque mostraba las fechas en formato ingles
 
 USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)
