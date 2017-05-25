@@ -206,8 +206,8 @@ def ContEstatPres(projectes):# Estat Pressupostari Projectes
                         #para el total de totales necesitaremos ir anadiendo aquellas partidas que no existan
                         if desc_partida not in tipos_partida:
                             tipos_partida[desc_partida]={"nom_partida":desc_partida,"total_pressupostat":0,"total_gastat":0,"total_saldo":0}
-                        pressupostat=partidaperio.import_field
-
+                        pressupostat=0
+                        pressupostat2 = partidaperio.import_field
                         ### para obtener el gastat
                         gastat=0
                         cuenta=0
@@ -227,19 +227,20 @@ def ContEstatPres(projectes):# Estat Pressupostari Projectes
                                     cod_compte=cod_compte+"%"
 
                             codigo_final=cod_compte+codigo_entero#en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
-                            if compte.id_compte:
-                                clau=str(compte.id_compte.clau_compte)
-                                cursor.execute("SELECT Debe,Haber,Descripcion,Cuenta FROM Apuntes WHERE ( (Diario='0' OR Diario='4' OR Diario='1') AND ( Cuenta LIKE (?) AND Cuenta <>6296+(?) ) AND ( (Apuntes.Opc1=(?) AND Fecha<={d '2009-12-31'}) OR (Apuntes.Opc3=(?) AND Fecha>={d '2010-01-01'}) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",[codigo_final,codigo_entero,clau,clau,data_max_periode,data_min_periode])
-                            else:
-                                cursor.execute("SELECT Debe,Haber,Descripcion,Cuenta FROM Apuntes WHERE ( (Diario='0' OR Diario='4' OR Diario='1') AND ( Cuenta LIKE (?) AND Cuenta <>6296+(?) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",[codigo_final,codigo_entero,data_max_periode,data_min_periode])
+                            # if compte.id_compte:
+                            #     clau=str(compte.id_compte.clau_compte)
+                            #     cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE( ( Cuenta LIKE (?) AND Cuenta <>6296+(?) ) AND ( (Apuntes.Opc1=(?) AND Fecha<={d '2009-12-31'}) OR (Apuntes.Opc3=(?) AND Fecha>={d '2010-01-01'}) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",[codigo_final,codigo_entero,clau,clau,data_max_periode,data_min_periode])
+                            # else:
+                            cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE(  CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) )  ) ",[codigo_entero,data_max_periode,data_min_periode])
                             cuentacont=dictfetchall(cursor) #Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
                             if cuentacont:
                                 for cont in cuentacont:
-                                    if cont["Debe"] is None:
-                                        cont["Debe"]=0
-                                    if cont["Haber"] is None:
-                                        cont["Haber"]=0
-                                    gastat=gastat+(Decimal(cont["Debe"]-cont["Haber"]))
+                                    if cont["DEBE"] is None:
+                                        cont["DEBE"]=0
+                                    if cont["HABER"] is None:
+                                        cont["HABER"]=0
+                                    gastat=gastat+(Decimal(cont["DEBE"]-cont["HABER"]))
+                                    pressupostat = pressupostat + cont["DEBE"]
                         ####
                         saldo=pressupostat-gastat
                         #totales
@@ -279,7 +280,7 @@ def ContEstatPres(projectes):# Estat Pressupostari Projectes
                         #para el total de totales necesitaremos ir anadiendo aquellas partidas que no existan
                         if desc_partida not in tipos_partida:
                             tipos_partida[desc_partida]={"nom_partida":desc_partida,"total_pressupostat":0,"total_gastat":0,"total_saldo":0}
-                        pressupostat=partida.import_field
+                        pressupostat=0
 
                         ### para obtener el gastat
                         gastat=0
@@ -299,15 +300,17 @@ def ContEstatPres(projectes):# Estat Pressupostari Projectes
                                     cod_compte=cod_compte+"%"
 
                             codigo_final=cod_compte+codigo_entero#en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
-                            cursor.execute("SELECT Debe,Haber,Descripcion FROM Apuntes WHERE ( (Diario='0' OR Diario='4' OR Diario='1') AND ( Cuenta LIKE (?) AND Cuenta <>6296+(?) ) ) ",[codigo_final,codigo_entero])
+                            # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
+                            cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE ( CENTROCOSTE2='   '+(?) ) ",[codigo_entero])
                             cuentacont=dictfetchall(cursor)
                             if cuentacont:
                                 for cont in cuentacont:
-                                    if cont["Debe"] is None:
-                                        cont["Debe"]=0
-                                    if cont["Haber"] is None:
-                                        cont["Haber"]=0
-                                    gastat=gastat+(Decimal(cont["Debe"]-cont["Haber"]))
+                                    if cont["DEBE"] is None:
+                                        cont["DEBE"]=0
+                                    if cont["HABER"] is None:
+                                        cont["HABER"]=0
+                                    gastat=gastat+(Decimal(cont["DEBE"]-cont["HABER"]))
+                                    pressupostat=pressupostat+cont["DEBE"]
                         ####
                         saldo=pressupostat-gastat
                         #totales
