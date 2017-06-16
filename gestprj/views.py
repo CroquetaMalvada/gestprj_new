@@ -622,8 +622,9 @@ def cont_estat_pres(request):
 def ListDespesesCompte(request,id_partida,cod,data_min,data_max):
     if int(id_partida) != 0:
         fetch = consultes_cont.DespesesCompte(id_partida,cod,data_min,data_max)
+        # resultado = json.dumps(fetch, ensure_ascii=False)
         resultado = json.dumps(fetch)
-        return HttpResponse(resultado, content_type='application/json')
+        return HttpResponse(resultado, content_type='application/json;')
     else:
         return HttpResponse([{}], content_type='application/json')
 
@@ -678,7 +679,7 @@ def cont_resum_fitxa_major_prj(request):
     return render(request, 'gestprj/cont_resum_fitxa_major_prj.html', context)
 
 def ListMovimentsCompte(request,compte,data_min,data_max):
-    if int(compte) != 0:
+    if compte != "0":
         fetch = consultes_cont.MovimentsCompte(compte,data_min,data_max)
         resultado = json.dumps(fetch)
         return HttpResponse(resultado, content_type='application/json')

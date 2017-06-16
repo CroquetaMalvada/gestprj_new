@@ -115,11 +115,13 @@ $(document).ready(function(){
        table_llista_despeses = $("#table_llista_despeses").DataTable({
             ajax: {
                 url: '/show_Despeses_Compte/0/0/0/0', //ej 625012159/01-01-1997/08-02-2017
+                contentType: "application/json;",
                 dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
             },
             columns:[
                 {'data': 'Fecha'},
                 {'data': 'Asiento'},
+                {'data': 'Cuenta'},
                 {'data': 'Descripcion'},
                 {'data': 'Debe', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
             ],
@@ -139,14 +141,14 @@ $(document).ready(function(){
                     columns: ':visible',
                     format: {
                         body: function(data, row, column, node) {
-                            if(column==3)// solo nos interesa formatear los numeros de saldo(columna 3)
+                            if(column==4)// solo nos interesa formatear los numeros de saldo(columna 4)
                                 data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
                             return data;
                         }
                     }
                 },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
-                    $('row c[r^="D"]', sheet).each(function () {
+                    $('row c[r^="E"]', sheet).each(function () {// "E" es la columna en el excel
                           $(this).attr('s', 64);
                    });
                 }
@@ -167,7 +169,7 @@ $(document).ready(function(){
 //            order:          [[ 0, "asc" ]],
             columnDefs: [
                 { type: 'de_date', targets: 0 },
-                { type: 'num-fmt', targets: [1,3] }
+                { type: 'num-fmt', targets: [1,2,4] }
             ],
             language: opciones_idioma
         });
@@ -371,21 +373,20 @@ $(document).ready(function(){
             paging:         false,
             autowidth:      true,
             columnDefs: [
-                { type: 'de_date', targets: 0 },
                 { type: 'num-fmt', targets: [2,3,4,5,6,7,8,9,10] }
             ],
             columns: [
                 null,
                 null,
-                { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+                { data:'concedit', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'iva', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'canontotal', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'ingressos', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'pendent', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'despeses', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'canonaplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'disponiblecaixa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'disponiblereal', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
@@ -432,21 +433,22 @@ $(document).ready(function(){
             paging:         false,
             autowidth:      true,
             columnDefs: [
-                { type: 'de_date', targets: 0 },
                 { type: 'num-fmt', targets: [2,3,4,5,6,7,8,9,10] }
             ],
             columns: [
                 null,
                 null,
-                { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+                { data:'codi', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'responsable', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'concedit', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'iva', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'canon_total', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'ingressos', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'pendent', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'despeses', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'canon_aplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'disponible_caixa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'disponible_real', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
@@ -458,14 +460,13 @@ $(document).ready(function(){
         });
     }
 
-    if($(".table_resum_estat_canon")){// RESUM ESTAT PROJECTES
+    if($(".table_resum_estat_canon")){// Resum Cànon Projectes agrupat per Responsablee
        $(".table_resum_estat_canon").DataTable({
             scrollY:        '60vh',
             scrollCollapse: true,
             paging:         false,
             autowidth:      true,
             columnDefs: [
-                { type: 'de_date', targets: 0 },
                 { type: 'num-fmt', targets: [2,3,4,5,6,7,8,9,10,11,12] }
             ],
             columns: [

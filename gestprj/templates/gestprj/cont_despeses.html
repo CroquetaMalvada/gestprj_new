@@ -61,13 +61,13 @@
                     <tbody>
                         {% for despesa in projecte.despeses %}
                         <tr><!-- Que hay de campos como "Opc2"?-->
-                            <td>{{ despesa.Data }}</td>
+                            <td>{{ despesa.Fecha }}</td>
                             <td>{{ despesa.Asiento }}</td>
                             <td>{{ despesa.Cuenta }}</td>
-                            <td>{{ despesa.Opc1 }}</td>
+                            <td>{{ despesa.Clau}}</td>
                             <td>{{ despesa.Documento }}</td>
                             <td>{{ despesa.Descripcion }}</td>
-                            <td>{{ despesa.Opc2 }}</td>
+                            <td>{{ despesa.Haber }}</td>
                             <td>{{ despesa.Debe }}</td>
                             <td>{{ despesa.saldo_disponible}}</td>
                         </tr>
