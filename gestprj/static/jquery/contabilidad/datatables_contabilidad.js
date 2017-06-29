@@ -561,6 +561,9 @@ function formatnumber ( d ,thousands, decimal, precision, prefix, postfix ) { //
                 return d;
             }
 
+            if (d.indexOf(thousands) > -1 && d.indexOf(decimal) > -1){//ojo! funcion añadida que comprueba si el numero a formatear ya tiene el formato que deseamos,en cuyo caso lo devolverá como está y nada mas
+                return d;
+            }
             var negative = d < 0 ? '-' : '';
             var flo = parseFloat( d );
 
