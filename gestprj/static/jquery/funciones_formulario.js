@@ -43,7 +43,11 @@ $(document).ready(function(){
 
 //    //ejecutar una vez al cargar la pagina
 //    actualizar_categorias();
+    var cat_temp=$("#id_id_categoria").val();//esta variable guarda el valor de la categoria guardada en la bdd ya que la siguiente funcion resetea el valor de este inpu
     cargar_categorias();
+    $("#id_id_categoria").val(cat_temp);
+    $("#id_categoria").val(cat_temp);
+
     habilitar_fecha_fi_prj();
     if($("#id_es_docum_web").val()=='S')
       $("#checkbox_docum_web").attr("checked",true);
@@ -51,7 +55,7 @@ $(document).ready(function(){
     habilitar_fecha_es_docum_web();
 
 
-
+//
     // AJAX
     $("#formulario_editar_organismes_participants").submit(function(e){
         var form = $(this);
@@ -130,10 +134,9 @@ function cargar_categorias(){
 }
 
 function mostrar_categorias(){////esconde y muestra categorias segun si es servei o subvencio
-
         $("#id_categoria option").each(function(){
             $(this).attr("hidden",true);
-            if($(this).attr("name")==$("#id_serv_o_subven input:checked").val() || $(this).attr("name")==3)
+            if($(this).attr("name")==$("#id_serv_o_subven input:checked").val() || $(this).attr("name")==3) //el 3 es mixto y se aplica a servei como a subvencio
                 $(this).removeAttr("hidden");
         });
         $("#id_categoria").val($("#id_categoria option:not([hidden])").first().val());

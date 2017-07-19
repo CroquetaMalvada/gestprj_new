@@ -4,58 +4,34 @@
 <!--<div name="contenedor_general" class="col-md-12 col-md-offset-1">-->
 
 {% if form.errors %}
-{% for field in form %}
-{% for error in field.errors %}
-<div class="alert alert-error">
-    <strong>{{ error|escape }}</strong>
+<div id="diverror" class="text-center" title="Error al crear el projecte">
+    {% for field in form %}
+        {% for error in field.errors %}
+        <div class="alert alert-error">
+            <strong>{{ error|escape }}</strong>
+        </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+    <div class="alert alert-error">
+        <strong>{{ error|escape }}</strong>
+    </div>
+    {% endfor %}
 </div>
-{% endfor %}
-{% endfor %}
-{% for error in form.non_field_errors %}
-<div class="alert alert-error">
-    <strong>{{ error|escape }}</strong>
-</div>
-{% endfor %}
+<script>alerterror();</script>
 {% endif %}
 
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-2 sidebar">
-            <ul class="nav nav-sidebar">
-                <li><a href="#" id="general">General</a></li>
-                <script> id_prj = {{ id_projecte }}; </script>
-                {% if not nuevo %}
-                <li><a href="#" id="personal">Personal</a></li>
-                <li><a href="#" id="finançament">Finançament</a></li>
-                <li><a href="#" id="pressupost">Pressupost</a></li>
-                <li><a href="#" id="justificacions">Justificacions</a></li>
-                <div class="bottomleft" name="cont_botones">
-                    <a id="boton_guardar" class="btn btn-confirmacion" href="#">Guardar i continuar</a>
-                </div>
-                {% else %}
-                <div class="bottomleft" name="cont_botones">
-                    <a id="boton_guardar" class="btn btn-confirmacion" href="#">Guardar projecte</a>
-                </div>
-                {% endif %}
-                <!--<li>-->
-                <!--<a class="dropmenu" href="#"><i class="icon-folder-close-alt"></i><span class="hidden-tablet"> Dropdown</span><span class="label label-important"> 3 </span></a>-->
-                <!--<ul>-->
-                <!--<li><a class="submenu" href="submenu.html"><i class="icon-file-alt"></i><span class="hidden-tablet"> Sub Menu 1</span></a></li>-->
-                <!--<li><a class="submenu" href="submenu2.html"><i class="icon-file-alt"></i><span class="hidden-tablet"> Sub Menu 2</span></a></li>-->
-                <!--<li><a class="submenu" href="submenu3.html"><i class="icon-file-alt"></i><span class="hidden-tablet"> Sub Menu 3</span></a></li>-->
-                <!--</ul>-->
-                <!--</li>-->
-
-            </ul>
-        </div>
-        <div id="content" class="col-md-10 col-md-offset-2 main" style="background:white;">
+        <br><br><br>
+        <div id="content" class="col-md-6 col-md-offset-3 main" style="background:white;overflow-y:scroll;min-height:60vh;max-height:60vh;">
             <div name="contenedor_formularios"> <!--span10??-->
 
                 <form id="formulario_nou_projecte" action="/projecte_nou/{{ id_projecte }}/" method="post">
                     {% csrf_token %}
                     {{ form.non_field_errors }}
-                    <div id="contenedor_general" class="col-md-6 col-md-offset-3">
+                    <div id="contenedor_general" class="col-md-10 col-md-offset-1">
                         <!--<div id="contenedor_general" class="input-group">-->
                         <h1 class="page-header">General</h1>
                         <!--{{ form.id_projecte.errors }}-->
@@ -158,7 +134,7 @@
                         {{ form.id_estat_prj.errors }}
                         <h4>Estat del projecte:</h4>
                         {{ form.id_estat_prj }}
-
+                        <br><hr>
                     </div>
                 </form>
 
@@ -168,8 +144,21 @@
 
             </div>
         </div>
-
-
+    </div>
+    <div align="center">
+        <script> id_prj = {{ id_projecte }}; </script>
+        <row>
+            <button type="button" class="btn btn-primary btn-lg" id="general">General</button>
+            <button type="button" class="btn btn-primary btn-lg disabled" >Personal</button>
+            <button type="button" class="btn btn-primary btn-lg disabled" >Finançament</button>
+            <button type="button" class="btn btn-primary btn-lg disabled" >Pressupost</button>
+            <button type="button" class="btn btn-primary btn-lg disabled" >Justificacions</button>
+        </row><br><br>
+        <row>
+            <button type="button" class="btn btn-primary btn-lg btn-success" id="boton_guardar">
+                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Guardar
+            </button>
+        </row>
     </div>
 </div>
 

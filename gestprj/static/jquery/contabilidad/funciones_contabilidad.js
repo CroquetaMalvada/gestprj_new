@@ -24,7 +24,7 @@ $(document).ready(function(){
     });
 ////
 
-/// formatear numeros que aparecen en la parte superior(la funcion de formatnumber esta en datatables_contabilidad.js(mover a un script aparte)
+/// formatear numeros que aparecen en la parte superior(la funcion de formatnumber esta en datatables_contabilidad.js pero ahora esta en un script que he creado con alguna modificacion
     if($(".datos_contables")){
         $(".datos_contables").each(function(){
                 $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));

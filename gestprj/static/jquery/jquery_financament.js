@@ -257,53 +257,74 @@ function cerrar_dialog(){
     $("#dialogs").dialog("close");
 }
 
-function actualizar_canoniva(){
+function actualizar_canoniva(){// actualizar los inputs y los campos de la tabla de concesions
                         var tabla = renovacions;
-
                         $("#total_concedit_renovacio").val(tabla.column( 4 ).data().sum());
-                        $( tabla.column( 4 ).footer() ).find("#total_concedit_renovacio").val($("#total_concedit_renovacio").val());///este es para que se vea el resultado
+//                        $( tabla.column( 4 ).footer() ).find("#total_concedit_renovacio").val($("#total_concedit_renovacio").val());///este es para que se vea el resultado
 
-                        ///quizas esto se pueda poner abajo,ya que no son ni de la tabla
-                        var canon_oficial_per = ( $("#id_canon_oficial").val() / $("#total_concedit_renovacio").val() ) * ( 100 * ( 1+$("#id_percen_iva").val()/100 ) ) ;
-                        $("#canon_oficial_per").val(canon_oficial_per);
+                        if($("#total_concedit_renovacio").val()>0){//si es cero las divisiones petaran
+                            //estos son los inputs
+                            ///quizas esto se pueda poner abajo,ya que no son ni de la tabla
+                            var canon_oficial_per = ( $("#id_canon_oficial").val() / $("#total_concedit_renovacio").val() ) * ( 100 * ( 1+$("#id_percen_iva").val()/100 ) ) ;
+                            $("#canon_oficial_per").val(canon_oficial_per);
 
-                        var canon_creaf_eur = ( $("#total_concedit_renovacio").val() * $("#id_percen_canon_creaf").val() ) / ( 100 * ( 1+$("#id_percen_iva").val()/100 ) ) ;
-                        $("#canon_creaf_eur").val(canon_creaf_eur);
+                            var canon_creaf_eur = ( $("#total_concedit_renovacio").val() * $("#id_percen_canon_creaf").val() ) / ( 100 * ( 1+$("#id_percen_iva").val()/100 ) ) ;
+                            $("#canon_creaf_eur").val(canon_creaf_eur);
 
-                        var diferencia_per = $("#canon_oficial_per").val() - $("#id_percen_canon_creaf").val();
-                        $("#diferencia_per").val(diferencia_per);
+                            var diferencia_per = $("#canon_oficial_per").val() - $("#id_percen_canon_creaf").val();
+                            $("#diferencia_per").val(diferencia_per);
 
-                        var diferencia_eur =  $("#id_canon_oficial").val() - $("#canon_creaf_eur").val();
-                        $("#diferencia_eur").val(diferencia_eur);
+                            var diferencia_eur =  $("#id_canon_oficial").val() - $("#canon_creaf_eur").val();
+                            $("#diferencia_eur").val(diferencia_eur);
 
-                        var iva_eur = ( $("#total_concedit_renovacio").val() * $("#id_percen_iva").val() ) / ( 100 * ( 1+$("#id_percen_iva").val()/100 ) ) ;
-                        $("#iva_eur").val(iva_eur);
-
-                            ////CAMPOS DE LA TABLA
-                        tabla.rows().every(function(rowidx,tableloop,rowloop){
-                                var iva = tabla.cell(rowidx,4).data() - ( tabla.cell(rowidx,4).data() / (1+$("#id_percen_iva").val()/100) );
-                                var canon = ( tabla.cell(rowidx,4).data() *  $("#canon_oficial_per").val() ) / (100 * (1+$("#id_percen_iva").val()/100) );
-
-                                tabla.cell(rowidx,5).data(iva);///esta data no se muestra,la guarda datatables
-                                $(tabla.cell(rowidx,5).node()).html(iva);
-
-                                tabla.cell(rowidx,6).data(canon);
-                                $(tabla.cell(rowidx,6).node()).html(canon);
-
-                                tabla.cell(rowidx,7).data(tabla.cell(rowidx,4).data()-iva-canon);
-                                $(tabla.cell(rowidx,7).node()).html(tabla.cell(rowidx,4).data()-iva-canon);
+                            var iva_eur = ( $("#total_concedit_renovacio").val() * $("#id_percen_iva").val() ) / ( 100 * ( 1+$("#id_percen_iva").val()/100 ) ) ;
+                            $("#iva_eur").val(iva_eur);
 
 
-                        });
+                                ////CAMPOS DE LA TABLA
+                            if(tabla.rows().count()>0){
+                                tabla.rows().every(function(rowidx,tableloop,rowloop){
+                                        var import_concedit=tabla.cell(rowidx,4).data();
+                                        var iva = tabla.cell(rowidx,4).data() - ( tabla.cell(rowidx,4).data() / (1+$("#id_percen_iva").val()/100) );
+                                        var canon = ( tabla.cell(rowidx,4).data() *  $("#canon_oficial_per").val() ) / (100 * (1+$("#id_percen_iva").val()/100) );
 
-                        $( tabla.column( 5 ).footer() ).find("#total_iva_renovacio").val(tabla.column( 5 ).data().sum());
-                        $( tabla.column( 6 ).footer() ).find("#total_canon_renovacio").val(tabla.column( 6 ).data().sum());
-                        $( tabla.column( 7 ).footer() ).find("#total_renovacio").val(tabla.column( 7 ).data().sum());
-                        /////
-                        $(".max2dec").each(function(){
-                            $(this).val( parseFloat($(this).val()).toFixed(2));
-                        });
-                        $(".max4dec").each(function(){
-                            $(this).val( parseFloat($(this).val()).toFixed(4));
-                        });
+
+                                        tabla.cell(rowidx,4).data(import_concedit);///esta data no se muestra,la guarda datatables
+                                        $(tabla.cell(rowidx,4).node()).html(formatnumber(import_concedit,separador_miles,separador_decimales,2));
+
+                                        tabla.cell(rowidx,5).data(iva);
+                                        $(tabla.cell(rowidx,5).node()).html(formatnumber(iva,separador_miles,separador_decimales,2));
+
+                                        tabla.cell(rowidx,6).data(canon);
+                                        $(tabla.cell(rowidx,6).node()).html(formatnumber(canon,separador_miles,separador_decimales,2));
+
+                                        tabla.cell(rowidx,7).data(tabla.cell(rowidx,4).data()-iva-canon);
+                                        $(tabla.cell(rowidx,7).node()).html(formatnumber((tabla.cell(rowidx,4).data()-iva-canon),separador_miles,separador_decimales,2));
+
+
+                                });
+                                ///totales
+                                $( tabla.column( 4 ).footer() ).find("#total_concedit_renovacio").html(formatnumber(tabla.column( 4 ).data().sum(),separador_miles,separador_decimales,2));
+                                $( tabla.column( 5 ).footer() ).find("#total_iva_renovacio").html(formatnumber(tabla.column( 5 ).data().sum(),separador_miles,separador_decimales,2));
+                                $( tabla.column( 6 ).footer() ).find("#total_canon_renovacio").html(formatnumber(tabla.column( 6 ).data().sum(),separador_miles,separador_decimales,2));
+                                $( tabla.column( 7 ).footer() ).find("#total_renovacio").html(formatnumber(tabla.column( 7 ).data().sum(),separador_miles,separador_decimales,2));
+                                ////
+                            }else{
+                            ///totales
+                                $( tabla.column( 4 ).footer() ).find("#total_concedit_renovacio").html("0");
+                                $( tabla.column( 5 ).footer() ).find("#total_iva_renovacio").html("0");
+                                $( tabla.column( 6 ).footer() ).find("#total_canon_renovacio").html("0");
+                                $( tabla.column( 7 ).footer() ).find("#total_renovacio").html("0");
+                                ////
+                            }
+                            ///formatear numeros de los inputs y volver a asignarlos
+                            $("#canon_oficial_per").val(formatnumber(canon_oficial_per,separador_miles,separador_decimales,2));
+                            $("#canon_creaf_eur").val(formatnumber(canon_creaf_eur,separador_miles,separador_decimales,2));
+                            $("#diferencia_per").val(formatnumber(diferencia_per,separador_miles,separador_decimales,2));
+                            $("#diferencia_eur").val(formatnumber(diferencia_eur,separador_miles,separador_decimales,2));
+                            $("#iva_eur").val(formatnumber(iva_eur,separador_miles,separador_decimales,2));
+
+                        }
+                        renovacions.columns.adjust();
+
 }

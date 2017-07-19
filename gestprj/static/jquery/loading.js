@@ -28,3 +28,16 @@ function loading(texto,cerrable){
         if(cerrable==true)
             return load;
 }
+
+function alerterror(){
+    $("#diverror").dialog({
+        modal:true,
+        resizable:false,
+        draggable:false,
+        closeOnEscape:true,
+        autoOpen:true,
+        content:$("#diverror"),
+        confirmButton: "OK"
+	});
+
+}

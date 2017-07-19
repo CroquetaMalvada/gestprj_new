@@ -96,7 +96,8 @@ def list_projectes_cont(request):
 
     #anadir el codigo de responsable de cada proyecto
     # for projecte in llista_projectes:
-    #     projecte.codi_resp = id_resp_a_codi_responsable(projecte['id_resp'])
+    #     projecte.id_resp.codi_resp = int(projecte.id_resp.codi_resp)
+    #     projecte.codi_prj = int(projecte.codi_prj)
 
     context = {'llista_projectes': llista_projectes,'llista_responsables': Responsables.objects.all(), 'titulo': "CONTABILITAT"}
     return render(request, 'gestprj/contabilitat.html', context)
@@ -125,20 +126,19 @@ def new_project(request, id=None):
         return render(request, 'gestprj/projecte_nou.html',
                       {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
                        'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
-                       'id_projecte': id})  # , 'id_projecte':1534
+                       'id_projecte': id, 'errorprojecte':False})  # , 'id_projecte':1534
     else:
         if nuevo:  # Si esta mal pero es nuevo
             return render(request, 'gestprj/projecte_nou.html',
                           {'form': form, 'titulo': 'NOU PROJECTE', 'categories': categories, 'organismes': organismes,
                            'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
-                           'id_projecte': id,
-                           'nuevo': True})
+                           'id_projecte': id, 'nuevo': True, 'errorprojecte':True})
 
     # Si esta mal pero se esta editando:
     return render(request, 'gestprj/projecte_nou.html',
                   {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
                    'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
-                   'id_projecte': id})
+                   'id_projecte': id, 'errorprojecte':True})
 
 
 @login_required(login_url='/menu/')
@@ -155,7 +155,7 @@ def mod_project(request, id=None):
     except Http404:
         instance = None
         nuevo = True
-        id = pk.generaPkProjecte()
+        id = pk.generaPkProjecte()# Ojo al nombre de la bdd dentro de esta funcion!! Ademas pulirlo para evitar colisiones(aunque no deberia ya que vuelve a generarlo al guardarel prj por primera vez)
 
     form = ProjectesForm(request.POST or None, instance=instance)
 
@@ -164,16 +164,16 @@ def mod_project(request, id=None):
         return render(request, 'gestprj/modificar_projecte.html',
                       {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
                        'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
-                       'id_projecte': id})  # , 'id_projecte':1534
+                       'id_projecte': id, 'guardado':True})  # , 'id_projecte':1534
     else:
-        if nuevo:  # Si esta mal pero es nuevo
+        if nuevo:  # Si esta mal pero es nuevo( o si simplemente se clica en el boton "nou projecte" para empezar a crear uno )
             return render(request, 'gestprj/modificar_projecte.html',
                           {'form': form, 'titulo': 'NOU PROJECTE', 'categories': categories, 'organismes': organismes,
                            'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
                            'id_projecte': id,
                            'nuevo': True})
 
-    # Si esta mal pero se esta editando:
+    # Si esta mal pero se esta editando:(o se carga un proyecto)
     return render(request, 'gestprj/modificar_projecte.html',
                   {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
                    'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
@@ -448,6 +448,7 @@ class ListRenovacions(generics.ListAPIView):
 
 
 class GestRenovacions(viewsets.ModelViewSet):
+
     queryset = Renovacions.objects.all()
     serializer_class = GestRenovacionsSerializer
 

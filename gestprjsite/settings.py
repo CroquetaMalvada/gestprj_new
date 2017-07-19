@@ -74,7 +74,7 @@ LANGUAGE_CODE = 'es-es'
 
 DATE_FORMAT = 'd-m-Y'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'UTC' #Ojo que este son 2 horas menos,por si miro algun log o insert en la bdd
 
 USE_I18N = True
 

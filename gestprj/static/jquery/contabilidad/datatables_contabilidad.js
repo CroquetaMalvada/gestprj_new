@@ -46,6 +46,17 @@ $(document).ready(function(){
             ],
             dom: 'Bfrtip',
             buttons:[{
+                text: '<span class="glyphicon glyphicon-check" aria-hidden="true">  Només Seleccionats</span>',
+                action: function ( e, dt, node, config ) {
+                    $("#table_llista_projectes_cont tbody>tr").each(function() { //loop over each row
+                        if($(this).find(":checkbox").is(":checked")) {
+                            $(this).show();
+                        }else{
+                            $(this).hide();
+                        }
+                    });
+                }
+            },{
                 text: '<span class="glyphicon glyphicon-ok" aria-hidden="true">  Només Oberts</span>',
                 action: function ( e, dt, node, config ) {
                     $("#table_llista_projectes_cont tbody>tr").each(function() { //loop over each row
@@ -556,37 +567,37 @@ function nomes_tancats(){
     table_projectes
 }
 
-function formatnumber ( d ,thousands, decimal, precision, prefix, postfix ) { //formatea un numero(sirve para cuando el render.number de las datatables no se pouede usar)
-            if ( typeof d !== 'number' && typeof d !== 'string' ) {
-                return d;
-            }
-
-            if (d.indexOf(thousands) > -1 && d.indexOf(decimal) > -1){//ojo! funcion añadida que comprueba si el numero a formatear ya tiene el formato que deseamos,en cuyo caso lo devolverá como está y nada mas
-                return d;
-            }
-            var negative = d < 0 ? '-' : '';
-            var flo = parseFloat( d );
-
-            // If NaN then there isn't much formatting that we can do - just
-            // return immediately, escaping any HTML (this was supposed to
-            // be a number after all)
-            if ( isNaN( flo ) ) {
-                return 0;
-            }
-
-            flo = flo.toFixed( precision );
-            d = Math.abs( flo );
-
-            var intPart = parseInt( d, 10 );
-            var floatPart = precision ?
-                decimal+(d - intPart).toFixed( precision ).substring( 2 ):
-                '';
-
-            return negative + (prefix||'') +
-                intPart.toString().replace(
-                    /\B(?=(\d{3})+(?!\d))/g, thousands
-                ) +
-                floatPart +
-                (postfix||'');
-
-}
+//function formatnumber ( d ,thousands, decimal, precision, prefix, postfix ) { //formatea un numero(sirve para cuando el render.number de las datatables no se pouede usar)
+//            if ( typeof d !== 'number' && typeof d !== 'string' ) {
+//                return d;
+//            }
+//
+//            if (d.indexOf(thousands) > -1 && d.indexOf(decimal) > -1){//ojo! funcion añadida que comprueba si el numero a formatear ya tiene el formato que deseamos,en cuyo caso lo devolverá como está y nada mas
+//                return d;
+//            }
+//            var negative = d < 0 ? '-' : '';
+//            var flo = parseFloat( d );
+//
+//            // If NaN then there isn't much formatting that we can do - just
+//            // return immediately, escaping any HTML (this was supposed to
+//            // be a number after all)
+//            if ( isNaN( flo ) ) {
+//                return 0;
+//            }
+//
+//            flo = flo.toFixed( precision );
+//            d = Math.abs( flo );
+//
+//            var intPart = parseInt( d, 10 );
+//            var floatPart = precision ?
+//                decimal+(d - intPart).toFixed( precision ).substring( 2 ):
+//                '';
+//
+//            return negative + (prefix||'') +
+//                intPart.toString().replace(
+//                    /\B(?=(\d{3})+(?!\d))/g, thousands
+//                ) +
+//                floatPart +
+//                (postfix||'');
+//
+//}
