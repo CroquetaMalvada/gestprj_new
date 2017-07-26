@@ -207,7 +207,7 @@ $(document).ready(function(){
     });
 
     $(document).on( 'click', '.editar_usuari_extern', function (){
-
+        var load = loading("Carregant...");
         var form = $("#formulario_editar_usuari_extern");
         $("#formulario_editar_usuari_extern").attr("action",usuaris_externs.row(".selected").data()["url"]);
 	    $("#formulario_editar_usuari_extern").attr("method","PUT");
@@ -225,7 +225,7 @@ $(document).ready(function(){
             form.children("[name='e_mail1']").val(data["e_mail1"]);
             form.children("[name='e_mail2']").val(data["e_mail2"]);
             form.children("[name='id_organisme']").val(data["id_organisme"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 
         mostrar_dialog("editar_usuari_extern");
 

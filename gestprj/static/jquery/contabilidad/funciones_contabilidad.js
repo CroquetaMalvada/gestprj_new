@@ -1,8 +1,10 @@
+var load = null;
 $(window).on('beforeunload', function() {
-  loading("Carregant...",true);
+  load = loading("Carregant...");
 });
 $(document).ready(function(){
-    $(document).find("#loading").dialog("close");
+    load = loading("Carregant...");
+    load.close();
     $("#data_min").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false, changeMonth: true, changeYear: true, yearRange: "1997:c", defaultDate: new Date(1997, 0, 1)});//minDate: (new Date(1997, 1 - 1 , 1)), maxDate: 0
     $("#data_max").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false, changeMonth: true, changeYear: true, yearRange: "1997:c", defaultDate: new Date() });
     //asignarles un valor por defecto

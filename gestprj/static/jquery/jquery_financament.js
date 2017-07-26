@@ -24,11 +24,11 @@ $(document).ready(function(){
         $("#formulario_organisme_fin").attr('action',organismes_fin.row(".selected").data()["url"]);
 	    $("#formulario_organisme_fin").attr("method","PUT");
 
-        $(document).find("#loading").dialog("open");
+        var load = loading("Carregant...");
         $.get(organismes_fin.row(".selected").data()["url"],function( data ){
             form.children("[name='id_organisme']").val(data["id_organisme"]);
             form.children("[name='import_concedit']").val(data["import_concedit"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_organisme_fin");
     });
 
@@ -75,11 +75,11 @@ $(document).ready(function(){
         $("#formulario_organisme_rec").attr('action',organismes_rec.row(".selected").data()["url"]);
 	    $("#formulario_organisme_rec").attr("method","PUT");
 
-        $(document).find("#loading").dialog("open");
+        var load = loading("Carregant...");
         $.get(organismes_rec.row(".selected").data()["url"],function( data ){
             form.children("[name='id_organisme']").val(data["id_organisme"]);
             form.children("[name='import_rebut']").val(data["import_rebut"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_organisme_rec");
     });
 
@@ -128,13 +128,13 @@ $(document).ready(function(){
         $("#formulario_justif_interna").attr('action',justificacions_internes.row(".selected").data()["url"]);
 	    $("#formulario_justif_interna").attr("method","PUT");
 
-        $(document).find("#loading").dialog("open");
+        var load = loading("Carregant...");
         $.get(justificacions_internes.row(".selected").data()["url"],function( data ){
             form.children("[name='data_assentament']").val(data["data_assentament"]);
             form.children("[name='id_assentament']").val(data["id_assentament"]);
             form.children("[name='desc_justif']").val(data["desc_justif"]);
             form.children("[name='import_field']").val(data["import_field"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_justif_interna");
     });
 
@@ -183,12 +183,12 @@ $(document).ready(function(){
         $("#formulario_renovacio").attr('action',renovacions.row(".selected").data()["url"]);
 	    $("#formulario_renovacio").attr("method","PUT");
 
-        $(document).find("#loading").dialog("open");
+        var load = loading("Carregant...");
         $.get(renovacions.row(".selected").data()["url"],function( data ){
             form.children("[name='data_inici']").val(data["data_inici"]);
             form.children("[name='data_fi']").val(data["data_fi"]);
             form.children("[name='import_concedit']").val(data["import_concedit"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_renovacio");
     });
 

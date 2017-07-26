@@ -47,46 +47,16 @@ $(document).ready(function(){
             dom: 'Bfrtip',
             buttons:[{
                 text: '<span class="glyphicon glyphicon-check" aria-hidden="true">  Només Seleccionats</span>',
-                action: function ( e, dt, node, config ) {
-                    $("#table_llista_projectes_cont tbody>tr").each(function() { //loop over each row
-                        if($(this).find(":checkbox").is(":checked")) {
-                            $(this).show();
-                        }else{
-                            $(this).hide();
-                        }
-                    });
-                }
+                action: function(){nomes_seleccionats();}
             },{
                 text: '<span class="glyphicon glyphicon-ok" aria-hidden="true">  Només Oberts</span>',
-                action: function ( e, dt, node, config ) {
-                    $("#table_llista_projectes_cont tbody>tr").each(function() { //loop over each row
-                        if($(this).find("td:eq(2)").text() == "Tancat") {
-                            $(this).find(":checkbox").prop("checked",false);
-                            $(this).hide();
-                        }else{
-                            $(this).show();
-                        }
-                    });
-                }
+                action: function () {nomes_oberts();}
             },{
                 text: '<span class="glyphicon glyphicon-remove" aria-hidden="true">  Només Tancats</span>',
-                action: function ( e, dt, node, config ) {
-                    $("#table_llista_projectes_cont tbody>tr").each(function() { //loop over each row
-                        if($(this).find("td:eq(2)").text() == "Obert") {
-                            $(this).find(":checkbox").prop("checked",false);
-                            $(this).hide();
-                        }else{
-                            $(this).show();
-                        }
-                    });
-                }
+                action: function () {nomes_tancats();}
             },{
                 text: '<span class="glyphicon glyphicon-asterisk" aria-hidden="true">  Mostrar Tots</span>',
-                action: function ( e, dt, node, config ) {
-                    $("#table_llista_projectes_cont tbody>tr").each(function() {
-                            $(this).show();
-                    });
-                }
+                action: function () {mostrar_tots();}
             }],
             language: opciones_idioma
         });
@@ -530,18 +500,8 @@ $(document).ready(function(){
             language: opciones_idioma
         });
     }
-//    if($(".table_cont")){//
-//       $(".table_cont").DataTable({
-//            scrollY:        '60vh',
-//            scrollCollapse: true,
-//            paging:         false,
-//            autowidth:      true,
-//            columnDefs: [
-//                { type: 'de_date', targets: 0 }
-//            ],
-//            language: opciones_idioma
-//        });
-//    }
+    ////por defecto se muestran los proyectos abiertos
+    nomes_oberts();
 
 
 
@@ -560,44 +520,51 @@ function projectes_de_responsable(chk,tipo){
 }
 
 // esta funcion comprueba si el proyecto pasado es de alguno de los responsables marcados(solo se usa cuando esta marcada la opcion de mostrar solo de responsables)
-function es_de_responsable(){
-}
-
-function nomes_tancats(){
-    table_projectes
-}
-
-//function formatnumber ( d ,thousands, decimal, precision, prefix, postfix ) { //formatea un numero(sirve para cuando el render.number de las datatables no se pouede usar)
-//            if ( typeof d !== 'number' && typeof d !== 'string' ) {
-//                return d;
-//            }
-//
-//            if (d.indexOf(thousands) > -1 && d.indexOf(decimal) > -1){//ojo! funcion añadida que comprueba si el numero a formatear ya tiene el formato que deseamos,en cuyo caso lo devolverá como está y nada mas
-//                return d;
-//            }
-//            var negative = d < 0 ? '-' : '';
-//            var flo = parseFloat( d );
-//
-//            // If NaN then there isn't much formatting that we can do - just
-//            // return immediately, escaping any HTML (this was supposed to
-//            // be a number after all)
-//            if ( isNaN( flo ) ) {
-//                return 0;
-//            }
-//
-//            flo = flo.toFixed( precision );
-//            d = Math.abs( flo );
-//
-//            var intPart = parseInt( d, 10 );
-//            var floatPart = precision ?
-//                decimal+(d - intPart).toFixed( precision ).substring( 2 ):
-//                '';
-//
-//            return negative + (prefix||'') +
-//                intPart.toString().replace(
-//                    /\B(?=(\d{3})+(?!\d))/g, thousands
-//                ) +
-//                floatPart +
-//                (postfix||'');
-//
+//function es_de_responsable(){
 //}
+//
+//function nomes_tancats(){
+//    table_projectes
+//}
+
+function nomes_seleccionats() {
+    $("#table_llista_projectes_cont tbody>tr").each(function() { //loop over each row
+        if($(this).find(":checkbox").is(":checked")) {
+            $(this).show();
+        }else{
+            $(this).hide();
+        }
+    });
+}
+
+function nomes_oberts() {
+    $("#table_llista_projectes_cont tbody>tr").each(function() { //loop over each row
+        if($(this).find("td:eq(2)").text() == "Tancat") {
+            $(this).find(":checkbox").prop("checked",false);
+            $(this).hide();
+        }else{
+            $(this).show();
+        }
+    });
+}
+
+function nomes_tancats() {
+    $("#table_llista_projectes_cont tbody>tr").each(function() { //loop over each row
+        if($(this).find("td:eq(2)").text() == "Obert") {
+            $(this).find(":checkbox").prop("checked",false);
+            $(this).hide();
+        }else{
+            $(this).show();
+        }
+    });
+}
+
+function mostrar_tots() {
+    $("#table_llista_projectes_cont tbody>tr").each(function() {
+            $(this).show();
+    });
+}
+
+function marcar_boton(){
+
+}

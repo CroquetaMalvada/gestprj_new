@@ -55,10 +55,7 @@ def index(request):
 
 
 @login_required(login_url='/menu/')
-# @user_passes_test(es_usuario_valido,login_url='/menu/')
-
-# @user_passes_test(not_in_student_group, login_url="/logout/" )
-# @user_passes_test(lambda u: u.groups.filter(name="Admins gestprj").count() == 0, login_url="/logout/" )
+@user_passes_test(es_admin,login_url='/contabilitat/')
 def list_projectes(request):
     # llista_projectes = TUsuarisXarxa.objects.all()
     # usuarixarxa = usuari_xarxa_a_user(request)
@@ -86,8 +83,10 @@ def list_projectes(request):
 def list_projectes_cont(request):
     if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
         llista_projectes = Projectes.objects.all()
+        llista_responsables = Responsables.objects.all()
     else:#sino solo muestra SUS proyectos
         responsable = usuari_a_responsable(request)
+        llista_responsables = responsable
 
         if responsable is not None:
             llista_projectes = Projectes.objects.filter(id_resp__id_resp=responsable.id_resp)
@@ -99,46 +98,46 @@ def list_projectes_cont(request):
     #     projecte.id_resp.codi_resp = int(projecte.id_resp.codi_resp)
     #     projecte.codi_prj = int(projecte.codi_prj)
 
-    context = {'llista_projectes': llista_projectes,'llista_responsables': Responsables.objects.all(), 'titulo': "CONTABILITAT"}
+    context = {'llista_projectes': llista_projectes,'llista_responsables': llista_responsables , 'titulo': "CONTABILITAT"}
     return render(request, 'gestprj/contabilitat.html', context)
 
 
-@login_required(login_url='/menu/')
-@user_passes_test(es_admin,login_url='/welcome/')
-def new_project(request, id=None):
-    categories = TCategoriaPrj.objects.all()
-    organismes = TOrganismes.objects.all()
-    feines = TFeines.objects.all()
-    partides = TConceptesPress.objects.all()
-    claus_comptes = ClausDiferenCompte.objects.all();
-    nuevo = False
-    try:
-        instance = get_object_or_404(Projectes, id_projecte=id)
-    except Http404:
-        instance = None
-        nuevo = True
-        id = pk.generaPkProjecte()
-
-    form = ProjectesForm(request.POST or None, instance=instance)
-
-    if form.is_valid():
-        form.save()  # \/ pasar el id por url no sirve,hay que ponerlo en la del form
-        return render(request, 'gestprj/projecte_nou.html',
-                      {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
-                       'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
-                       'id_projecte': id, 'errorprojecte':False})  # , 'id_projecte':1534
-    else:
-        if nuevo:  # Si esta mal pero es nuevo
-            return render(request, 'gestprj/projecte_nou.html',
-                          {'form': form, 'titulo': 'NOU PROJECTE', 'categories': categories, 'organismes': organismes,
-                           'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
-                           'id_projecte': id, 'nuevo': True, 'errorprojecte':True})
-
-    # Si esta mal pero se esta editando:
-    return render(request, 'gestprj/projecte_nou.html',
-                  {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
-                   'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
-                   'id_projecte': id, 'errorprojecte':True})
+# @login_required(login_url='/menu/')
+# @user_passes_test(es_admin,login_url='/welcome/')
+# def new_project(request, id=None):
+#     categories = TCategoriaPrj.objects.all()
+#     organismes = TOrganismes.objects.all()
+#     feines = TFeines.objects.all()
+#     partides = TConceptesPress.objects.all()
+#     claus_comptes = ClausDiferenCompte.objects.all();
+#     nuevo = False
+#     try:
+#         instance = get_object_or_404(Projectes, id_projecte=id)
+#     except Http404:
+#         instance = None
+#         nuevo = True
+#         id = pk.generaPkProjecte()
+#
+#     form = ProjectesForm(request.POST or None, instance=instance)
+#
+#     if form.is_valid():
+#         form.save()  # \/ pasar el id por url no sirve,hay que ponerlo en la del form
+#         return render(request, 'gestprj/projecte_nou.html',
+#                       {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
+#                        'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
+#                        'id_projecte': id, 'errorprojecte':False})  # , 'id_projecte':1534
+#     else:
+#         if nuevo:  # Si esta mal pero es nuevo
+#             return render(request, 'gestprj/projecte_nou.html',
+#                           {'form': form, 'titulo': 'NOU PROJECTE', 'categories': categories, 'organismes': organismes,
+#                            'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
+#                            'id_projecte': id, 'nuevo': True, 'errorprojecte':True})
+#
+#     # Si esta mal pero se esta editando:
+#     return render(request, 'gestprj/projecte_nou.html',
+#                   {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
+#                    'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
+#                    'id_projecte': id, 'errorprojecte':True})
 
 
 @login_required(login_url='/menu/')

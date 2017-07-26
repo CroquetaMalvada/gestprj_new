@@ -81,8 +81,8 @@ urlpatterns = patterns('',
     #
 
     url(r'^llista_projectes/', views.list_projectes, name='llista_projectes'),
-    url(r'^projecte_nou/(?P<id>.+)/$', views.new_project, name='projecte_nou'),
-    url(r'^projecte_nou/', views.new_project, name='projecte_nou'),
+    # url(r'^projecte_nou/(?P<id>.+)/$', views.new_project, name='projecte_nou'),
+    # url(r'^projecte_nou/', views.new_project, name='projecte_nou'),
     url(r'^modificar_projecte/(?P<id>.+)/$', views.mod_project, name='modificar_projecte'), # Muy importante el orden en el que estan colocadas esta linea y la de abajo!!!
     url(r'^modificar_projecte/', views.mod_project, name='modificar_projecte'),
     url(r'^login/', views.login_view, name='login'),

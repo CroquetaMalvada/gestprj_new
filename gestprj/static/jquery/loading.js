@@ -12,21 +12,21 @@ $(document).ready(function(){
     $(document).on({
 //        ajaxStart: function(){$("#loading").dialog("open");},
 //        ajaxStop: function(){$("#loading").dialog("close");}
-        ajaxStart: function(){load = loading("Carregant...",true);},
+        ajaxStart: function(){load = loading("Carregant...");},
         ajaxStop: function(){load.close();}
     });
 
 });
 
-function loading(texto,cerrable){
-        var load = $.alert({
+function loading(texto){
+        return $.alert({//este alert se usa del jquery-confirm y sirve para que se carge antes que el ajax
             title:texto,
-            content:'<img src="http://bestanimations.com/Science/Gears/loadinggears/loading-gears-animation-10.gif"/>',
+            content:'<img src="'+$("#loading").attr("src")+'"/>',
             confirmButton: false
         });
 
-        if(cerrable==true)
-            return load;
+//        if(cerrable==true)
+//            return load;
 }
 
 function alerterror(){
@@ -40,4 +40,12 @@ function alerterror(){
         confirmButton: "OK"
 	});
 
+}
+
+function alertsuccess(texto){
+    var load = $.alert({
+            title:texto,
+            content:'<img src="'+$("#alertsuccess").attr("src")+'"/>',
+            confirmButton: "OK"
+    });
 }

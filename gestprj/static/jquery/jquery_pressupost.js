@@ -21,11 +21,11 @@ $(document).ready(function(){
         $("#formulario_pressupost").attr('action',pressupost.row(".selected").data()["url"]);
 	    $("#formulario_pressupost").attr("method","PUT");
 
-        $(document).find("#loading").dialog("open");
+        var load = loading("Carregant...");
         $.get(pressupost.row(".selected").data()["url"],function( data ){
             form.children("[name='id_concepte_pres']").val(data["id_concepte_pres"]);
             form.children("[name='import_field']").val(data["import_field"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_pressupost");
     });
 
@@ -91,12 +91,12 @@ $(document).ready(function(){
         $("#formulario_periodicitat_pressupost").attr('action',periodicitat_pressupost.row(".selected").data()["url"]);
 	    $("#formulario_periodicitat_pressupost").attr("method","PUT");
 
-        $(document).find("#loading").dialog("open");
+        var load = loading("Carregant...");
         $.get(periodicitat_pressupost.row(".selected").data()["url"],function( data ){
             form.children("[name='etiqueta']").val(data["etiqueta"]);
             form.children("[name='data_inicial']").val(data["data_inicial"]);
             form.children("[name='data_final']").val(data["data_final"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_periodicitat_pressupost");
     });
 
@@ -160,10 +160,10 @@ $(document).ready(function(){
         $("#formulario_periodicitat_partida").attr('action',periodicitat_partida.row(".selected").data()["url"]);
 	    $("#formulario_periodicitat_partida").attr("method","PUT");
 
-        $(document).find("#loading").dialog("open");
+        var load = loading("Carregant...");
         $.get(periodicitat_partida.row(".selected").data()["url"],function( data ){
             form.children("[name='import_field']").val(data["import_field"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_periodicitat_partida");
     });
 
@@ -209,13 +209,13 @@ $(document).ready(function(){
         $("#formulario_desglossament").attr('action',desglossament.row(".selected").data()["url"]);
 	    $("#formulario_desglossament").attr("method","PUT");
 
-        $(document).find("#loading").dialog("open");
+        var load = loading("Carregant...");
         $.get(desglossament.row(".selected").data()["url"],function( data ){
             form.children("[name='compte']").val(data["id_concepte_pres"]);
             form.children("[name='id_compte']").val(data["id_compte"]);
             form.children("[name='import_field']").val(data["import_field"]);
             form.children("[name='desc_compte']").val(data["desc_compte"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_desglossament");
     });
 

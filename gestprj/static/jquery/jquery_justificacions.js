@@ -25,13 +25,13 @@ $(document).ready(function(){
         $("#formulario_justificacio_projecte").attr('action',justificacions_projecte.row(".selected").data()["url"]);
 	    $("#formulario_justificacio_projecte").attr("method","PUT");
 
-        $(document).find("#loading").dialog("open");
+        var load = loading("Carregant...");
         $.get(justificacions_projecte.row(".selected").data()["url"],function( data ){
             form.children("[name='data_justificacio']").val(data["data_justificacio"]);
             form.children("[name='data_inici_periode']").val(data["data_inici_periode"]);
             form.children("[name='data_fi_periode']").val(data["data_fi_periode"]);
             form.children("[name='comentaris']").val(data["comentaris"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_justificacio_projecte");
     });
 
@@ -80,13 +80,13 @@ $(document).ready(function(){
         $("#formulario_auditories").attr('action',auditories.row(".selected").data()["url"]);
 	    $("#formulario_auditories").attr("method","PUT");
 
-        $(document).find("#loading").dialog("open");
+        var load = loading("Carregant...");
         $.get(auditories.row(".selected").data()["url"],function( data ){
             form.children("[name='data_auditoria']").val(data["data_auditoria"]);
             form.children("[name='data_inici_periode']").val(data["data_inici_periode"]);
             form.children("[name='data_fi_periode']").val(data["data_fi_periode"]);
             form.children("[name='comentaris']").val(data["comentaris"]);
-        }).done(function( data ){$(document).find("#loading").dialog("close");});
+        }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_auditories");
     });
 

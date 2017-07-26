@@ -21,6 +21,10 @@
 <script>alerterror();</script>
 {% endif %}
 
+{% if guardado %}
+<script>alertsuccess("Guardat amb éxit");</script>
+{% endif %}
+
 
 <div class="container-fluid">
 
@@ -289,7 +293,7 @@
                                 </table>
                                 <br><b>Total(€)</b><input id="total_import_organismes_fin" disabled/>
                                 <br><br><br>
-                                <h4>Organismes receptors</h4>>
+                                <h4>Organismes receptors</h4>
                                 <table id="table_organismes_rec" class="table table-striped table-bordered datatable">
                                     <a class="btn btn-success" id="afegir_organisme_rec" title="Afegir"
                                        href="#">
