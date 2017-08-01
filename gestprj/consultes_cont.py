@@ -406,6 +406,7 @@ def ContDespeses(projectes):#Seguiment Despeses Projectes
         fecha_max = datetime.strptime(projectes["data_max"], "%d-%m-%Y")
         # fecha_min = projectes["data_min"]
         # fecha_max = projectes["data_max"]
+        cursor = connections['default'].cursor()
         cursor = connections['contabilitat'].cursor()
         resultado = []
         for projecte_chk in projectes.getlist("prj_select"):
@@ -449,8 +450,10 @@ def ContDespeses(projectes):#Seguiment Despeses Projectes
             #     [codigo_entero, codigo_entero, codigo_entero, fecha_min, fecha_max])
             projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
 
-            ##### Para ir restando el saldo a medida que salen gastos:
+            # cursor.execute("SELECT CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '470%'  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero, fecha_max, fecha_min])
+            # net_disponible = dictfetchall(cursor) # un cursor.description tambien sirve
             saldo_disponible = float(net_disponible)
+
             total_despeses = 0
             for prjfet in projectfetch:
                 if prjfet["Haber"] == None:

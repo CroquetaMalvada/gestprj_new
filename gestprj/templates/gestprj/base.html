@@ -54,10 +54,10 @@
 
     </style>
     <!-- Bootstrap Core JavaScript -->
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{% static 'jquery/scripts_externos/jquery-3.0.0.min.js' %}"></script>
+    <script src="{% static 'jquery/scripts_externos/bootstrap.min.js' %}" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <!--<script type="text/javascript" src="{% static 'bootstrap/js/jquery.js' %}"></script>-->
-    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="{% static 'jquery/scripts_externos/jquery-2.2.0.min.js' %}"></script>
     <!--<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>-->
     <!-- jQuery -->
 
@@ -69,12 +69,18 @@
     <script type="text/javascript" src="{% static 'jquery/scripts_externos/datatables/jquery.dataTables.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/scripts_externos/datatables/dataTables.bootstrap.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/scripts_externos/datatables/dataTables.buttons.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'jquery/scripts_externos/buttons.print.min.js' %"></script>
-    <script type="text/javascript" src="{% static 'jquery/scripts_externos/buttons.html5.min.js' %"></script>
-    <script type="text/javascript" src="{% static 'jquery/scripts_externos/buttons.print.min.js' %"></script>
+    <!--<script type="text/javascript" src="static 'jquery/scripts_externos/buttons.print.min.js'"></script>-->
+    <script type="text/javascript" src="{% static 'jquery/scripts_externos/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/scripts_externos/buttons.print.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/scripts_externos/numeric-comma.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/formatnumber.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/loading.js' %}"></script>
+    <!--<script>-->
+        <!--function loading(){-->
+            <!--console.log("cargando");-->
+        <!--}-->
+    <!--</script>-->
+
     <script type="text/javascript" src="{% static 'jquery/sum().js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/jquery-confirm.js' %}"></script>
     <script type="text/javascript" src="{% static 'js-cookie-master/src/js.cookie.js' %}"></script>

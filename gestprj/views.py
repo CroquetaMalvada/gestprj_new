@@ -638,6 +638,7 @@ def cont_despeses(request):
 
     context = {'llista_despeses': llista_despeses, 'titulo': "LLISTA DE DESPESES"}
     return render(request, 'gestprj/cont_despeses.html', context)
+    # return HttpResponse([{}])
 
 # INGRESOS PROJECTE
 
