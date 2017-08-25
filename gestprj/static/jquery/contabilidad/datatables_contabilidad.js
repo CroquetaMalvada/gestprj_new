@@ -35,6 +35,22 @@ $(document).ready(function(){
 
    if($("#table_llista_projectes_cont")){//PROYECTOS
         table_projectes= $("#table_llista_projectes_cont").DataTable({
+            ajax:{
+                url: '/show_ProjectesCont/',
+                contentType: "application/json;",
+                dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
+            },
+            columns:[
+                {"render": function(){return '<input name="prj_select" type="checkbox" class="checkbox_responsable responsable_oberts"/>';}},
+                {'data': 'Codi'},
+                {'data': 'Estat'},
+                {'data': 'Acronim'},
+                {'data': 'Id_resp'}
+            ],
+            initComplete:function(){
+                ////por defecto se muestran los proyectos abiertos
+                nomes_oberts();
+            },
             scrollY:        '70vh',
             scrollCollapse: true,
             paging:         false,
@@ -42,7 +58,8 @@ $(document).ready(function(){
             overflow:       "auto",
             order:          [[ 1, "asc" ]],
             columnDefs:[
-                {"visible":false,"targets":[4]}
+//                {"visible":false,"targets":[4]},
+                {"width": "5%","className":"dt-center", "targets": [0] }
             ],
             dom: 'Bfrtip',
             buttons:[{
@@ -58,12 +75,43 @@ $(document).ready(function(){
                 text: '<span class="glyphicon glyphicon-asterisk" aria-hidden="true">  Mostrar Tots</span>',
                 action: function () {mostrar_tots();}
             }],
+            fnInitComplete:function(){
+                var tabla=$(this).DataTable();
+                tabla.rows().every(function(rowidx,tableloop,rowloop){
+                    // color de celda y bold
+                    if(tabla.cell(rowidx,2).data()=='Obert')
+                        $(tabla.cell(rowidx,2).node()).addClass("prjabierto");
+                    else
+                        $(tabla.cell(rowidx,2).node()).addClass("prjcerrado");
+                    tabla.cell(rowidx,2).data("<b>"+tabla.cell(rowidx,2).data()+"</b>");
+                    //
+                    //value de los inputs del proyecto
+                    var resp=tabla.cell(rowidx,1).data().substr(0,2);
+                    var prj=tabla.cell(rowidx,1).data().substr(2,4);
+                    $(tabla.cell(rowidx,0).node()).find(":checkbox").val(resp+"-"+prj);
+                    //
+
+                });
+                nomes_oberts();
+            },
             language: opciones_idioma
         });
    }
 
    if($("#table_llista_responsables_cont")){//RESPONSABLES
+//        alert(llista_responsables);
        table_responsables = $("#table_llista_responsables_cont").DataTable({
+            ajax:{
+                url: '/show_ResponsablesCont/',
+                contentType: "application/json;",
+                dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
+            },
+            columns:[
+                {"render": function(){return '<input type="checkbox" class="checkbox_responsable responsable_oberts"/>';}},
+                {"render": function(){return '<input type="checkbox" class="checkbox_responsable responsable_tancats"/>';}},
+                {'data': 'Nom'},
+                {'data': 'Id_resp'}
+            ],
             scrollY:        '70vh',
             scrollCollapse: true,
             paging:         false,
@@ -72,23 +120,12 @@ $(document).ready(function(){
             order:          [[ 2, "asc" ]],
             columnDefs:[
                 {"visible":false,"targets":[3]},
-                { "width": "5%", "targets": [0,1] }
+                {"width": "5%","className":"dt-center", "targets": [0,1] }
             ],
             language: opciones_idioma
         });
    }
-    // Al seleccionar un responsable se seleccionarán/deseleccionarán todos los proyectos de los que es responsable
-    $(".checkbox_responsable").on("change",function(){
-        if($(this).hasClass("responsable_oberts"))
-            projectes_de_responsable(this,"Obert");
-        else
-            projectes_de_responsable(this,"Tancat");
-    });
 
-    // Esta opción sirve para que todos los cambios de los botones de arriba se apliquen a los proyectos de los responsables marcados
-//    $(".checkbox_responsable").on("change",function(){
-//        projectes_de_responsable(this);
-//    });
 
 
 /////////////////// DATATABLES PARA DIALOGS
@@ -500,9 +537,6 @@ $(document).ready(function(){
             language: opciones_idioma
         });
     }
-    ////por defecto se muestran los proyectos abiertos
-    nomes_oberts();
-
 
 
 ////////////////////////////
@@ -568,3 +602,11 @@ function mostrar_tots() {
 function marcar_boton(){
 
 }
+
+// Al seleccionar un responsable se seleccionarán/deseleccionarán todos los proyectos de los que es responsable
+$(document).on("change", ".checkbox_responsable",function(){
+    if($(this).hasClass("responsable_oberts"))
+        projectes_de_responsable(this,"Obert");
+    else
+        projectes_de_responsable(this,"Tancat");
+});

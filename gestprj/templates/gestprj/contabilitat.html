@@ -1,6 +1,22 @@
 {% extends "gestprj/base.html" %}
 
 {% block contenido %}
+<!--<script>-->
+    <!--var llista_responsables="{{ llista_responsables|safe }}";-->
+
+<!--</script>-->
+<!--var llista_projectes="{{ llista_projectes }}';-->
+<style>
+    .tdcentrado{
+        text-align: center;
+     }
+     .prjabierto{
+        background:LightGreen;
+     }
+     .prjcerrado{
+        background:LightCoral;
+     }
+</style>
 <div class="content text-center">
 
     <h1>Gestió de Projectes</h1>
@@ -19,14 +35,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for responsable in llista_responsables %}
-                <tr>
-                    <td style=" text-align: center;"><input type="checkbox" class="checkbox_responsable responsable_oberts"/></td>
-                    <td style=" text-align: center;"><input type="checkbox" class="checkbox_responsable responsable_tancats"/></td>
-                    <td>{{ responsable.id_usuari.nom_usuari }}</td>
-                    <td>{{ responsable.id_resp }}</td>
-                </tr>
-                {% endfor %}
+
                 </tbody>
             </table>
         </div>
@@ -50,25 +59,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for projecte in llista_projectes %}
-                <tr>
-                    <td style=" text-align: center;"><input name="prj_select" type="checkbox" value="{{ projecte.id_resp.codi_resp }}-{{ projecte.codi_prj }}" /></td>
-                    <td>
-                        <!-- CUIDADO AL formatear documento ya que el if añade espacio -->
-                        {% if projecte.id_resp.codi_resp < 10 %}0{% endif %}{{ projecte.id_resp.codi_resp }}{% if projecte.codi_prj < 100 %}{% if projecte.codi_prj < 10 %}00{% else %}0{% endif %}{% endif %}{{ projecte.codi_prj }}
-                    </td>
 
-                    {% if projecte.id_estat_prj.desc_estat_prj == "Tancat" %}
-                    <td style="background:LightCoral"><b>{{ projecte.id_estat_prj }}</b></td>
-                    {% else %}
-                    <td style="background:LightGreen"><b>{{ projecte.id_estat_prj }}</b></td>
-                    {% endif %}
-
-                    <td>{{ projecte.acronim }}</td>
-                    <td>{{ projecte.id_resp.id_resp }}</td>
-                    <!--<td><input name="prj_id_resp" value="{{ projecte.id_resp.id_resp }}" /></td>-->
-                </tr>
-                {% endfor %}
                 </tbody>
 
 

@@ -80,6 +80,93 @@ def list_projectes(request):
 
 # VERSION CONTABILIDAD
 @login_required(login_url='/menu/')
+def ListResponsablesCont(request):
+    if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los responsables
+        llista_projectes = Projectes.objects.all()
+        llista_responsables = Responsables.objects.all()
+        resultado = []
+        for responsable in llista_responsables:
+            nom = responsable.id_usuari.nom_usuari
+            id_resp = str(responsable.id_resp)
+            resultado.append({'Nom': nom, 'Id_resp': id_resp})
+        resultado = json.dumps(resultado)
+        return HttpResponse(resultado, content_type='application/json;')
+
+    else:#sino solo saldra el
+        responsable = usuari_a_responsable(request)
+        resultado = []
+        if responsable is not None:
+            nom = responsable.id_usuari.nom_usuari
+            id_resp = str(responsable.id_resp)
+            resultado.append({'Nom': nom, 'Id_resp': id_resp})
+            resultado = json.dumps(resultado)
+            return HttpResponse(resultado, content_type='application/json;')
+        else:
+            return HttpResponse([{}], content_type='application/json')
+
+    #resultado = '[{"Nom": "Dani", "Codi_resp": "1"},{"Nom": "minidani", "Codi_resp": "2"}]'
+
+@login_required(login_url='/menu/')
+def ListProjectesCont(request):
+    if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
+        llista_projectes = Projectes.objects.all()
+        resultado = []
+        for projecte in llista_projectes:
+            codi = ""
+            # codi_resp=int(projecte.id_resp.codi_resp)
+            if projecte.codi_prj < 100:
+                if projecte.codi_prj < 10:
+                    codi = "00" + str(projecte.codi_prj)
+                else:
+                    codi = "0" + str(projecte.codi_prj)
+            else:
+                codi = str(projecte.codi_prj)
+
+            if projecte.id_resp.codi_resp < 10:
+                codi = "0" + str(projecte.id_resp.codi_resp) + codi
+            else:
+                codi = str(projecte.id_resp.codi_resp) + codi
+
+            estat = projecte.id_estat_prj.desc_estat_prj
+            acronim = projecte.acronim
+            id_resp = str(projecte.id_resp.id_resp)
+            resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp})
+        resultado = json.dumps(resultado)
+        return HttpResponse(resultado, content_type='application/json;')
+
+    else:#sino solo muestra SUS proyectos
+        responsable = usuari_a_responsable(request)
+        resultado = []
+        llista_projectes = Projectes.objects.filter(id_resp__id_resp=responsable.id_resp)
+        if responsable is not None:
+            for projecte in llista_projectes:
+                codi = ""
+                # codi_resp=int(projecte.id_resp.codi_resp)
+                if projecte.codi_prj < 100:
+                    if projecte.codi_prj < 10:
+                        codi = "00" + str(projecte.codi_prj)
+                    else:
+                        codi = "0" + str(projecte.codi_prj)
+                else:
+                    codi=str(projecte.codi_prj)
+
+                if projecte.id_resp.codi_resp < 10:
+                    codi = "0"+str(projecte.id_resp.codi_resp)+codi
+                else:
+                    codi = str(projecte.id_resp.codi_resp) + codi
+
+                estat = projecte.id_estat_prj.desc_estat_prj
+                acronim = projecte.acronim
+                id_resp = str(projecte.id_resp.id_resp)
+                resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp})
+                resultado = json.dumps(resultado)
+                return HttpResponse(resultado, content_type='application/json;')
+        else:
+            return HttpResponse([{}], content_type='application/json')
+
+    #resultado = '[{"Nom": "Dani", "Codi_resp": "1"},{"Nom": "minidani", "Codi_resp": "2"}]'
+
+@login_required(login_url='/menu/')
 def list_projectes_cont(request):
     if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
         llista_projectes = Projectes.objects.all()
@@ -97,8 +184,15 @@ def list_projectes_cont(request):
     # for projecte in llista_projectes:
     #     projecte.id_resp.codi_resp = int(projecte.id_resp.codi_resp)
     #     projecte.codi_prj = int(projecte.codi_prj)
+    # llista_responsables=list(llista_responsables)
+    llista_responsables_json=[{"nom":"Dani","id_resp":"1"},{"nom":"minidani","id_resp":"2"}]
+    # for responsable in llista_responsables:
+    # llista_responsables_json=serializers.serialize('json', llista_responsables)
+    # llista_projectes=json.dumps(ProjectesSerializer)
+    # llista_responsables = json.dumps(llista_responsables)
+    # llista_projectes=json.dumps(list(llista_projectes))
 
-    context = {'llista_projectes': llista_projectes,'llista_responsables': llista_responsables , 'titulo': "CONTABILITAT"}
+    context = {'llista_projectes': llista_projectes,'llista_responsables': llista_responsables_json , 'titulo': "CONTABILITAT"}
     return render(request, 'gestprj/contabilitat.html', context)
 
 

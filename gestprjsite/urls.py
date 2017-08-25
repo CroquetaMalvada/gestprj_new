@@ -81,7 +81,7 @@ urlpatterns = patterns('',
     url('^show_JustificacionsProjecte/(?P<id_projecte>.+)/$', views.ListJustificacionsProjecte.as_view()),
 
     url('^show_Auditories/(?P<id_projecte>.+)/$', views.ListAuditories.as_view()),
-    #
+
 
     url(r'^llista_projectes/', views.list_projectes, name='llista_projectes'),
     # url(r'^projecte_nou/(?P<id>.+)/$', views.new_project, name='projecte_nou'),
@@ -110,6 +110,10 @@ urlpatterns = patterns('',
     url(r'^cont_fitxa_major_prj/$', views.cont_fitxa_major_prj, name='fitxa_major_prj'),
     url(r'^cont_comptes_no_assignats/$', views.cont_comptes_no_assignats, name='comptes_no_assignats'),
 
+    # JSON de contabilidad
+    url(r'^show_ResponsablesCont/$', views.ListResponsablesCont, name="responsables llista"),
+    url(r'^show_ProjectesCont/$', views.ListProjectesCont, name="projectes llista"),
+    #
 )
 
 # if settings.DEBUG:

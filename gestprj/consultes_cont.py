@@ -406,7 +406,6 @@ def ContDespeses(projectes):#Seguiment Despeses Projectes
         fecha_max = datetime.strptime(projectes["data_max"], "%d-%m-%Y")
         # fecha_min = projectes["data_min"]
         # fecha_max = projectes["data_max"]
-        cursor = connections['default'].cursor()
         cursor = connections['contabilitat'].cursor()
         resultado = []
         for projecte_chk in projectes.getlist("prj_select"):
