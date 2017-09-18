@@ -6,7 +6,7 @@
     <div id="accordion">
             {% for projecte in llista_dades %}
             <h3>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</h3>
-            <div  class="ui-accordion-content text-left" style="background:lightgray">
+            <div  class="ui-accordion-content text-left" >
                 <h4>IDENTIFICACIÓ</h4>
                 <hr>
                 <div class="col-md-10"><b>Títol:</b>{{ projecte.dades_prj.titol }}</div>

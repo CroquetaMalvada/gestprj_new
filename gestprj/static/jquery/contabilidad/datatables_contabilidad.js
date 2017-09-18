@@ -58,7 +58,7 @@ $(document).ready(function(){
             overflow:       "auto",
             order:          [[ 1, "asc" ]],
             columnDefs:[
-//                {"visible":false,"targets":[4]},
+                {"visible":false,"targets":[4]},
                 {"width": "5%","className":"dt-center", "targets": [0] }
             ],
             dom: 'Bfrtip',
