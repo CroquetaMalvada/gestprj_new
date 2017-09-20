@@ -136,9 +136,10 @@ def ContDades(projectes):#Fitxa Dades Projectes
 
 def ContEstatPres(projectes):# Estat Pressupostari Projectes
 
-
-        fecha_min = projectes["data_min"]
-        fecha_max = projectes["data_max"]
+        fecha_min = datetime.strptime(projectes["data_min"], "%d-%m-%Y")
+        fecha_max = datetime.strptime(projectes["data_max"], "%d-%m-%Y")
+        # fecha_min = projectes["data_min"]
+        # fecha_max = projectes["data_max"]
         cursor = connections['contabilitat'].cursor()
         resultado = []
         proyectos = []
@@ -157,10 +158,17 @@ def ContEstatPres(projectes):# Estat Pressupostari Projectes
             cod_projecte = projecte_chk.split("-")[1]
             projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
 
-            if int(cod_responsable) < 10:
+            # if int(cod_responsable) < 10:
+            #     cod_responsable="0"+str(cod_responsable)
+            # if int(cod_projecte) < 100:
+            #     if int(cod_projecte) < 10:
+            #         cod_projecte="00"+str(cod_projecte)
+            #     else:
+            #         cod_projecte="0"+str(cod_projecte)
+            if len(cod_responsable) < 2:
                 cod_responsable="0"+str(cod_responsable)
-            if int(cod_projecte) < 100:
-                if int(cod_projecte) < 10:
+            if len(cod_projecte) < 3:
+                if len(cod_projecte) < 2:
                     cod_projecte="00"+str(cod_projecte)
                 else:
                     cod_projecte="0"+str(cod_projecte)
@@ -199,8 +207,8 @@ def ContEstatPres(projectes):# Estat Pressupostari Projectes
                     total_pressupostat = 0
                     total_gastat = 0
                     total_saldo =0
-                    data_min_periode=str(periode.data_inicial)
-                    data_max_periode=str(periode.data_final)
+                    data_min_periode= datetime.strptime(str(periode.data_inicial), "%Y-%m-%d")
+                    data_max_periode=datetime.strptime(str(periode.data_final), "%Y-%m-%d")
                     for partidaperio in PeriodicitatPartida.objects.filter(id_periodicitat=periode.id_periodicitat):#partida de x periodo
                         desc_partida=partidaperio.id_partida.id_concepte_pres.desc_concepte
                         #para el total de totales necesitaremos ir anadiendo aquellas partidas que no existan
@@ -228,9 +236,9 @@ def ContEstatPres(projectes):# Estat Pressupostari Projectes
                             codigo_final=cod_compte+codigo_entero#en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
                             if compte.id_compte:
                                 clau=str(compte.id_compte.clau_compte)
-                            #     cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE( ( Cuenta LIKE (?) AND Cuenta <>6296+(?) ) AND ( (Apuntes.Opc1=(?) AND Fecha<={d '2009-12-31'}) OR (Apuntes.Opc3=(?) AND Fecha>={d '2010-01-01'}) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",[codigo_final,codigo_entero,clau,clau,data_max_periode,data_min_periode])
+                            #     cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE( ( Cuenta LIKE (?) AND Cuenta  NOT LIKE 6296+(?) ) AND ( (Apuntes.Opc1=(?) AND Fecha<={d '2009-12-31'}) OR (Apuntes.Opc3=(?) AND Fecha>={d '2010-01-01'}) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",[codigo_final,codigo_entero,clau,clau,data_max_periode,data_min_periode])
                             # else:
-                            cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE(  CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA<>6296+(?) ) ) ",[codigo_entero,data_max_periode,data_min_periode,cod_compte,codigo_entero])
+                            cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE(  CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N'  AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA NOT LIKE 6296+(?) ) ) ",[codigo_entero,data_max_periode,data_min_periode,cod_compte,codigo_entero])
                             cuentacont=dictfetchall(cursor) #Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
                             if cuentacont:
                                 for cont in cuentacont:
@@ -299,7 +307,7 @@ def ContEstatPres(projectes):# Estat Pressupostari Projectes
 
                             codigo_final=cod_compte+codigo_entero#en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
                             # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
-                            cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+(?) AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",[codigo_entero,cod_compte]) # AND ( FECHA<'2017-01-01 00:00:00.000' )
+                            cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",[codigo_entero,fecha_max,fecha_min,cod_compte]) # AND ( FECHA<'2017-01-01 00:00:00.000' )
                             cuentacont=dictfetchall(cursor)
                             if cuentacont:
                                 for cont in cuentacont:
@@ -357,7 +365,7 @@ def DespesesCompte(id_partida,codigo_entero,data_min,data_max):
 
                 codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
                 #En esta version(erp) el valor de la bdd es un decimal,el cual no cojera el json.Asi que lo convertimos a varchar EXCEPTO(ojo!!) los campos de descripcion que han de ser nvarchar para que pillen acentos y utf-8
-                cursor.execute("SELECT CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?) AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",[codigo_entero, cod_compte])
+                cursor.execute("SELECT CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?) AND TIPAPU='N' AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",[codigo_entero, cod_compte])
                 cuentacont = dictfetchall(cursor)  # Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
                 if cuentacont:
                     for cont in cuentacont:
@@ -387,10 +395,10 @@ def DespesesCompte(id_partida,codigo_entero,data_min,data_max):
                 # if compte.id_compte:
                 #     clau = str(compte.id_compte.clau_compte)
                 #     cursor.execute(
-                #         "SELECT CONVERT(varchar, Fecha,105) AS Fecha, Asiento, Cuenta, Descripcion, Debe FROM Apuntes WHERE ( (Diario='0' OR Diario='4' OR Diario='1') AND ( Cuenta LIKE (?) AND Cuenta <>6296+(?) ) AND ( (Apuntes.Opc1=(?) AND Fecha<={d '2009-12-31'}) OR (Apuntes.Opc3=(?) AND Fecha>={d '2010-01-01'}) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",
+                #         "SELECT CONVERT(varchar, Fecha,105) AS Fecha, Asiento, Cuenta, Descripcion, Debe FROM Apuntes WHERE ( (Diario='0' OR Diario='4' OR Diario='1') AND ( Cuenta LIKE (?) AND Cuenta  NOT LIKE 6296+(?) ) AND ( (Apuntes.Opc1=(?) AND Fecha<={d '2009-12-31'}) OR (Apuntes.Opc3=(?) AND Fecha>={d '2010-01-01'}) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",
                 #         [codigo_final, codigo_entero, clau, clau, data_max_periode, data_min_periode])
                 # else:
-                cursor.execute("SELECT CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) )  AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA <>6296+(?) ) ",[codigo_entero,data_max_periode,data_min_periode, cod_compte, codigo_entero])
+                cursor.execute("SELECT CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?)  AND TIPAPU='N' AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) )  AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA  NOT LIKE 6296+(?) ) ",[codigo_entero,data_max_periode,data_min_periode, cod_compte, codigo_entero])
                 cuentacont = dictfetchall(cursor)  # Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
                 if cuentacont:
                     for cont in cuentacont:
@@ -442,10 +450,10 @@ def ContDespeses(projectes):#Seguiment Despeses Projectes
             #####
 
             # 105 en el convert equivale al dd-mm-yyyy
-            cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(VARCHAR,TEXTO) as Clau, CONVERT(NVARCHAR(200),DESCAPU) AS Documento,CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%') AND CUENTAS.CUENTA <> '6296'+(?)  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero,codigo_entero,fecha_max,fecha_min])
-            #SELECT CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) )  AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA <>6296+(?) ) ",[codigo_entero,data_max_periode,data_min_periode, cod_compte, codigo_entero])
+            cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(VARCHAR,TEXTO) as Clau, CONVERT(NVARCHAR(200),DESCAPU) AS Documento,CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%') AND CUENTAS.CUENTA  NOT LIKE  '6296'+(?) AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero,codigo_entero,fecha_max,fecha_min])
+            #SELECT CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) )  AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA  NOT LIKE 6296+(?) ) ",[codigo_entero,data_max_periode,data_min_periode, cod_compte, codigo_entero])
             # cursor.execute(
-            #     "SELECT TOP 100 PERCENT CONVERT(VARCHAR,Fecha,105)as Data, Asiento, Documento, Cuenta, Opc1, Opc3, Descripcion, Opc2, Debe, Haber FROM  Apuntes WHERE ((Diario='0' OR Diario='1' OR Diario='4') AND (((Cuenta LIKE '2%'+(?)) OR (Cuenta LIKE '6%'+(?))) AND (Cuenta <> '6296'+(?))) AND ((Fecha >= CONVERT(date,(?),105)) AND (Fecha<=CONVERT(date,(?),105)))) ORDER BY cast(Fecha as date)",
+            #     "SELECT TOP 100 PERCENT CONVERT(VARCHAR,Fecha,105)as Data, Asiento, Documento, Cuenta, Opc1, Opc3, Descripcion, Opc2, Debe, Haber FROM  Apuntes WHERE ((Diario='0' OR Diario='1' OR Diario='4') AND (((Cuenta LIKE '2%'+(?)) OR (Cuenta LIKE '6%'+(?))) AND (Cuenta  NOT LIKE  '6296'+(?))) AND ((Fecha >= CONVERT(date,(?),105)) AND (Fecha<=CONVERT(date,(?),105)))) ORDER BY cast(Fecha as date)",
             #     [codigo_entero, codigo_entero, codigo_entero, fecha_min, fecha_max])
             projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
 
@@ -512,8 +520,8 @@ def ContIngresos(projectes):#Seguiment Ingressos Projectes
             #####
 
             # 105 en el convert equivale al dd-mm-yyyy
-            cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA <> '6296'+(?)  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero, codigo_entero, fecha_max, fecha_min])
-            #cursor.execute("SELECT TOP 100 PERCENT CONVERT(VARCHAR,Fecha,105)as Data, Asiento, Cuenta, Descripcion, Debe, Haber FROM  Apuntes WHERE ((Diario='0' OR Diario='1' OR Diario='4') AND (Cuenta LIKE '7%'+(?)) AND (Cuenta <> '6296'+(?)) AND ((Fecha >= CONVERT(date,(?),105)) AND (Fecha<=CONVERT(date,(?),105)))) ORDER BY cast(Fecha as date)",[codigo_entero, codigo_entero, fecha_min, fecha_max])
+            cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA  NOT LIKE  '79%' AND CUENTAS.CUENTA  NOT LIKE  '6296'+(?) AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero, codigo_entero, fecha_max, fecha_min])
+            #cursor.execute("SELECT TOP 100 PERCENT CONVERT(VARCHAR,Fecha,105)as Data, Asiento, Cuenta, Descripcion, Debe, Haber FROM  Apuntes WHERE ((Diario='0' OR Diario='1' OR Diario='4') AND (Cuenta LIKE '7%'+(?)) AND (Cuenta  NOT LIKE  '6296'+(?)) AND ((Fecha >= CONVERT(date,(?),105)) AND (Fecha<=CONVERT(date,(?),105)))) ORDER BY cast(Fecha as date)",[codigo_entero, codigo_entero, fecha_min, fecha_max])
             projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
 
             ##### Para ir restando el saldo pendiente a medida que salen ingresos:
@@ -576,7 +584,7 @@ def FitxaMajorProjectes(projectes):#Fitxa Major Projectes (Ingressos i Despeses)
             canon = round(canon,2)
             net_disponible = round(net_disponible,2)
             ##### OJO que para ir restando el saldo hay que devolver los resultados ordenados por la fecha,para ello he tenido que modificar el ORDER BY
-            cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '7%' OR CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%') AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero, fecha_max, fecha_min])
+            cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '7%' OR CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero, fecha_max, fecha_min])
             #cursor.execute("SELECT TOP 100 PERCENT CONVERT(VARCHAR,Fecha,105) as Fecha, Asiento, Cuenta, Descripcion, Debe, Haber FROM  Apuntes WHERE ((Diario='0' OR Diario='1' OR Diario='4') AND ((Cuenta LIKE '2%'+(?)) OR (Cuenta LIKE '6%'+(?)) OR (Cuenta LIKE '7%'+(?))) AND ((Fecha >=CONVERT(date, (?),105)) AND (Fecha<=CONVERT(date, (?),105)))) ORDER BY cast(Fecha as date)",[codigo_entero, codigo_entero, codigo_entero, fecha_min, fecha_max])
             projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
 
@@ -706,21 +714,21 @@ def EstatProjectesResp(projectes):#Estat Projectes per Responsable
                     ### consulta SQL
 
                     cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
-                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA<>'7900'+(?) AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
-                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '2%') AND CUENTAS.CUENTA<>'6296'+(?) AND CONVERT(date,FECHA,121)<=(?))) AS despeses,"
-                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '7900%' OR CUENTAS.CUENTA LIKE '6296%') AND CONVERT(date,FECHA,121)<=(?))) AS canon",
-                                   [codigo_entero,codigo_entero, fecha_max,codigo_entero,codigo_entero, fecha_max,codigo_entero, fecha_max])
+                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA NOT LIKE '79%' AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
+                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '2%') AND CUENTAS.CUENTA NOT LIKE '6296'+(?) AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?))) AS despeses,"
+                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '79%' OR CUENTAS.CUENTA LIKE '6296%') AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?))) AS canon",
+                                   [codigo_entero, fecha_max,codigo_entero,codigo_entero, fecha_max,codigo_entero, fecha_max])
 
 
                     #                    cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
-                       #            "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA<>'7900'+(?) AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
-                      #             "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '2%') AND CUENTAS.CUENTA<>'6296'+(?) AND CONVERT(date,FECHA,121)<=(?))) AS despeses,"
+                       #            "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA NOT LIKE '7900'+(?) AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
+                      #             "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '2%') AND CUENTAS.CUENTA NOT LIKE '6296'+(?) AND CONVERT(date,FECHA,121)<=(?))) AS despeses,"
                      #              "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA='7900'+(?) OR CUENTAS.CUENTA='6296'+(?)) AND CONVERT(date,FECHA,121)<=(?))) AS canon",
                     #               [codigo_entero,codigo_entero, fecha_max,codigo_entero,codigo_entero, fecha_max,codigo_entero,codigo_entero,codigo_entero, fecha_max])
 
                     #cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM (
-                    #  SELECT Sum(Debe) AS ingressosD, Sum(Haber) AS ingressosH FROM Apuntes WHERE(Diario='0' OR Diario='4' OR Diario='1') AND (Cuenta LIKE '7%'+(?) AND Cuenta<>'7900'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as ingressos,
-                    #  ( SELECT Sum(Debe) AS despesesD, Sum(Haber) AS despesesH FROM Apuntes WHERE (Diario='0' OR Diario='4' OR Diario='1') AND ((Cuenta LIKE'6%'+(?) OR Cuenta LIKE'2%'+(?)) AND Cuenta<>'6296'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as despeses,
+                    #  SELECT Sum(Debe) AS ingressosD, Sum(Haber) AS ingressosH FROM Apuntes WHERE(Diario='0' OR Diario='4' OR Diario='1') AND (Cuenta LIKE '7%'+(?) AND Cuenta NOT LIKE '7900'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as ingressos,
+                    #  ( SELECT Sum(Debe) AS despesesD, Sum(Haber) AS despesesH FROM Apuntes WHERE (Diario='0' OR Diario='4' OR Diario='1') AND ((Cuenta LIKE'6%'+(?) OR Cuenta LIKE'2%'+(?)) AND Cuenta NOT LIKE '6296'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as despeses,
                     #  ( SELECT Sum(Debe) AS canonD, Sum(Haber) AS canonH FROM Apuntes WHERE (Diario='0' OR Diario='4' OR Diario='1') AND (Cuenta='7900'+(?) OR Cuenta='6296'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as canon",[codigo_entero,codigo_entero,fecha_max,codigo_entero,codigo_entero,codigo_entero,fecha_max,codigo_entero,codigo_entero,fecha_max])
                     projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
 
@@ -751,7 +759,7 @@ def EstatProjectesResp(projectes):#Estat Projectes per Responsable
                     canon_aplicat =round(canonD-canonH,2)
                     disponible_caixa = round(ingressos-despeses-canon_aplicat,2)
                     disponible_real = round(concedit-iva-canon_total-despeses,2)# OJO esta ok,solo que como algunos importes salen x100 tiene un valor elevado.
-                    pendent = round(abs(disponible_caixa-disponible_real),2)
+                    pendent = round(abs(concedit-iva-ingressos),2)
                     #
                     # Hora de ir sumando los resultados de cada proyecto del investigador
                     proyectos.append({
@@ -831,7 +839,7 @@ def ResumFitxaMajorProjectes(projectes):#Resum Fitxa Major Projectes per Comptes
             #####
 
             #obtener las cuentas de x proyecto
-            cursor.execute("SELECT CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(varchar(200),CUENTAS.DESCCUE) AS Titulo, CONVERT(varchar,Sum(DEBE))AS TotalDebe, CONVERT(varchar,Sum(HABER))AS TotalHaber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE ( CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '7%') AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) GROUP BY CUENTAS.CUENTA,CUENTAS.DESCCUE ORDER BY CUENTAS.CUENTA",[codigo_entero,fecha_max,fecha_min])
+            cursor.execute("SELECT CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(varchar(200),CUENTAS.DESCCUE) AS Titulo, CONVERT(varchar,Sum(DEBE))AS TotalDebe, CONVERT(varchar,Sum(HABER))AS TotalHaber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE ( CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '7%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) GROUP BY CUENTAS.CUENTA,CUENTAS.DESCCUE ORDER BY CUENTAS.CUENTA",[codigo_entero,fecha_max,fecha_min])
             #cursor.execute("SELECT TOP 100 PERCENT Apuntes.Cuenta, Plan_cuentas.Titulo, Sum(Apuntes.Debe) AS TotalDebe, Sum(Apuntes.Haber) AS TotalHaber FROM Plan_cuentas LEFT JOIN Apuntes ON (Plan_cuentas.Cuenta = Apuntes.Cuenta) WHERE ( (Plan_cuentas.Nivel=0) AND (((Apuntes.Cuenta) LIKE '2%'+(?))OR((Apuntes.Cuenta) LIKE '6%'+(?) )OR((Apuntes.Cuenta) LIKE '7%'+(?))) AND ((Apuntes.Diario)='0' OR (Apuntes.Diario)='4' OR (Apuntes.Diario)='1') AND ((Apuntes.Fecha)>=CONVERT(date, (?),105) AND (Apuntes.Fecha)<=CONVERT(date, (?),105))) GROUP BY Apuntes.Cuenta, Plan_cuentas.Titulo ORDER BY Apuntes.Cuenta",[codigo_entero,codigo_entero,codigo_entero,fecha_min,fecha_max])
             projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
 
@@ -893,7 +901,7 @@ def MovimentsCompte(compte,data_min,data_max):
         fecha_max = datetime.strptime(data_max, "%d-%m-%Y")
         cursor = connections['contabilitat'].cursor()
         #he modificado el primer resultado y ultimo resultado(que eran simplemente "Fecha"),el primero para que devuelva un "Fecha" como string en lugar de en partes,y el ultimo para relizar los calculos del saldo(ya que se deben hacer de mas antiguos a nuevos)
-        cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CUENTAS.CUENTA LIKE (?)+'%' AND CENTROCOSTE2='   '+(?) AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[cuenta,codigo_entero, fecha_max, fecha_min])
+        cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CUENTAS.CUENTA LIKE (?)+'%' AND CENTROCOSTE2='   '+(?) AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[cuenta,codigo_entero, fecha_max, fecha_min])
         #cursor.execute("SELECT TOP 100 PERCENT CONVERT(varchar, Fecha,105) AS Fecha, Asiento, Cuenta, Descripcion, Debe, Haber FROM Apuntes WHERE (Cuenta=(?) AND (Diario='0' OR Diario='4' OR Diario='1') AND ((Apuntes.Fecha)>=CONVERT(date, (?),105) AND (Apuntes.Fecha)<=CONVERT(date, (?),105))) ORDER BY cast(Fecha as date)",[compte,fecha_min,fecha_max])
         fetch =  dictfetchall(cursor)
         saldo = 0
@@ -995,13 +1003,13 @@ def ResumEstatProjectes(projectes):#Resum Estat Projectes
                     #############
                     ### consulta SQL
                     cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
-                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA<>'7900'+(?) AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
-                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '2%') AND CUENTAS.CUENTA<>'6296'+(?) AND CONVERT(date,FECHA,121)<=(?))) AS despeses,"
-                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '7900%' OR CUENTAS.CUENTA LIKE '6296%') AND CONVERT(date,FECHA,121)<=(?))) AS canon",
+                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA NOT LIKE '7900'+(?) AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
+                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '2%') AND CUENTAS.CUENTA NOT LIKE '6296'+(?) AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS despeses,"
+                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '7900%' OR CUENTAS.CUENTA LIKE '6296%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS canon",
                                    [codigo_entero, codigo_entero, fecha_max, codigo_entero, codigo_entero, fecha_max,codigo_entero, fecha_max])
                     # cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
-                    #                "( SELECT Sum(Debe) AS ingressosD, Sum(Haber) AS ingressosH FROM Apuntes WHERE(Diario='0' OR Diario='4' OR Diario='1') AND (Cuenta LIKE '7%'+(?) AND Cuenta<>'7900'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as ingressos, "
-                    #                "( SELECT Sum(Debe) AS despesesD, Sum(Haber) AS despesesH FROM Apuntes WHERE (Diario='0' OR Diario='4' OR Diario='1') AND ((Cuenta LIKE'6%'+(?) OR Cuenta LIKE'2%'+(?)) AND Cuenta<>'6296'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as despeses, "
+                    #                "( SELECT Sum(Debe) AS ingressosD, Sum(Haber) AS ingressosH FROM Apuntes WHERE(Diario='0' OR Diario='4' OR Diario='1') AND (Cuenta LIKE '7%'+(?) AND Cuenta NOT LIKE '7900'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as ingressos, "
+                    #                "( SELECT Sum(Debe) AS despesesD, Sum(Haber) AS despesesH FROM Apuntes WHERE (Diario='0' OR Diario='4' OR Diario='1') AND ((Cuenta LIKE'6%'+(?) OR Cuenta LIKE'2%'+(?)) AND Cuenta NOT LIKE '6296'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as despeses, "
                     #                "( SELECT Sum(Debe) AS canonD, Sum(Haber) AS canonH FROM Apuntes WHERE (Diario='0' OR Diario='4' OR Diario='1') AND (Cuenta='7900'+(?) OR Cuenta='6296'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as canon",
                     # [codigo_entero,codigo_entero,fecha_max,codigo_entero,codigo_entero,codigo_entero,fecha_max,codigo_entero,codigo_entero,fecha_max])
                     projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
@@ -1170,11 +1178,11 @@ def ResumEstatCanon(projectes):#Resum Estat Canon Projectes per Responsable
 
                 ### consulta SQL
                 cursor.execute("SELECT ingressosD, ingressosH, canonD, canonH FROM "
-                               "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA<>'7900'+(?) AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
-                               "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '7900%' OR CUENTAS.CUENTA LIKE '6296%') AND CONVERT(date,FECHA,121)<=(?))) AS canon",
-                               [codigo_entero, codigo_entero, fecha_max,codigo_entero, fecha_max])
+                               "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA NOT LIKE '79%' AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
+                               "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '79%' OR CUENTAS.CUENTA LIKE '6296%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS canon",
+                               [codigo_entero, fecha_max,codigo_entero, fecha_max])
                 # cursor.execute("SELECT ingressosD, ingressosH, canonD, canonH FROM
-                # ( SELECT Sum(Debe) AS ingressosD, Sum(Haber) AS ingressosH FROM Apuntes WHERE (Diario='0' OR Diario='4' OR Diario='1') AND Cuenta LIKE'7%'+(?) AND Cuenta<>'7900'+(?) AND (Fecha<= CONVERT(date, (?),105))) as ingressos,
+                # ( SELECT Sum(Debe) AS ingressosD, Sum(Haber) AS ingressosH FROM Apuntes WHERE (Diario='0' OR Diario='4' OR Diario='1') AND Cuenta LIKE'7%'+(?) AND Cuenta NOT LIKE '7900'+(?) AND (Fecha<= CONVERT(date, (?),105))) as ingressos,
                 # ( SELECT Sum(Debe) AS canonD, Sum(Haber) AS canonH FROM Apuntes WHERE (Diario='0' OR Diario='4' OR Diario='1') AND (Cuenta='7900'+(?) OR Cuenta='6296'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as canon",[codigo_entero,codigo_entero,fecha_max,codigo_entero,codigo_entero,fecha_max])
                 projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
 
@@ -1355,7 +1363,7 @@ def ComptesNoAssignats(projectes):#Comptes NO assignats a cap projecte
             lista_codigos=lista_codigos+codigo_entero
 
         # 105 en el convert equivale al dd-mm-yyyy
-        cursor.execute("SELECT CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(varchar(200),CUENTAS.DESCCUE) AS Titulo, CONVERT(varchar,Sum(DEBE))AS TotalDebe, CONVERT(varchar,Sum(HABER))AS TotalHaber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE ( (CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '7%') AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) AND (RIGHT(CUENTAS.CUENTA,5) NOT IN ((?))) ) GROUP BY CUENTAS.CUENTA,CUENTAS.DESCCUE ORDER BY CUENTAS.CUENTA",[fecha_max,fecha_min,lista_codigos])
+        cursor.execute("SELECT CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(varchar(200),CUENTAS.DESCCUE) AS Titulo, CONVERT(varchar,Sum(DEBE))AS TotalDebe, CONVERT(varchar,Sum(HABER))AS TotalHaber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE ( (CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '7%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) AND (RIGHT(CUENTAS.CUENTA,5) NOT IN ((?))) ) GROUP BY CUENTAS.CUENTA,CUENTAS.DESCCUE ORDER BY CUENTAS.CUENTA",[fecha_max,fecha_min,lista_codigos])
         # cursor.execute("SELECT TOP 100 PERCENT Plan_cuentas.Cuenta, Plan_cuentas.Titulo, Sum(Apuntes.Debe) AS TotalDebe, Sum(Apuntes.Haber) AS TotalHaber FROM Plan_cuentas LEFT JOIN Apuntes ON (Plan_cuentas.Cuenta = Apuntes.Cuenta) WHERE ( (Plan_cuentas.Nivel=0) AND ((Plan_cuentas.Cuenta LIKE '7%%') OR (Plan_cuentas.Cuenta LIKE '6%%') OR (Plan_cuentas.Cuenta LIKE '2%%')) AND (Apuntes.Diario='0' OR Apuntes.Diario='4' OR Apuntes.Diario='1') AND (Apuntes.Fecha>=CONVERT(date,(?),105) AND Apuntes.Fecha<=CONVERT(date,(?),105)) AND ( RIGHT(Plan_cuentas.Cuenta, 5) NOT IN ((?)))) GROUP BY Plan_cuentas.Cuenta, Plan_cuentas.Titulo ORDER BY Plan_cuentas.Cuenta",[fecha_min,fecha_max,lista_codigos])
         projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
 

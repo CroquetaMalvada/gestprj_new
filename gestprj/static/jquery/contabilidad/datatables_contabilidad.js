@@ -51,6 +51,7 @@ $(document).ready(function(){
                 ////por defecto se muestran los proyectos abiertos
                 nomes_oberts();
             },
+            stateSave: true,
             scrollY:        '70vh',
             scrollCollapse: true,
             paging:         false,
@@ -112,6 +113,7 @@ $(document).ready(function(){
                 {'data': 'Nom'},
                 {'data': 'Id_resp'}
             ],
+            stateSave: true,
             scrollY:        '70vh',
             scrollCollapse: true,
             paging:         false,
