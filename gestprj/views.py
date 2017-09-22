@@ -137,7 +137,13 @@ def ListProjectesCont(request):
     else:#sino solo muestra SUS proyectos
         responsable = usuari_a_responsable(request)
         resultado = []
-        llista_projectes = Projectes.objects.filter(id_resp__id_resp=responsable.id_resp)
+        #quitar este if cuando el gestor este acabado
+        if(request.user.username=="josepantoni"):
+            llista_projectes = Projectes.objects.filter(id_resp__id_resp="8")
+            responsable="josepanotni"
+        else:
+            llista_projectes = Projectes.objects.filter(id_resp__id_resp=responsable.id_resp)
+
         if responsable is not None:
             for projecte in llista_projectes:
                 codi = ""
@@ -159,8 +165,8 @@ def ListProjectesCont(request):
                 acronim = projecte.acronim
                 id_resp = str(projecte.id_resp.id_resp)
                 resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp})
-                resultado = json.dumps(resultado)
-                return HttpResponse(resultado, content_type='application/json;')
+            resultado = json.dumps(resultado)
+            return HttpResponse(resultado, content_type='application/json;')
         else:
             return HttpResponse([{}], content_type='application/json')
 
@@ -185,14 +191,13 @@ def list_projectes_cont(request):
     #     projecte.id_resp.codi_resp = int(projecte.id_resp.codi_resp)
     #     projecte.codi_prj = int(projecte.codi_prj)
     # llista_responsables=list(llista_responsables)
-    llista_responsables_json=[{"nom":"Dani","id_resp":"1"},{"nom":"minidani","id_resp":"2"}]
     # for responsable in llista_responsables:
     # llista_responsables_json=serializers.serialize('json', llista_responsables)
     # llista_projectes=json.dumps(ProjectesSerializer)
     # llista_responsables = json.dumps(llista_responsables)
     # llista_projectes=json.dumps(list(llista_projectes))
 
-    context = {'llista_projectes': llista_projectes,'llista_responsables': llista_responsables_json , 'titulo': "CONTABILITAT"}
+    context = {'llista_projectes': llista_projectes , 'titulo': "CONTABILITAT"}
     return render(request, 'gestprj/contabilitat.html', context)
 
 

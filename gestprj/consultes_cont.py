@@ -25,10 +25,17 @@ def ContDades(projectes):#Fitxa Dades Projectes
             cod_projecte = projecte_chk.split("-")[1]
             projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
 
-            if int(cod_responsable) < 10:
+            # if int(cod_responsable) < 10:
+            #     cod_responsable="0"+str(cod_responsable)
+            # if int(cod_projecte) < 100:
+            #     if int(cod_projecte) < 10:
+            #         cod_projecte="00"+str(cod_projecte)
+            #     else:
+            #         cod_projecte="0"+str(cod_projecte)
+            if len(cod_responsable) < 2:
                 cod_responsable="0"+str(cod_responsable)
-            if int(cod_projecte) < 100:
-                if int(cod_projecte) < 10:
+            if len(cod_projecte) < 3:
+                if len(cod_projecte) < 2:
                     cod_projecte="00"+str(cod_projecte)
                 else:
                     cod_projecte="0"+str(cod_projecte)
@@ -425,10 +432,17 @@ def ContDespeses(projectes):#Seguiment Despeses Projectes
             projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
 
             ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
-            if int(cod_responsable) < 10:
+            # if int(cod_responsable) < 10:
+            #     cod_responsable="0"+str(cod_responsable)
+            # if int(cod_projecte) < 100:
+            #     if int(cod_projecte) < 10:
+            #         cod_projecte="00"+str(cod_projecte)
+            #     else:
+            #         cod_projecte="0"+str(cod_projecte)
+            if len(cod_responsable) < 2:
                 cod_responsable="0"+str(cod_responsable)
-            if int(cod_projecte) < 100:
-                if int(cod_projecte) < 10:
+            if len(cod_projecte) < 3:
+                if len(cod_projecte) < 2:
                     cod_projecte="00"+str(cod_projecte)
                 else:
                     cod_projecte="0"+str(cod_projecte)
@@ -501,10 +515,17 @@ def ContIngresos(projectes):#Seguiment Ingressos Projectes
             projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
             ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
 
-            if int(cod_responsable) < 10:
+            # if int(cod_responsable) < 10:
+            #     cod_responsable="0"+str(cod_responsable)
+            # if int(cod_projecte) < 100:
+            #     if int(cod_projecte) < 10:
+            #         cod_projecte="00"+str(cod_projecte)
+            #     else:
+            #         cod_projecte="0"+str(cod_projecte)
+            if len(cod_responsable) < 2:
                 cod_responsable="0"+str(cod_responsable)
-            if int(cod_projecte) < 100:
-                if int(cod_projecte) < 10:
+            if len(cod_projecte) < 3:
+                if len(cod_projecte) < 2:
                     cod_projecte="00"+str(cod_projecte)
                 else:
                     cod_projecte="0"+str(cod_projecte)
@@ -561,10 +582,17 @@ def FitxaMajorProjectes(projectes):#Fitxa Major Projectes (Ingressos i Despeses)
             projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
             ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
 
-            if int(cod_responsable) < 10:
+            # if int(cod_responsable) < 10:
+            #     cod_responsable="0"+str(cod_responsable)
+            # if int(cod_projecte) < 100:
+            #     if int(cod_projecte) < 10:
+            #         cod_projecte="00"+str(cod_projecte)
+            #     else:
+            #         cod_projecte="0"+str(cod_projecte)
+            if len(cod_responsable) < 2:
                 cod_responsable="0"+str(cod_responsable)
-            if int(cod_projecte) < 100:
-                if int(cod_projecte) < 10:
+            if len(cod_projecte) < 3:
+                if len(cod_projecte) < 2:
                     cod_projecte="00"+str(cod_projecte)
                 else:
                     cod_projecte="0"+str(cod_projecte)
@@ -672,13 +700,20 @@ def EstatProjectesResp(projectes):#Estat Projectes per Responsable
                     cod_projecte = projecte_chk.split("-")[1]
                     projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
                     ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
-                    if int(cod_responsable) < 10:
-                        cod_responsable="0"+str(cod_responsable)
-                    if int(cod_projecte) < 100:
-                        if int(cod_projecte) < 10:
-                            cod_projecte="00"+str(cod_projecte)
+                    # if int(cod_responsable) < 10:
+                    #     cod_responsable="0"+str(cod_responsable)
+                    # if int(cod_projecte) < 100:
+                    #     if int(cod_projecte) < 10:
+                    #         cod_projecte="00"+str(cod_projecte)
+                    #     else:
+                    #         cod_projecte="0"+str(cod_projecte)
+                    if len(cod_responsable) < 2:
+                        cod_responsable = "0" + str(cod_responsable)
+                    if len(cod_projecte) < 3:
+                        if len(cod_projecte) < 2:
+                            cod_projecte = "00" + str(cod_projecte)
                         else:
-                            cod_projecte="0"+str(cod_projecte)
+                            cod_projecte = "0" + str(cod_projecte)
                     #####
                     codigo_entero=cod_responsable+cod_projecte
                     #####
@@ -818,10 +853,17 @@ def ResumFitxaMajorProjectes(projectes):#Resum Fitxa Major Projectes per Comptes
             projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
             ### poner 0 en los codigos si son demasiado cortos para tener x tamano
 
-            if int(cod_responsable) < 10:
+            # if int(cod_responsable) < 10:
+            #     cod_responsable="0"+str(cod_responsable)
+            # if int(cod_projecte) < 100:
+            #     if int(cod_projecte) < 10:
+            #         cod_projecte="00"+str(cod_projecte)
+            #     else:
+            #         cod_projecte="0"+str(cod_projecte)
+            if len(cod_responsable) < 2:
                 cod_responsable="0"+str(cod_responsable)
-            if int(cod_projecte) < 100:
-                if int(cod_projecte) < 10:
+            if len(cod_projecte) < 3:
+                if len(cod_projecte) < 2:
                     cod_projecte="00"+str(cod_projecte)
                 else:
                     cod_projecte="0"+str(cod_projecte)
@@ -962,13 +1004,20 @@ def ResumEstatProjectes(projectes):#Resum Estat Projectes
                     cod_projecte = projecte_chk.split("-")[1]
                     projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
                     ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
-                    if int(cod_responsable) < 10:
-                        cod_responsable="0"+str(cod_responsable)
-                    if int(cod_projecte) < 100:
-                        if int(cod_projecte) < 10:
-                            cod_projecte="00"+str(cod_projecte)
+                    # if int(cod_responsable) < 10:
+                    #     cod_responsable="0"+str(cod_responsable)
+                    # if int(cod_projecte) < 100:
+                    #     if int(cod_projecte) < 10:
+                    #         cod_projecte="00"+str(cod_projecte)
+                    #     else:
+                    #         cod_projecte="0"+str(cod_projecte)
+                    if len(cod_responsable) < 2:
+                        cod_responsable = "0" + str(cod_responsable)
+                    if len(cod_projecte) < 3:
+                        if len(cod_projecte) < 2:
+                            cod_projecte = "00" + str(cod_projecte)
                         else:
-                            cod_projecte="0"+str(cod_projecte)
+                            cod_projecte = "0" + str(cod_projecte)
                     #####
                     codigo_entero=cod_responsable+cod_projecte
                     #####
@@ -1165,13 +1214,20 @@ def ResumEstatCanon(projectes):#Resum Estat Canon Projectes per Responsable
                 cod_projecte = projecte_chk.split("-")[1]
                 projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
                 ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
-                if int(cod_responsable) < 10:
-                    cod_responsable="0"+str(cod_responsable)
-                if int(cod_projecte) < 100:
-                    if int(cod_projecte) < 10:
-                        cod_projecte="00"+str(cod_projecte)
+                # if int(cod_responsable) < 10:
+                #     cod_responsable="0"+str(cod_responsable)
+                # if int(cod_projecte) < 100:
+                #     if int(cod_projecte) < 10:
+                #         cod_projecte="00"+str(cod_projecte)
+                #     else:
+                #         cod_projecte="0"+str(cod_projecte)
+                if len(cod_responsable) < 2:
+                    cod_responsable = "0" + str(cod_responsable)
+                if len(cod_projecte) < 3:
+                    if len(cod_projecte) < 2:
+                        cod_projecte = "00" + str(cod_projecte)
                     else:
-                        cod_projecte="0"+str(cod_projecte)
+                        cod_projecte = "0" + str(cod_projecte)
                 #####
                 codigo_entero=cod_responsable+cod_projecte
                 #####
@@ -1351,10 +1407,17 @@ def ComptesNoAssignats(projectes):#Comptes NO assignats a cap projecte
             projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp)
             ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
 
-            if int(cod_responsable) < 10:
+            # if int(cod_responsable) < 10:
+            #     cod_responsable="0"+str(cod_responsable)
+            # if int(cod_projecte) < 100:
+            #     if int(cod_projecte) < 10:
+            #         cod_projecte="00"+str(cod_projecte)
+            #     else:
+            #         cod_projecte="0"+str(cod_projecte)
+            if len(cod_responsable) < 2:
                 cod_responsable="0"+str(cod_responsable)
-            if int(cod_projecte) < 100:
-                if int(cod_projecte) < 10:
+            if len(cod_projecte) < 3:
+                if len(cod_projecte) < 2:
                     cod_projecte="00"+str(cod_projecte)
                 else:
                     cod_projecte="0"+str(cod_projecte)
