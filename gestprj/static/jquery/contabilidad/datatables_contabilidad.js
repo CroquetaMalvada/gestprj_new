@@ -456,8 +456,6 @@ $(document).ready(function(){
                 { type: 'num-fmt', targets: [2,3,4,5,6,7,8,9,10] }
             ],
             columns: [
-                null,
-                null,
                 { data:'codi', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'responsable', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'concedit', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },

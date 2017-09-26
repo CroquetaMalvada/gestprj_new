@@ -1000,7 +1000,7 @@ def ResumEstatProjectes(projectes):#Resum Estat Projectes
 
                 if(inv==int(cod_responsable)):
                     ##### Para extraer el objeto proyecto y el codigo:
-                    id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
+                    id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp #OJO! el cod_resp 12 equivale al pinol pero tambien al usuaro del abel de prueva
                     cod_projecte = projecte_chk.split("-")[1]
                     projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
                     ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
@@ -1052,10 +1052,10 @@ def ResumEstatProjectes(projectes):#Resum Estat Projectes
                     #############
                     ### consulta SQL
                     cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
-                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA NOT LIKE '7900'+(?) AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
+                                   "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA NOT LIKE '79%' AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
                                    "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '2%') AND CUENTAS.CUENTA NOT LIKE '6296'+(?) AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS despeses,"
                                    "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '7900%' OR CUENTAS.CUENTA LIKE '6296%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS canon",
-                                   [codigo_entero, codigo_entero, fecha_max, codigo_entero, codigo_entero, fecha_max,codigo_entero, fecha_max])
+                                   [codigo_entero, fecha_max, codigo_entero, codigo_entero, fecha_max,codigo_entero, fecha_max])
                     # cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
                     #                "( SELECT Sum(Debe) AS ingressosD, Sum(Haber) AS ingressosH FROM Apuntes WHERE(Diario='0' OR Diario='4' OR Diario='1') AND (Cuenta LIKE '7%'+(?) AND Cuenta NOT LIKE '7900'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as ingressos, "
                     #                "( SELECT Sum(Debe) AS despesesD, Sum(Haber) AS despesesH FROM Apuntes WHERE (Diario='0' OR Diario='4' OR Diario='1') AND ((Cuenta LIKE'6%'+(?) OR Cuenta LIKE'2%'+(?)) AND Cuenta NOT LIKE '6296'+(?)) AND (Fecha<= CONVERT(date, (?),105))) as despeses, "
@@ -1063,86 +1063,95 @@ def ResumEstatProjectes(projectes):#Resum Estat Projectes
                     # [codigo_entero,codigo_entero,fecha_max,codigo_entero,codigo_entero,codigo_entero,fecha_max,codigo_entero,codigo_entero,fecha_max])
                     projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
 
+                    if projectfetch[0]["ingressosD"] is None:
+                        projectfetch[0]["ingressosD"] = 0
+                    if projectfetch[0]["ingressosH"] is None:
+                        projectfetch[0]["ingressosH"] = 0
+                    if projectfetch[0]["despesesD"] is None:
+                        projectfetch[0]["despesesD"] = 0
+                    if projectfetch[0]["despesesH"] is None:
+                        projectfetch[0]["despesesH"] = 0
+                    if projectfetch[0]["canonD"] is None:
+                        projectfetch[0]["canonD"] = 0
+                    if projectfetch[0]["canonH"] is None:
+                        projectfetch[0]["canonH"] = 0
+
+                    ingressosD = float(projectfetch[0]["ingressosD"])
+                    ingressosH = float(projectfetch[0]["ingressosH"])
+                    despesesD = float(projectfetch[0]["despesesD"])
+                    despesesH = float(projectfetch[0]["despesesH"])
+                    canonD = float(projectfetch[0]["canonD"])
+                    canonH = float(projectfetch[0]["canonH"])
+
+                    # Calculamos algunos campos a partir de lo obtenido de contabilidad
+                    ingressos = round(ingressosH - ingressosD, 2)
+                    despeses = round(despesesD - despesesH, 2)  # OJO! que los que en los que estan tancats las despesas suelen coincir con el net_disponible,pero siempre es despesesD-H
+                    canon_aplicat = round(canonD - canonH, 2)
+                    disponible_caixa = round(ingressos - despeses - canon_aplicat, 2)
+                    disponible_real = round(concedit - iva - canon_total - despeses, 2)  # OJO esta ok,solo que como algunos importes salen x100 tiene un valor elevado.
+                    pendent = round(abs(concedit - iva - ingressos), 2)
+                    #
+
 
                     if nuevo_inv == 1:
                         nuevo_inv = 0
-                        #comprobar que no haya nones con el primer fetch
-                        if projectfetch[0]["ingressosD"] is None:
-                            projectfetch[0]["ingressosD"] = 0
-                        if projectfetch[0]["ingressosH"] is None:
-                            projectfetch[0]["ingressosH"] = 0
-                        if projectfetch[0]["despesesD"] is None:
-                            projectfetch[0]["despesesD"] = 0
-                        if projectfetch[0]["despesesH"] is None:
-                            projectfetch[0]["despesesH"] = 0
-                        if projectfetch[0]["canonD"] is None:
-                            projectfetch[0]["canonD"] = 0
-                        if projectfetch[0]["canonH"] is None:
-                            projectfetch[0]["canonH"] = 0
-
                         proyectos.append(projectfetch)
-
+                        proyectos[0][0]["concedit"] = concedit
                         proyectos[0][0]["iva"] = iva
                         proyectos[0][0]["canon_total"] = canon_total
-                        proyectos[0][0]["concedit"] = concedit
-                        proyectos[0][0]["despeses"] = net_disponible
-                        proyectos[0][0]["pendent"] = 0 # Ojo averiguar de donde sacar este valor
+                        proyectos[0][0]["ingressos"] = ingressos
+                        proyectos[0][0]["pendent"] = pendent
+                        proyectos[0][0]["despeses"] = despeses
+                        proyectos[0][0]["canon_aplicat"] = canon_aplicat
+                        proyectos[0][0]["disponible_caixa"] = disponible_caixa
+                        proyectos[0][0]["disponible_real"] = disponible_real
+
+
 
                     else:
-                        #pese a la comprobacion anterior,nos hara falta quitar los none por cada proyecto
 
-                        if projectfetch[0]["ingressosD"] is None :
-                            projectfetch[0]["ingressosD"]=0
-                        if projectfetch[0]["ingressosH"] is None :
-                            projectfetch[0]["ingressosH"]=0
-                        if projectfetch[0]["despesesD"] is None :
-                            projectfetch[0]["despesesD"]=0
-                        if projectfetch[0]["despesesH"] is None :
-                            projectfetch[0]["despesesH"]=0
-                        if projectfetch[0]["canonD"] is None :
-                            projectfetch[0]["canonD"]=0
-                        if projectfetch[0]["canonH"] is None :
-                            projectfetch[0]["canonH"]=0
+                        proyectos[0][0]["concedit"] = proyectos[0][0]["concedit"]+concedit
+                        proyectos[0][0]["iva"] = proyectos[0][0]["iva"]+iva
+                        proyectos[0][0]["canon_total"] = proyectos[0][0]["canon_total"]+canon_total
+                        proyectos[0][0]["ingressos"] = proyectos[0][0]["ingressos"]+ingressos
+                        proyectos[0][0]["pendent"] = proyectos[0][0]["pendent"]+pendent
+                        proyectos[0][0]["despeses"] = proyectos[0][0]["despeses"]+despeses
+                        proyectos[0][0]["canon_aplicat"] = proyectos[0][0]["canon_aplicat"]+canon_aplicat
+                        proyectos[0][0]["disponible_caixa"] = proyectos[0][0]["disponible_caixa"]+disponible_caixa
+                        proyectos[0][0]["disponible_real"] = proyectos[0][0]["disponible_real"]+disponible_real
 
-                        ingressosD=float(projectfetch[0]["ingressosD"])
-                        ingressosH=float(projectfetch[0]["ingressosH"])
-                        despesesD=float(projectfetch[0]["despesesD"])
-                        despesesH=float(projectfetch[0]["despesesH"])
-                        canonD=float(projectfetch[0]["canonD"])
-                        canonH=float(projectfetch[0]["canonH"])
-
-                        #Hora de ir sumando los resultados de cada proyecto del investigador
-                        proyectos[0][0]["ingressosD"]=round(float(proyectos[0][0]["ingressosD"]))+round(ingressosD)
-                        proyectos[0][0]["ingressosH"]=round(float(proyectos[0][0]["ingressosH"]))+round(ingressosH)
-                        proyectos[0][0]["despesesD"]=round(float(proyectos[0][0]["despesesD"]))+round(despesesD)
-                        proyectos[0][0]["despesesH"]=round(float(proyectos[0][0]["despesesH"]))+round(despesesH)
-                        proyectos[0][0]["canonD"]=round(float(proyectos[0][0]["canonD"]))+round(canonD)
-                        proyectos[0][0]["canonH"]=round(float(proyectos[0][0]["canonH"]))+round(canonH)
-
-                        proyectos[0][0]["concedit"]=round(proyectos[0][0]["concedit"]+concedit,2) # proyectos[0][0]["concedit"]=round(proyectos[0][0]["ingressos"]+proyectos[0][0]["iva"])
-                        proyectos[0][0]["iva"]=round(proyectos[0][0]["iva"]+iva,2)
-                        proyectos[0][0]["canon_total"]=round(proyectos[0][0]["canon_total"]+canon_total,2)
-                        proyectos[0][0]["despeses"]=round(proyectos[0][0]["despeses"]+net_disponible,2) # OJO! que deberia ser asi proyectos[0][0]["despeses"]=round(proyectos[0][0]["despesesD"]-proyectos[0][0]["despesesH"]) y quitar los demas proyectos[0][0][despeses]
+                        # Hora de ir sumando los resultados de cada proyecto del investigador
+                        # proyectos[0][0]["ingressosD"]=round(float(proyectos[0][0]["ingressosD"]))+round(ingressosD)
+                        # proyectos[0][0]["ingressosH"]=round(float(proyectos[0][0]["ingressosH"]))+round(ingressosH)
+                        # proyectos[0][0]["despesesD"]=round(float(proyectos[0][0]["despesesD"]))+round(despesesD)
+                        # proyectos[0][0]["despesesH"]=round(float(proyectos[0][0]["despesesH"]))+round(despesesH)
+                        # proyectos[0][0]["canonD"]=round(float(proyectos[0][0]["canonD"]))+round(canonD)
+                        # proyectos[0][0]["canonH"]=round(float(proyectos[0][0]["canonH"]))+round(canonH)
+                        #
+                        # proyectos[0][0]["concedit"]=round(proyectos[0][0]["concedit"]+concedit,2) # proyectos[0][0]["concedit"]=round(proyectos[0][0]["ingressos"]+proyectos[0][0]["iva"])
+                        # proyectos[0][0]["iva"]=round(proyectos[0][0]["iva"]+iva,2)
+                        # proyectos[0][0]["canon_total"]=round(proyectos[0][0]["canon_total"]+canon_total,2)
+                        # proyectos[0][0]["despeses"]=round(proyectos[0][0]["despeses"]+net_disponible,2) # OJO! que deberia ser asi proyectos[0][0]["despeses"]=round(proyectos[0][0]["despesesD"]-proyectos[0][0]["despesesH"]) y quitar los demas proyectos[0][0][despeses]
 
 
                     #Estas variables son una suma de la de los proyectos del investigador
+                    #
+                    # proyectos[0][0]["ingressos"]=round(float(proyectos[0][0]["ingressosH"])-float(proyectos[0][0]["ingressosD"]),2)
+                    # proyectos[0][0]["canon_aplicat"]=round(float(proyectos[0][0]["canonD"])-float(proyectos[0][0]["canonH"]))
+                    # proyectos[0][0]["disponible_caixa"]=round(proyectos[0][0]["ingressos"]-proyectos[0][0]["despeses"]-proyectos[0][0]["canon_aplicat"])
+                    # proyectos[0][0]["disponible_real"]=round(proyectos[0][0]["concedit"]-proyectos[0][0]["iva"]-proyectos[0][0]["canon_total"]-proyectos[0][0]["despeses"])
+                    #totales:
                     proyectos[0][0]["cod_responsable"]=cod_responsable # este y el de abajo so correctos pero se superponen una y otra vez por cada proyecto,a ver si se puede mejorar
                     proyectos[0][0]["nom_responsable"]=Responsables.objects.get(codi_resp=cod_responsable).id_usuari.nom_usuari
-
-                    proyectos[0][0]["ingressos"]=round(float(proyectos[0][0]["ingressosH"])-float(proyectos[0][0]["ingressosD"]),2)
-                    proyectos[0][0]["canon_aplicat"]=round(float(proyectos[0][0]["canonD"])-float(proyectos[0][0]["canonH"]))
-                    proyectos[0][0]["disponible_caixa"]=round(proyectos[0][0]["ingressos"]-proyectos[0][0]["despeses"]-proyectos[0][0]["canon_aplicat"])
-                    proyectos[0][0]["disponible_real"]=round(proyectos[0][0]["concedit"]-proyectos[0][0]["iva"]-proyectos[0][0]["canon_total"]-proyectos[0][0]["despeses"])
-                    #totales:
-                    total_concedit = round(total_concedit+proyectos[0][0]["concedit"],2)
-                    total_iva = round(total_iva+proyectos[0][0]["iva"],2)
-                    total_canon_total = round(total_canon_total+proyectos[0][0]["canon_total"],2)
-                    total_ingressos = round(total_ingressos+proyectos[0][0]["ingressos"],2)
-                    total_pendent = round(total_pendent+proyectos[0][0]["pendent"],2)
-                    total_despeses = round(total_despeses+proyectos[0][0]["despeses"],2)
-                    total_canon_aplicat = round(total_canon_aplicat+proyectos[0][0]["canon_aplicat"],2)
-                    total_disponible_caixa = round(total_disponible_caixa+proyectos[0][0]["disponible_caixa"],2)
-                    total_disponible_real = round(total_disponible_real+proyectos[0][0]["disponible_real"],2)
+                    total_concedit = round(total_concedit+concedit,2)
+                    total_iva = round(total_iva+iva,2)
+                    total_canon_total = round(total_canon_total+canon_total,2)
+                    total_ingressos = round(total_ingressos+ingressos,2)
+                    total_pendent = round(total_pendent+pendent,2)
+                    total_despeses = round(total_despeses+despeses,2)
+                    total_canon_aplicat = round(total_canon_aplicat+canon_aplicat,2)
+                    total_disponible_caixa = round(total_disponible_caixa+disponible_caixa,2)
+                    total_disponible_real = round(total_disponible_real+disponible_real,2)
                     #
             resultado.append(proyectos)
 
