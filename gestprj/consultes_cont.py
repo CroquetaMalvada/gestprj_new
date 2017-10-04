@@ -412,7 +412,7 @@ def DespesesCompte(id_partida,codigo_entero,data_min,data_max):
                         if cont["Debe"] is None:
                             cont["Debe"] = 0
                 return cuentacont
-
+    return [] # devolvemos esta ya que si no encontraba ninguna cuenta en el for no se hacia un return
 
 
 
