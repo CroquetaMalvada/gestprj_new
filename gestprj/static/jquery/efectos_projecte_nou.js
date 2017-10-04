@@ -1,24 +1,15 @@
-//var confirmacion_salir=1;
-//$(window).on('beforeunload', function() {
-//    if (confirmacion_salir==1){
-//        $.confirm({
-//                title: 'Confirmació',
-//                content: "Segur que vols sortir?",
-//                confirmButton: 'Si',
-//                cancelButton: 'Cancel·lar',
-//                confirmButtonClass: 'btn-info',
-//                cancelButtonClass: 'btn-danger',
-//                confirm: function(){
-//                    return true;
-//                },
-//                cancel: function(){
-//                    return null;
-//                }
-//        });
-//    }else{
-//  load = loading("Carregant..."); //al final parece que esto no causa problemas de rendimiento
-//  }
-//});
+window.onbeforeunload = function(){
+    if (typeof editandoproyecto === 'undefined')// en la template de modificar_projecte se crea la variable,asi que si no existe es que no se esta modificando el proyecto
+        load = loading("Carregant..."); //al final parece que esto no causa problemas de rendimiento
+    else
+        return 'Segur que vols sortir?';
+
+
+};
+
+$(window).on('unload', function() {
+
+});
 
 $(document).ready(function(){
 //    mostrar_menu("#contenedor_general");

@@ -3,8 +3,8 @@
 <!--<div class="container-fluid" name="contenedor_total">-->
 <!--<div name="contenedor_general" class="col-md-12 col-md-offset-1">-->
 
+<script>editandoproyecto=true;</script>
 {% if form.errors %}
-<script>confirmacion_salir=1;</script>
 <div id="diverror" class="text-center" title="Error al crear el projecte">
     {% for field in form %}
         {% for error in field.errors %}

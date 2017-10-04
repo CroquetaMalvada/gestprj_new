@@ -1,6 +1,7 @@
-$(window).on('beforeunload', function() {
-  load = loading("Carregant..."); //al final parece que esto no causa problemas de rendimiento
-});
+//$(window).on('beforeunload', function() {
+//  load = loading("Carregant..."); //al final parece que esto no causa problemas de rendimiento
+//});
+
 $(document).ready(function(){
 //    alert(llista_responsables);
 //    load.close();
