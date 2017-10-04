@@ -24,21 +24,35 @@ $(document).ready(function(){
         var load = loading("Carregant...");
         $.get(pressupost.row(".selected").data()["url"],function( data ){
             form.children("[name='id_concepte_pres']").val(data["id_concepte_pres"]);
-            form.children("[name='import_field']").val(data["import_field"]);
+            form.children("[name='import_field']").val(formatnumber( data["import_field"], separador_miles, separador_decimales, 2 ));
         }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_pressupost");
     });
 
     $("#table_pressupost").on( 'click', '.eliminar_pressupost', function () {
         var partida_id = pressupost.row(".selected").data()["id_part"];
-        $.ajax({
-            url: pressupost.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                    pressupost.$('tr.selected').hide("highlight",{color:"red"},function(){
-                        refrescaTabla(12);
-                         refrescaTabla(14);
-                    });
+
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: pressupost.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                            pressupost.$('tr.selected').hide("highlight",{color:"red"},function(){
+                                refrescaTabla(12);
+                                 refrescaTabla(14);
+                            });
+                    }
+                });
+            },
+            cancel: function(){
             }
         });
     });
@@ -46,36 +60,64 @@ $(document).ready(function(){
     ///AJAX
     $("#formulario_pressupost").submit(function(e){
         var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_projecte="+id_prj,
-                    success: function(result) {
-                        periodicitat_pressupost.rows().every(function(rowidx,tableloop,rowloop){
-                            $.ajax({
-                                url: "/gestor_PeriodicitatPartida/",
-                                type: "POST",
-                                datatype:'json',
-                                data: {'id_partida':result['id_part'] ,'id_periodicitat':periodicitat_pressupost.row(rowidx).data()["id_perio"],'import_field':0},
-    //                            'id_partida='+id_current_partida+'&id_periodicitat='+form.children("[name='id_concepte_pres']").val()+'&import_field=0',
-                                success: function(result) {
-                                     cerrar_dialog();
-                                     refrescaTabla(13);
-                                     refrescaTabla(14);
-                                },
-                                error: function(error){
-                                    console.log(error);
-                                }
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_projecte="+id_prj,
+                        success: function(result) {
+                            periodicitat_pressupost.rows().every(function(rowidx,tableloop,rowloop){
+                                $.ajax({
+                                    url: "/gestor_PeriodicitatPartida/",
+                                    type: "POST",
+                                    datatype:'json',
+                                    data: {'id_partida':result['id_part'] ,'id_periodicitat':periodicitat_pressupost.row(rowidx).data()["id_perio"],'import_field':0},
+        //                            'id_partida='+id_current_partida+'&id_periodicitat='+form.children("[name='id_concepte_pres']").val()+'&import_field=0',
+                                    success: function(result) {
+                                         cerrar_dialog();
+                                         refrescaTabla(13);
+                                         refrescaTabla(14);
+                                    },
+                                    error: function(error){
+                                        console.log(error);
+                                    }
+                                });
                             });
-                        });
-                         cerrar_dialog();
-                         refrescaTabla(12);
-                    }
+                             cerrar_dialog();
+                             refrescaTabla(12);
+                        }
 
-        });
+            });
+        }
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     ///
+
+    //// CREAR CONCEPTE PRESSUPOSTARI
+        $("#mostrar_editar_concepte_pressupostari_crear").click(function(){
+            $("#formulario_editar_concepte_pressupostari").trigger("reset");
+            $("#formulario_editar_concepte_pressupostari").attr("action","/gestor_ConceptePressupostari/");
+            $("#formulario_editar_concepte_pressupostari").attr("method","POST");
+            mostrar_dialog("editar_concepte_pressupostari");
+        });
+
+//        / AJAX
+        $("#formulario_concepte_pressupostari").submit(function(e){
+        var form = $(this);
+        e.preventDefault(); //para no ejecutar el actual submit del form
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize(),
+                        success: function(result) {
+                             mostrar_dialog("editar_pressupost");
+                             actualizar_conceptes_press();
+                        }
+
+            });
+        }
+         });
 
  ///////////////// OPERACIONES PERIODICITAT PRESSUPOST
     $("#afegir_periodicitat_pressupost").click(function(){
@@ -101,47 +143,62 @@ $(document).ready(function(){
     });
 
     $("#table_periodicitat_pressupost").on( 'click', '.eliminar_periodicitat_pressupost', function () {
-        $.ajax({
-            url: periodicitat_pressupost.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                    periodicitat_pressupost.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(13);
-                    refrescaTabla(14);
-                });
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: periodicitat_pressupost.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                            periodicitat_pressupost.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(13);
+                            refrescaTabla(14);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
     });
     ///AJAX
     $("#formulario_periodicitat_pressupost").submit(function(e){
         var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_projecte="+id_prj,
-                    success: function(response) {
-//                          alert(response["id_perio"]);
-                        pressupost.rows().every(function(rowidx,tableloop,rowloop){
-                            $.ajax({
-                                url: "/gestor_PeriodicitatPartida/",
-                                type: "POST",
-                                datatype:'json',
-                                data: {'id_partida':pressupost.row(rowidx).data()["id_part"],'id_periodicitat':response["id_perio"],'import_field':0},
-    //                            'id_partida='+id_current_partida+'&id_periodicitat='+form.children("[name='id_concepte_pres']").val()+'&import_field=0',
-                                success: function(result) {
-                                     cerrar_dialog();
-                                     refrescaTabla(13);
-                                     refrescaTabla(14);
-                                },
-                                error: function(error){
-                                console.log(error);
-                                }
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_projecte="+id_prj,
+                        success: function(response) {
+    //                          alert(response["id_perio"]);
+                            pressupost.rows().every(function(rowidx,tableloop,rowloop){
+                                $.ajax({
+                                    url: "/gestor_PeriodicitatPartida/",
+                                    type: "POST",
+                                    datatype:'json',
+                                    data: {'id_partida':pressupost.row(rowidx).data()["id_part"],'id_periodicitat':response["id_perio"],'import_field':0},
+        //                            'id_partida='+id_current_partida+'&id_periodicitat='+form.children("[name='id_concepte_pres']").val()+'&import_field=0',
+                                    success: function(result) {
+                                         cerrar_dialog();
+                                         refrescaTabla(13);
+                                         refrescaTabla(14);
+                                    },
+                                    error: function(error){
+                                    console.log(error);
+                                    }
+                                });
+
                             });
+                        }
 
-                        });
-                    }
-
-        });
+            });
+        }
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     ///
@@ -162,7 +219,7 @@ $(document).ready(function(){
 
         var load = loading("Carregant...");
         $.get(periodicitat_partida.row(".selected").data()["url"],function( data ){
-            form.children("[name='import_field']").val(data["import_field"]);
+            form.children("[name='import_field']").val(formatnumber( data["import_field"], separador_miles, separador_decimales, 2 ));
         }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_periodicitat_partida");
     });
@@ -181,15 +238,17 @@ $(document).ready(function(){
     ///AJAX
     $("#formulario_periodicitat_partida").submit(function(e){
         var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_partida="+periodicitat_partida.row(".selected").data()["id_partida"]+"&id_periodicitat="+periodicitat_partida.row(".selected").data()["id_periodicitat"],
-                    success: function(response) {
-                                 cerrar_dialog();
-                                 refrescaTabla(14);
-                    }
-        });
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_partida="+periodicitat_partida.row(".selected").data()["id_partida"]+"&id_periodicitat="+periodicitat_partida.row(".selected").data()["id_periodicitat"],
+                        success: function(response) {
+                                     cerrar_dialog();
+                                     refrescaTabla(14);
+                        }
+            });
+        }
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     ///
@@ -201,7 +260,6 @@ $(document).ready(function(){
 	    $("#formulario_desglossament").attr("method","POST");
 	    $("#formulario_desglossament").show();
 	    mostrar_dialog("editar_desglossament");
-	    alert(id_current_partida);
 	});
 
     $("#table_desglossament").on( 'click', '.editar_desglossament', function (){
@@ -213,7 +271,7 @@ $(document).ready(function(){
         $.get(desglossament.row(".selected").data()["url"],function( data ){
             form.children("[name='compte']").val(data["id_concepte_pres"]);
             form.children("[name='id_compte']").val(data["id_compte"]);
-            form.children("[name='import_field']").val(data["import_field"]);
+            form.children("[name='import_field']").val(formatnumber( data["import_field"], separador_miles, separador_decimales, 2 ));
             form.children("[name='desc_compte']").val(data["desc_compte"]);
         }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_desglossament");
@@ -221,13 +279,27 @@ $(document).ready(function(){
 
     $("#table_desglossament").on( 'click', '.eliminar_desglossament', function () {
         var partida_id = desglossament.row(".selected").data()["id_part"];
-        $.ajax({
-            url: desglossament.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                    desglossament.$('tr.selected').hide("highlight",{color:"red"},function(){
-                        refrescaTabla(15);
-                    });
+
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: desglossament.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                            desglossament.$('tr.selected').hide("highlight",{color:"red"},function(){
+                                refrescaTabla(15);
+                            });
+                    }
+                });
+            },
+            cancel: function(){
             }
         });
     });
@@ -235,19 +307,21 @@ $(document).ready(function(){
     ///AJAX
     $("#formulario_desglossament").submit(function(e){
         var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_projecte="+id_prj+"&id_partida="+id_current_partida,
-                    success: function(result) {
-                         cerrar_dialog();
-                         refrescaTabla(15);
-                    },
-                    error: function(result){
-                        console.log(result);
-                    }
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_projecte="+id_prj+"&id_partida="+id_current_partida,
+                        success: function(result) {
+                             cerrar_dialog();
+                             refrescaTabla(15);
+                        },
+                        error: function(result){
+                            console.log(result);
+                        }
 
-        });
+            });
+        }
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     ///

@@ -12,10 +12,10 @@ $(document).ready(function(){
     /////////////////////////////////////
     ///////////////// OPERACIONES ORGANISMES FINANCADORS
     $("#afegir_organisme_fin").click(function(){
-	    $("#formulario_organismes_fin").trigger("reset");
-	    $("#formulario_organismes_fin").attr("action","/gestor_OrganismesFin/");
-	    $("#formulario_organismes_fin").attr("method","POST");
-	    $("#formulario_organismes_fin").show();
+	    $("#formulario_organisme_fin").trigger("reset");
+	    $("#formulario_organisme_fin").attr("action","/gestor_OrganismesFin/");
+	    $("#formulario_organisme_fin").attr("method","POST");
+	    $("#formulario_organisme_fin").show();
 	    mostrar_dialog("editar_organisme_fin");
 	});
 
@@ -27,35 +27,51 @@ $(document).ready(function(){
         var load = loading("Carregant...");
         $.get(organismes_fin.row(".selected").data()["url"],function( data ){
             form.children("[name='id_organisme']").val(data["id_organisme"]);
-            form.children("[name='import_concedit']").val(data["import_concedit"]);
+            form.children("[name='import_concedit']").val(formatnumber( data["import_concedit"], separador_miles, separador_decimales, 2 ));
         }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_organisme_fin");
     });
 
     $("#table_organismes_fin").on( 'click', '.eliminar_organisme_fin', function () {
-        $.ajax({
-            url: organismes_fin.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                    organismes_fin.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(8);
-                });
+
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: organismes_fin.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                            organismes_fin.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(8);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
     });
     ///AJAX
     $("#formulario_organisme_fin").submit(function(e){
         var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_projecte="+id_prj,
-                    success: function(result) {
-                         cerrar_dialog();
-                         refrescaTabla(8);
-                    }
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_projecte="+id_prj,
+                        success: function(result) {
+                             cerrar_dialog();
+                             refrescaTabla(8);
+                        }
 
-        });
+            });
+        }
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     ///
@@ -63,10 +79,10 @@ $(document).ready(function(){
 /////////////////////////////////////
     ///////////////// OPERACIONES ORGANISMES RECEPTORS
     $("#afegir_organisme_rec").click(function(){
-	    $("#formulario_organismes_rec").trigger("reset");
-	    $("#formulario_organismes_rec").attr("action","/gestor_OrganismesRec/");
-	    $("#formulario_organismes_rec").attr("method","POST");
-	    $("#formulario_organismes_rec").show();
+	    $("#formulario_organisme_rec").trigger("reset");
+	    $("#formulario_organisme_rec").attr("action","/gestor_OrganismesRec/");
+	    $("#formulario_organisme_rec").attr("method","POST");
+	    $("#formulario_organisme_rec").show();
 	    mostrar_dialog("editar_organisme_rec");
 	});
 
@@ -78,37 +94,53 @@ $(document).ready(function(){
         var load = loading("Carregant...");
         $.get(organismes_rec.row(".selected").data()["url"],function( data ){
             form.children("[name='id_organisme']").val(data["id_organisme"]);
-            form.children("[name='import_rebut']").val(data["import_rebut"]);
+            form.children("[name='import_rebut']").val(formatnumber( data["import_rebut"], separador_miles, separador_decimales, 2 ));
         }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_organisme_rec");
     });
 
     $("#table_organismes_rec").on( 'click', '.eliminar_organisme_rec', function () {
-        $.ajax({
-            url: organismes_rec.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                    organismes_rec.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(9);
-                });
+
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: organismes_rec.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                            organismes_rec.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(9);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
     });
 
 
     /// AJAX
     $("#formulario_organisme_rec").submit(function(e){
         var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_projecte="+id_prj,
-                    success: function(result) {
-                         cerrar_dialog();
-                         refrescaTabla(9);
-                    }
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_projecte="+id_prj,
+                        success: function(result) {
+                             cerrar_dialog();
+                             refrescaTabla(9);
+                        }
 
-        });
+            });
+        }
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     ///
@@ -133,37 +165,53 @@ $(document).ready(function(){
             form.children("[name='data_assentament']").val(data["data_assentament"]);
             form.children("[name='id_assentament']").val(data["id_assentament"]);
             form.children("[name='desc_justif']").val(data["desc_justif"]);
-            form.children("[name='import_field']").val(data["import_field"]);
+            form.children("[name='import_field']").val(formatnumber( data["import_field"], separador_miles, separador_decimales, 2 ));
         }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_justif_interna");
     });
 
     $("#table_justificacions_internes").on( 'click', '.eliminar_justifInterna', function () {
-        $.ajax({
-            url: justificacions_internes.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                    justificacions_internes.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(10);
-                });
+
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: justificacions_internes.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                            justificacions_internes.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(10);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
     });
 
 
     /// AJAX
     $("#formulario_justif_interna").submit(function(e){
         var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_projecte="+id_prj,
-                    success: function(result) {
-                         cerrar_dialog();
-                         refrescaTabla(10);
-                    }
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_projecte="+id_prj,
+                        success: function(result) {
+                             cerrar_dialog();
+                             refrescaTabla(10);
+                        }
 
-        });
+            });
+        }
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     ///
@@ -187,37 +235,53 @@ $(document).ready(function(){
         $.get(renovacions.row(".selected").data()["url"],function( data ){
             form.children("[name='data_inici']").val(data["data_inici"]);
             form.children("[name='data_fi']").val(data["data_fi"]);
-            form.children("[name='import_concedit']").val(data["import_concedit"]);
+            form.children("[name='import_concedit']").val(formatnumber( data["import_concedit"], separador_miles, separador_decimales, 2 ));
         }).done(function( data ){load.close();});
 	    mostrar_dialog("editar_renovacio");
     });
 
     $("#table_renovacions").on( 'click', '.eliminar_renovacio', function () {
-        $.ajax({
-            url: renovacions.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                    renovacions.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(11);
-                });
+
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: renovacions.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                            renovacions.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(11);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
     });
 
 
     /// AJAX
     $("#formulario_renovacio").submit(function(e){
         var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_projecte="+id_prj,
-                    success: function(result) {
-                         cerrar_dialog();
-                         refrescaTabla(11);
-                    }
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_projecte="+id_prj,
+                        success: function(result) {
+                             cerrar_dialog();
+                             refrescaTabla(11);
+                        }
 
-        });
+            });
+        }
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     ///

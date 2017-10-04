@@ -32,6 +32,8 @@ router.register(r'gestor_Renovacions',views.GestRenovacions)# gestionar justific
 
 router.register(r'gestor_Pressupost',views.GestPressupost)
 
+router.register(r'gestor_ConceptePressupostari',views.GestConceptesPress)
+
 router.register(r'gestor_PeriodicitatPres',views.GestPeriodicitatPres)
 router.register(r'gestor_PeriodicitatPartida',views.GestPeriodicitatPartida)
 
@@ -72,6 +74,8 @@ urlpatterns = patterns('',
     url('^show_Renovacions/(?P<id_projecte>.+)/$', views.ListRenovacions.as_view()),# organismos que reciben de x proyercto
 
     url('^show_Pressupost/(?P<id_projecte>.+)/$', views.ListPressupost.as_view()),
+
+    url('^llista_ConceptesPres/', views.ListConceptesPress),
 
     url('^show_PeriodicitatPres/(?P<id_projecte>.+)/$', views.ListPeriodicitatPres.as_view()),
     url('^show_PeriodicitatPartida/(?P<id_partida>.+)/$', views.ListPeriodicitatPartida.as_view()),

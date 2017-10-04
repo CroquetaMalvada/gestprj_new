@@ -33,17 +33,31 @@ $(document).ready(function(){
         });
 
 
-        $("#table_centres_participants").on( 'click', '.quitar_organisme_participant', function () {
-        $.ajax({
-            url: centres_participants.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                centres_participants.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(1);
-                    refrescaTabla(2);
-                });
+    $("#table_centres_participants").on( 'click', '.quitar_organisme_participant', function () {
+        $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: centres_participants.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                        centres_participants.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(1);
+                            refrescaTabla(2);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
+
     });
 
 
@@ -75,31 +89,87 @@ $(document).ready(function(){
     });
 
     $(document).on( 'click', '.eliminar_organisme', function (){
-        $.ajax({
-            type: "DELETE",
-            url: organismes.row(".selected").data()["url"],
-            success: function(result) {
-                 organismes.$('tr.selected').hide("highlight",{color:"green"},function(){
-                    refrescaTabla(1);
-                    refrescaTabla(2);
-                 });
+         $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    type: "DELETE",
+                    url: organismes.row(".selected").data()["url"],
+                    success: function(result) {
+                         organismes.$('tr.selected').hide("highlight",{color:"green"},function(){
+                            refrescaTabla(1);
+                            refrescaTabla(2);
+                         });
+                    }
+                });
+            },
+            cancel: function(){
             }
-         });
+        });
+
+    });
+
+    ///CREAR UNO
+    	$("#mostrar_editar_organismes_participants_crear").click(function(){
+	    $("#formulario_editar_organismes_participants").trigger("reset");
+	    $("#formulario_editar_organismes_participants").attr("action","/gestor_TOrganismes/");
+	    $("#formulario_editar_organismes_participants").attr("method","POST");
+	    mostrar_dialog("editar_organismes_participants");
+//	    $("#editar_organismes_participants").cattr("method","POST")
+	});
+
+    /// AJAX
+    $("#formulario_editar_organismes_participants").submit(function(e){
+        var form = $(this);
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+    //                    headers: { 'X-HTTP-Method-Override':  }, //no todos los navegadores aceptan DELETE o PUT,con esto se soluciona
+                        data: form.serialize(),
+                        success: function(result) {
+                             mostrar_dialog("table_participants_organismes");
+                             refrescaTabla(2);
+                        }
+
+            });
+        }
+        e.preventDefault(); //para no ejecutar el actual submit del form
     });
     /////////////////////////////////////
         ///////////////// OPERACIONES PERSONAL CREAF
 
     $("#table_personal_creaf").on( 'click', '.quitar_personal_creaf', function () {
-        $.ajax({
-            url: personal_creaf.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                personal_creaf.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(3);
-                    refrescaTabla(4);
-                });
+
+        $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: personal_creaf.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                        personal_creaf.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(3);
+                            refrescaTabla(4);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
     });
 
     $(document).on('click','.afegir_a_personal_creaf',function(){
@@ -123,14 +193,28 @@ $(document).ready(function(){
         });
 
     $(document).on( 'click', '.eliminar_usuari_creaf', function (){
-        $.ajax({
-            url: usuaris_creaf.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                 refrescaTabla(3);
-                 refrescaTabla(4);
+
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+            $.ajax({
+                url: usuaris_creaf.row(".selected").data()["url"],
+                type: "DELETE",
+                success: function(result) {
+                     refrescaTabla(3);
+                     refrescaTabla(4);
+                }
+             });
+            },
+            cancel: function(){
             }
-         });
+        });
     });
 
     $(document).on( 'click', '.editar_usuari_creaf', function (){
@@ -156,20 +240,61 @@ $(document).ready(function(){
 
         mostrar_dialog("editar_usuari_creaf");
     });
+
+    //// CREAR UNO
+	$("#mostrar_editar_personal_creaf_crear").click(function(){
+	    $("#formulario_editar_usuari_creaf").trigger("reset");
+	    $("#formulario_editar_usuari_creaf").attr("action","/gestor_UsuariCreaf/");
+	    $("#formulario_editar_usuari_creaf").attr("method","POST");
+	    mostrar_dialog("editar_usuari_creaf");
+//	    $("#editar_organismes_participants").attr("method","POST")
+	});
+
+    /// AJAX
+    $("#formulario_editar_usuari_creaf").submit(function(e){
+        var form = $(this);
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize(),
+                        success: function(result) {
+                             mostrar_dialog("table_usuaris_creaf");
+                             refrescaTabla(4);
+                        }
+            });
+        }
+        e.preventDefault(); //para no ejecutar el actual submit del form
+    });
+
     /////////////////////////////////////
     ///////////////// OPERACIONES PERSONAL EXTERN
 
     $("#table_personal_extern").on( 'click', '.quitar_personal_extern', function () {
-        $.ajax({
-            url: personal_extern.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                personal_extern.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(5);
-                    refrescaTabla(6);
-                });
+
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: personal_extern.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                        personal_extern.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(5);
+                            refrescaTabla(6);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
     });
 
     $(document).on('click','.afegir_a_personal_extern',function(){
@@ -196,6 +321,16 @@ $(document).ready(function(){
         });
 
     $(document).on( 'click', '.eliminar_usuari_extern', function (){
+
+        $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
             $.ajax({
                 url: usuaris_externs.row(".selected").data()["url"],
                 type: "DELETE",
@@ -204,6 +339,10 @@ $(document).ready(function(){
                      refrescaTabla(6);
                 }
              });
+            },
+            cancel: function(){
+            }
+        });
     });
 
     $(document).on( 'click', '.editar_usuari_extern', function (){
@@ -230,6 +369,33 @@ $(document).ready(function(){
         mostrar_dialog("editar_usuari_extern");
 
     });
+
+        //// CREAR UNO
+        $("#mostrar_editar_personal_extern_crear").click(function(){
+            $("#formulario_editar_usuari_extern").trigger("reset");
+            $("#formulario_editar_usuari_extern").attr("action","/gestor_UsuariExtern/");
+            $("#formulario_editar_usuari_extern").attr("method","POST");
+            mostrar_dialog("editar_usuari_extern");
+    //	    $("#editar_organismes_participants").attr("method","POST")
+        });
+
+        /// AJAX
+        $("#formulario_editar_usuari_extern").submit(function(e){
+        var form = $(this);
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize(),
+                        success: function(result) {
+                             mostrar_dialog("table_usuaris_externs");
+                             refrescaTabla(6);
+                        }
+
+            });
+        }
+        e.preventDefault(); //para no ejecutar el actual submit del form
+    });
     /////////////////////////////////////
     ////////// OPERACIONES JUSTIFICACIONES PERSONAL
     $(document).on( 'click', '.mostrar_justific_personal', function (){
@@ -250,21 +416,52 @@ $(document).ready(function(){
             form.children("[name='data_fi']").val(data["data_fi"]);
             form.children("[name='id_feina']").val(data["id_feina"]);
             form.children("[name='hores']").val(data["hores"]);
-            form.children("[name='cost_hora']").val(data["cost_hora"]);
+            form.children("[name='cost_hora']").val(formatnumber( data["cost_hora"], separador_miles, separador_decimales, 2 ));
         });
 	    mostrar_dialog("editar_justificacio_personal");
     });
 
     $("#table_justificacions_personal").on( 'click', '.eliminar_justificacio_personal', function () {
-        $.ajax({
-            url: justificacions_personal.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                    justificacions_personal.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(7);
-                });
+
+        $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: justificacions_personal.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                            justificacions_personal.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(7);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
+    });
+
+    $("#formulario_editar_justificacio_personal").submit(function(e){
+        var form = $(this);
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_perso_creaf="+id_current_perso_creaf,
+                        success: function(result) {
+                             mostrar_dialog("table_justificacions_personal");
+                             refrescaTabla(7);
+                        }
+
+            });
+        }
+        e.preventDefault(); //para no ejecutar el actual submit del form
     });
 
     /////////////////////////////////////

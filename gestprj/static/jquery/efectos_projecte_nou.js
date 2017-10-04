@@ -1,3 +1,25 @@
+//var confirmacion_salir=1;
+//$(window).on('beforeunload', function() {
+//    if (confirmacion_salir==1){
+//        $.confirm({
+//                title: 'Confirmació',
+//                content: "Segur que vols sortir?",
+//                confirmButton: 'Si',
+//                cancelButton: 'Cancel·lar',
+//                confirmButtonClass: 'btn-info',
+//                cancelButtonClass: 'btn-danger',
+//                confirm: function(){
+//                    return true;
+//                },
+//                cancel: function(){
+//                    return null;
+//                }
+//        });
+//    }else{
+//  load = loading("Carregant..."); //al final parece que esto no causa problemas de rendimiento
+//  }
+//});
+
 $(document).ready(function(){
 //    mostrar_menu("#contenedor_general");
 //    $("#general").parent("li").addClass("active");
@@ -105,31 +127,6 @@ $("#justificacions").click(function(){
 	    mostrar_dialog("table_participants_organismes");
 	});
 
-	$("#mostrar_editar_organismes_participants_crear").click(function(){
-	    $("#formulario_editar_organismes_participants").trigger("reset");
-	    $("#formulario_editar_organismes_participants").attr("action","/gestor_TOrganismes/");
-	    $("#formulario_editar_organismes_participants").attr("method","POST");
-	    mostrar_dialog("editar_organismes_participants");
-//	    $("#editar_organismes_participants").cattr("method","POST")
-	});
-
-	$("#mostrar_editar_personal_creaf_crear").click(function(){
-	    $("#formulario_editar_usuari_creaf").trigger("reset");
-	    $("#formulario_editar_usuari_creaf").attr("action","/gestor_UsuariCreaf/");
-	    $("#formulario_editar_usuari_creaf").attr("method","POST");
-	    mostrar_dialog("editar_usuari_creaf");
-//	    $("#editar_organismes_participants").attr("method","POST")
-	});
-
-
-	$("#mostrar_editar_personal_extern_crear").click(function(){
-	    $("#formulario_editar_usuari_extern").trigger("reset");
-	    $("#formulario_editar_usuari_extern").attr("action","/gestor_UsuariExtern/");
-	    $("#formulario_editar_usuari_extern").attr("method","POST");
-	    mostrar_dialog("editar_usuari_extern");
-//	    $("#editar_organismes_participants").attr("method","POST")
-	});
-
 
     $("#mostrar_usuaris_externs").click(function(){
 	    mostrar_dialog("table_usuaris_externs");
@@ -171,9 +168,46 @@ $("#justificacions").click(function(){
         });
 	 });
 
+    actualizar_conceptes_press();
 });
 
+//function confimacion_eliminar(){
+//    var confirm=0;
+//    $.confirm({
+//        title: 'Confirmació',
+//        content: "Segur que vols eliminar aquest element?",
+//        confirmButton: 'Si',
+//        cancelButton: 'No',
+//        confirmButtonClass: 'btn-info',
+//        cancelButtonClass: 'btn-danger',
+//        closeIcon: false,
+//        confirm: function(){
+//            return 1;
+//        },
+//        cancel: function(){
+//        }
+//    });
+//
+//
+//}
 
+function actualizar_conceptes_press(){
+        $.ajax({
+                    url: '/llista_ConceptesPres/',
+//                    type: form.attr('method'),
+//                    data: form.serialize(),
+                    datatype:'json',
+                    success: function(result) {
+                        var html="";
+                        $(result).each(function(){
+                            html=html+"<option value='"+this.id+"'>"+this.descripcio+"</option>";
+                        });
+                        $("#select_id_concepte_pres").html(html);
+
+                    }
+
+        });
+}
 
 function mostrar_menu(nombre){
 var id_div;
@@ -184,7 +218,7 @@ $("#formulario_nou_projecte").children("div").each(function(){
 
 $("#"+id_div).hide("drop",{direction:"left",complete(){
     $(nombre).show("drop",{direction:"right",complete(){
-        $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();///IMPORTANTE sire para alinear correctamente las cabezeras de las datatables,ya que con divs que estan hidden no se alineaban automaticamente
+        $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();///IMPORTANTE sirve para alinear correctamente las cabeceras de las datatables,ya que con divs que estan hidden no se alineaban automaticamente
     }},300);
 }},300);
 

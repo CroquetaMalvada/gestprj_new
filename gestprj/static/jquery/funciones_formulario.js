@@ -56,66 +56,6 @@ $(document).ready(function(){
 
 
 //
-    // AJAX
-    $("#formulario_editar_organismes_participants").submit(function(e){
-        var form = $(this);
-        e.preventDefault(); //para no ejecutar el actual submit del form
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-//                    headers: { 'X-HTTP-Method-Override':  }, //no todos los navegadores aceptan DELETE o PUT,con esto se soluciona
-                    data: form.serialize(),
-                    success: function(result) {
-                         mostrar_dialog("table_participants_organismes");
-                         refrescaTabla(2);
-                    }
-
-        });
-    });
-
-    $("#formulario_editar_usuari_creaf").submit(function(e){
-        var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize(),
-                    success: function(result) {
-                         mostrar_dialog("table_usuaris_creaf");
-                         refrescaTabla(4);
-                    }
-        });
-        e.preventDefault(); //para no ejecutar el actual submit del form
-    });
-
-    $("#formulario_editar_usuari_extern").submit(function(e){
-        var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize(),
-                    success: function(result) {
-                         mostrar_dialog("table_usuaris_externs");
-                         refrescaTabla(6);
-                    }
-
-        });
-        e.preventDefault(); //para no ejecutar el actual submit del form
-    });
-
-    $("#formulario_editar_justificacio_personal").submit(function(e){
-        var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_perso_creaf="+id_current_perso_creaf,
-                    success: function(result) {
-                         mostrar_dialog("table_justificacions_personal");
-                         refrescaTabla(7);
-                    }
-
-        });
-        e.preventDefault(); //para no ejecutar el actual submit del form
-    });
 
     ///////
     $("#content input:not([type=radio],[type=checkbox]),select,textarea").each(function(){
@@ -127,7 +67,30 @@ $(document).ready(function(){
 
 });
 
-
+function validar_form(formulario){ // OJO que esta adaptado para las comas decimales pero si se introduce "8.5" se enviara como "85"
+    var errores=0;
+    var form = formulario;
+    form.find(".numero").each(function(){
+        var numero=parseFloat($(this).val().replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+        if(validar_numero(numero))
+            $(this).val(formatnumber( numero, "", ".", 2 ));
+        else
+            errores++;
+    });
+    if(errores==0)
+        return true;
+    else{
+        alert("Error amb "+errores+" dels camps numerics.");
+        return false;
+    }
+}
+function validar_numero(numero){ //comrpueba que el numero este bien escrito
+    if(formatnumber( numero, "", ".", 2 )){
+        return true;
+        }
+    else
+        return false;
+}
 function cargar_categorias(){
     $("#id_categoria").val($("#id_id_categoria").val());
     mostrar_categorias();

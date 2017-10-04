@@ -36,32 +36,48 @@ $(document).ready(function(){
     });
 
     $("#table_justificacions_projecte").on( 'click', '.eliminar_justificacio_projecte', function () {
-        $.ajax({
-            url: justificacions_projecte.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                    justificacions_projecte.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(16);
-                });
+
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: justificacions_projecte.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                            justificacions_projecte.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(16);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
     });
     ///AJAX
     $("#formulario_justificacio_projecte").submit(function(e){
         var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_projecte="+id_prj,
-                    success: function(result) {
-                         cerrar_dialog();
-                         refrescaTabla(16);
-                    },
-                    error:function(error){
-                    console.log(error);
-                    }
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_projecte="+id_prj,
+                        success: function(result) {
+                             cerrar_dialog();
+                             refrescaTabla(16);
+                        },
+                        error:function(error){
+                        console.log(error);
+                        }
 
-        });
+            });
+        }
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     ///
@@ -91,32 +107,48 @@ $(document).ready(function(){
     });
 
     $("#table_auditories").on( 'click', '.eliminar_auditoria', function () {
-        $.ajax({
-            url: auditories.row(".selected").data()["url"],
-            type: "DELETE",
-            success: function(result) {
-                    auditories.$('tr.selected').hide("highlight",{color:"red"},function(){
-                    refrescaTabla(17);
-                });
+
+      $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    url: auditories.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                            auditories.$('tr.selected').hide("highlight",{color:"red"},function(){
+                            refrescaTabla(17);
+                        });
+                    }
+                 });
+            },
+            cancel: function(){
             }
-         });
+        });
     });
     ///AJAX
     $("#formulario_auditories").submit(function(e){
         var form = $(this);
-        $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: form.serialize()+"&id_projecte="+id_prj,
-                    success: function(result) {
-                         cerrar_dialog();
-                         refrescaTabla(17);
-                    },
-                    error:function(error){
-                    console.log(error);
-                    }
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize()+"&id_projecte="+id_prj,
+                        success: function(result) {
+                             cerrar_dialog();
+                             refrescaTabla(17);
+                        },
+                        error:function(error){
+                        console.log(error);
+                        }
 
-        });
+            });
+        }
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     ///

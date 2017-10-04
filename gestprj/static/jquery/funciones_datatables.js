@@ -31,17 +31,19 @@ var desglossament = null;
 
 var justificacions_projecte = null;
 var auditories = null;
+var separador_decimales = ',';
+var separador_miles = '.';
 
 
 /////IDIOMA DATATABLES
 var opciones_idioma = {
-    "decimal":        ",",
+    "decimal":        separador_decimales,
+    "thousands":      separador_miles,
     "emptyTable":     "No s'han trobat dades",
     "info":           "Mostrant d'_START_ a _END_ de _TOTAL_ resultats",
     "infoEmpty":      "0 resultats",
     "infoFiltered":   "(filtrats d'un total de _MAX_)",
     "infoPostFix":    "",
-    "thousands":      ",",
     "lengthMenu":     "Show _MENU_ entries",
     "loadingRecords": "Carregant...",
     "processing":     "Processant...",
@@ -60,6 +62,10 @@ var opciones_idioma = {
 }
 
 $(document).ready(function(){
+
+//    $(".number").each(function(){
+//        $(this).val()=formatnumber( $(this).val(), separador_miles, separador_decimales, 2 );
+//    });
 
     $("#id_id_projecte").attr("value",id_prj);
 
@@ -81,6 +87,7 @@ $(document).ready(function(){
 
     $("#table_pressupost").find("tbody").on( 'click', 'tr', function () {
                 id_current_partida=$("#table_pressupost").DataTable().row(".selected").data()["id_part"];
+                $("#nombre_partida").html($("#table_pressupost").DataTable().row(".selected").data()["nom_partida"]);
                 refrescaTabla(14);
     });
 
@@ -94,23 +101,24 @@ function actu_import_pres_total(){//////////////// suma los importes de la parti
         periodicitat_pressupost.cell(rowindx,5).data(0);
     });
     pressupost.rows().every(function(rowpress){
-
             $.get("/show_PeriodicitatPartida/"+pressupost.row(rowpress).data()["id_part"],function(data){
                 $.each(data["results"],function(index,obj){///si solo pongo data le paso un objeto en lugar e un array y por lo tanto la function no devuelve indice
 //                    console.log(periodicitat_pressupost.cell(index,5).data());
                       if(periodicitat_pressupost.cell(index,5).data()!=undefined){
-                          periodicitat_pressupost.cell(index,5).data((periodicitat_pressupost.cell(index,5).data()+parseInt(obj['import_field'])));
-                          total_perio = total_perio + parseInt(obj['import_field']);
-                          $("#total_periodicitat_pressupost").val(total_perio);
+                          var tot=parseFloat(periodicitat_pressupost.cell(index,5).data())+parseFloat(obj['import_field']);
+                          periodicitat_pressupost.cell(index,5).data(formatnumber( tot, separador_miles, separador_decimales, 2 ));
+                          total_perio = total_perio + parseFloat(obj['import_field']);
+                          //una vez actualizado todo ahora simplemente que se sumen las columnas de la tabla
+                          //var suma_pres=periodicitat_pressupost.column(5).data().sum();
+                          $(periodicitat_pressupost.column(5).footer()).find("#total_import_periodicitat_pressupost").html(formatnumber( total_perio, separador_miles, separador_decimales, 2 ));
+                          // $(periodicitat_partida.column(5).footer()).find("#total_import_periodicitat_partida").html(formatnumber( suma_part, separador_miles, separador_decimales, 2 ));
+                          //$("#total_periodicitat_pressupost").val(formatnumber( total_perio, separador_miles, separador_decimales, 2 ));
                       }
 //                    alert(obj["import_field"]);
                 });
+
             });
     })
-//    .promise().done(function(){
-//        alert(total_perio);
-//
-//    });
 }
 
 function refrescaTabla(tabla){
@@ -346,9 +354,11 @@ function crear_datatable(tipo){
                 {'data': 'data_fi'},
                 {'data': 'nom_feina'},
                 {'data': 'hores'},
-                {'data': 'cost_hora'},
+                {'data': 'cost_hora',render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
                 {'render':function(data,type,row){
-                    return(parseInt(row.hores)*parseInt(row.cost_hora));
+                    var suma = parseFloat(row.hores)*parseFloat(row.cost_hora);
+                    //$($(this).DataTable().column( 6 ).footer()).html( "<b>"+formatnumber( suma, separador_miles, separador_decimales, 2 )+"</b>" );
+                    return(suma);
                 }},
                 {"render": function(){return '<a class="btn btn-info editar_justificacio_personal" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
                 {"render": function(){return '<a class="btn btn-danger eliminar_justificacio_personal" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
@@ -356,8 +366,13 @@ function crear_datatable(tipo){
             columnDefs:[
                 {"visible":false,"targets":0}
             ],
-//            success:{
-//                $(this)
+//            footerCallback: function( tfoot, data, start, end, display ) {
+//                $(this).DataTable().columns( [4,5] ).every(function(){
+//                    var sum = this.data().reduce( function (a,b) {
+//                        return parseFloat(a) + parseFloat(b);
+//                    },2 );
+//                    $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
+//                });
 //            },
             scrollY:        '50vh',
             scrollCollapse: true,
@@ -379,7 +394,7 @@ function crear_datatable(tipo){
 //                            return '<select></select>'
 //                        }},'id_organisme'},
                         {'data': 'nom_organisme'},
-                        {'data': 'import_concedit'},
+                        {'data': 'import_concedit',render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
                         {"render": function(){return '<a class="btn btn-info editar_organisme_fin" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
                         {"render": function(){return '<a class="btn btn-danger eliminar_organisme_fin" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
                     ],
@@ -387,9 +402,13 @@ function crear_datatable(tipo){
                         {"visible":false,"targets":[0,1]},
                         { "width": "5%", "targets": [4,5] }
                     ],
-                    fnDrawCallback:function(){
-                        var total = $(this).DataTable().column( 3 ).data().sum();
-                        $("#total_import_organismes_fin").val(total);
+//                    fnDrawCallback:function(){
+//                        var total = $(this).DataTable().column( 3 ).data().sum();
+//                        $("#total_import_organismes_fin").val(total);
+//                    },
+                    footerCallback: function( tfoot, data, start, end, display ) {
+                        var total= $(this).DataTable().column( 3 ).data().sum();
+                        $($(this).DataTable().column( 3 ).footer()).find("b").html(formatnumber( total, separador_miles, separador_decimales, 2 ));
                     },
                     scrollY:        '50vh',
                     scrollCollapse: true,
@@ -411,7 +430,7 @@ function crear_datatable(tipo){
 //                            return '<select></select>'
 //                        }},'id_organisme'},
                         {'data': 'nom_organisme'},
-                        {'data': 'import_rebut'},
+                        {'data': 'import_rebut',render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
                         {"render": function(){return '<a class="btn btn-info editar_organisme_rec" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
                         {"render": function(){return '<a class="btn btn-danger eliminar_organisme_rec" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
                     ],
@@ -419,9 +438,13 @@ function crear_datatable(tipo){
                         {"visible":false,"targets":[0,1]},
                         { "width": "5%", "targets": [4,5] }
                     ],
-                    fnDrawCallback:function(){
-                        var total = $(this).DataTable().column( 3 ).data().sum();
-                        $("#total_import_organismes_rec").val(total);
+//                    fnDrawCallback:function(){
+//                        var total = $(this).DataTable().column( 3 ).data().sum();
+//                        $("#total_import_organismes_rec").val(total);
+//                    },
+                    footerCallback: function( tfoot, data, start, end, display ) {
+                        var total= $(this).DataTable().column( 3 ).data().sum();
+                        $($(this).DataTable().column( 3 ).footer()).find("b").html(formatnumber( total, separador_miles, separador_decimales, 2 ));
                     },
                     scrollY:        '50vh',
                     scrollCollapse: true,
@@ -445,7 +468,7 @@ function crear_datatable(tipo){
                         {'data': 'data_assentament'},
                         {'data': 'id_assentament'},
                         {'data': 'desc_justif'},
-                        {'data': 'import_field'},
+                        {'data': 'import_field',render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
                         {"render": function(){return '<a class="btn btn-info editar_justifInterna" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
                         {"render": function(){return '<a class="btn btn-danger eliminar_justifInterna" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
                     ],
@@ -453,9 +476,13 @@ function crear_datatable(tipo){
                         {"visible":false,"targets":[0,1]},
                         { "width": "5%", "targets": [6,7] }
                     ],
-                    fnDrawCallback:function(){
-                        var total = $(this).DataTable().column( 5 ).data().sum();
-                        $("#total_import_justificacions_internes").val(total);
+//                    fnDrawCallback:function(){
+//                        var total = $(this).DataTable().column( 5 ).data().sum();
+//                        $("#total_import_justificacions_internes").val(total);
+//                    },
+                    footerCallback: function( tfoot, data, start, end, display ) {
+                        var total= $(this).DataTable().column( 5 ).data().sum();
+                        $($(this).DataTable().column( 5 ).footer()).find("b").html(formatnumber( total, separador_miles, separador_decimales, 2 ));
                     },
                     scrollY:        '50vh',
                     scrollCollapse: true,
@@ -478,7 +505,7 @@ function crear_datatable(tipo){
 //                        }},'id_organisme'},
                         {'data': 'data_inici'},
                         {'data': 'data_fi'},
-                        {'data': 'import_concedit'},
+                        {'data': 'import_concedit',render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
                         {"render": function(){return 0;}},
                         {"render": function(){return 0;}},
                         {"render": function(){return 0;}},
@@ -493,78 +520,7 @@ function crear_datatable(tipo){
                     fnDrawCallback:function(){
                           if($(this).DataTable().rows().count()>0)
                             actualizar_canoniva();
-//                        var tabla = $(this).DataTable();
-//
-//                        $("#total_concedit_renovacio").val(tabla.column( 4 ).data().sum());
-////                        $( tabla.column( 4 ).footer() ).find("#total_concedit_renovacio").val($("#total_concedit_renovacio").val());///este es para que se vea el resultado
-//
-//                        if($("#total_concedit_renovacio").val()>0){//si es cero las divisiones petaran
-//                            //estos son los inputs
-//                            ///quizas esto se pueda poner abajo,ya que no son ni de la tabla
-//                            var canon_oficial_per = ( $("#id_canon_oficial").val() / $("#total_concedit_renovacio").val() ) * ( 100 * ( 1+$("#id_percen_iva").val()/100 ) ) ;
-//                            $("#canon_oficial_per").val(canon_oficial_per);
-//
-//                            var canon_creaf_eur = ( $("#total_concedit_renovacio").val() * $("#id_percen_canon_creaf").val() ) / ( 100 * ( 1+$("#id_percen_iva").val()/100 ) ) ;
-//                            $("#canon_creaf_eur").val(canon_creaf_eur);
-//
-//                            var diferencia_per = $("#canon_oficial_per").val() - $("#id_percen_canon_creaf").val();
-//                            $("#diferencia_per").val(diferencia_per);
-//
-//                            var diferencia_eur =  $("#id_canon_oficial").val() - $("#canon_creaf_eur").val();
-//                            $("#diferencia_eur").val(diferencia_eur);
-//
-//                            var iva_eur = ( $("#total_concedit_renovacio").val() * $("#id_percen_iva").val() ) / ( 100 * ( 1+$("#id_percen_iva").val()/100 ) ) ;
-//                            $("#iva_eur").val(iva_eur);
-//
-//
-//                                ////CAMPOS DE LA TABLA
-//                            tabla.rows().every(function(rowidx,tableloop,rowloop){
-//                                    var import_concedit=tabla.cell(rowidx,4).data();
-//                                    var iva = tabla.cell(rowidx,4).data() - ( tabla.cell(rowidx,4).data() / (1+$("#id_percen_iva").val()/100) );
-//                                    var canon = ( tabla.cell(rowidx,4).data() *  $("#canon_oficial_per").val() ) / (100 * (1+$("#id_percen_iva").val()/100) );
-//
-//
-//                                    tabla.cell(rowidx,4).data(import_concedit);///esta data no se muestra,la guarda datatables
-//                                    $(tabla.cell(rowidx,4).node()).html(formatnumber(import_concedit,separador_miles,separador_decimales,2));
-//
-//                                    tabla.cell(rowidx,5).data(iva);
-//                                    $(tabla.cell(rowidx,5).node()).html(formatnumber(iva,separador_miles,separador_decimales,2));
-//
-//                                    tabla.cell(rowidx,6).data(canon);
-//                                    $(tabla.cell(rowidx,6).node()).html(formatnumber(canon,separador_miles,separador_decimales,2));
-//
-//                                    tabla.cell(rowidx,7).data(tabla.cell(rowidx,4).data()-iva-canon);
-//                                    $(tabla.cell(rowidx,7).node()).html(formatnumber((tabla.cell(rowidx,4).data()-iva-canon),separador_miles,separador_decimales,2));
-//
-//
-//                            });
-//                            ///formatear numeros de los inputs y volver a asignarlos
-//                            $("#canon_oficial_per").val(formatnumber(canon_oficial_per,separador_miles,separador_decimales,2));
-//                            $("#canon_creaf_eur").val(formatnumber(canon_creaf_eur,separador_miles,separador_decimales,2));
-//                            $("#diferencia_per").val(formatnumber(diferencia_per,separador_miles,separador_decimales,2));
-//                            $("#diferencia_eur").val(formatnumber(diferencia_eur,separador_miles,separador_decimales,2));
-//                            $("#iva_eur").val(formatnumber(iva_eur,separador_miles,separador_decimales,2));
-//                            ///totales
-//                            $( tabla.column( 4 ).footer() ).find("#total_concedit_renovacio").html(formatnumber(tabla.column( 4 ).data().sum(),separador_miles,separador_decimales,2));
-//                            $( tabla.column( 5 ).footer() ).find("#total_iva_renovacio").html(formatnumber(tabla.column( 5 ).data().sum(),separador_miles,separador_decimales,2));
-//                            $( tabla.column( 6 ).footer() ).find("#total_canon_renovacio").html(formatnumber(tabla.column( 6 ).data().sum(),separador_miles,separador_decimales,2));
-//                            $( tabla.column( 7 ).footer() ).find("#total_renovacio").html(formatnumber(tabla.column( 7 ).data().sum(),separador_miles,separador_decimales,2));
-//                            ////
-//                        }
-//                        /////
-////                        $(".max2dec").each(function(){
-////                            $(this).val( parseFloat($(this).val()).toFixed(2));
-////                        });
-////                        $(".max4dec").each(function(){
-////                            $(this).val( parseFloat($(this).val()).toFixed(4));
-////                        });
                     },
-//                    initComplete: function(settings, json) {
-//                      if(renovacions_init==false)
-//                        renovacions_init = true;
-//                      else
-//                        actualizar_canoniva();
-//                    },
                     scrollY:        '50vh',
                     scrollCollapse: true,
                     paging:         false,
@@ -572,13 +528,12 @@ function crear_datatable(tipo){
                     overflow:       "auto",
                     language: opciones_idioma,
         });
-    }else if(tipo==14){ //////////PRESSUPOST
+    }else if(tipo==14){ //////////PRESSUPOST  !OJO esta y la de abajo es la unica de presupost que no cambia el total de forma dinamica
         return $("#table_pressupost").DataTable({
                     ajax: {
                         url: '/show_Pressupost/'+id_prj,
                         dataSrc: 'results'
                     },
-
                     columns:[
                         {'data': 'url'},
                         {'data': 'id_part'},
@@ -587,27 +542,33 @@ function crear_datatable(tipo){
 //                            return '<select></select>'
 //                        }},'id_organisme'},
                         {'data': 'nom_partida'},
-                        {'data': 'import_field'},
+                        {'data': 'import_field',render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
                         {"render": function(){return '<a class="btn btn-info editar_pressupost" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
                         {"render": function(){return '<a class="btn btn-danger eliminar_pressupost" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
                     ],
                     columnDefs:[
                         {"visible":false,"targets":[0,1,2]},
-                        { "width": "5%", "targets": [5,6] }
+                        { "width": "5%", "targets": [5,6] },
+                        { type: 'num-fmt', targets: [4] }
                     ],
                     fnInitComplete:function(){/////// OJO fnInitComplete no se ejecuta al actualizar la tabla,mientras que fnDrawCallBack se ejecuta cada vez que la tabla hace un redraw
-                        var total = $(this).DataTable().column( 4 ).data().sum();
-                        $("#total_import_pressupost").val(total);
+//                        var total = $(this).DataTable().column( 4 ).data().sum();
+//                        $("#total_import_pressupost").val(formatnumber( total, separador_miles, separador_decimales, 2 ));
 
-                        if($(this).DataTable().cell(0,1).data()!=undefined){
+                        if($(this).DataTable().cell(0,1).data()!=undefined){//al cargar el proyecto seleccionamos por defecto la priemra partida
                             id_current_partida=$(this).DataTable().cell(0,1).data();
                             $($(this).DataTable().row(0).node()).addClass('selected');
+                            $("#nombre_partida").html($(this).DataTable().cell(0,3).data());
                         }
 
                         refrescaTabla(14);
 //                        if($(this).DataTable().row( 0 ).data()["id_partida"])
 //                            id_current_partida=$(this).DataTable().row( 0 ).data()["id_part"];
 //                            alert(id_current_partida);
+                    },
+                    footerCallback: function( tfoot, data, start, end, display ) {
+                        var total= $(this).DataTable().column( 4 ).data().sum();
+                        $($(this).DataTable().column( 4 ).footer()).find("b").html(formatnumber( total, separador_miles, separador_decimales, 2 ));
                     },
                     scrollY:        '50vh',
                     scrollCollapse: true,
@@ -670,17 +631,21 @@ function crear_datatable(tipo){
 //                        }},'id_organisme'},
                         {'data': 'data_inicial_perio'},
                         {'data': 'data_final_perio'},
-                        {'data': 'import_field'},
-                        {"render": function(){return '<a class="btn btn-info editar_periodicitat_partida" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
-                        {"render": function(){return '<a class="btn btn-danger eliminar_periodicitat_partida" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
+                        {'data': 'import_field',render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
+                        {"render": function(){return '<a class="btn btn-info editar_periodicitat_partida" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}}
+//                        {"render": function(){return '<a class="btn btn-danger eliminar_periodicitat_partida" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
                     ],
                     columnDefs:[
                         {"visible":false,"targets":[0,1,2]},
-                        { "width": "5%", "targets": [6,7] }
+                        { "width": "5%", "targets": [6] }
                     ],
-                    fnDrawCallback:function(){// OJO es sensible a mayusculas y minusculas
-                        var total = $(this).DataTable().column( 5 ).data().sum();
-                        $("#total_periodicitat_partida").val(total);
+//                    fnDrawCallback:function(){// OJO es sensible a mayusculas y minusculas
+//                        var total = $(this).DataTable().column( 5 ).data().sum();
+//                        $("#total_periodicitat_partida").val(total);
+//                    },
+                    footerCallback: function( tfoot, data, start, end, display ) {
+                        var total= $(this).DataTable().column( 5 ).data().sum();
+                        $($(this).DataTable().column( 5 ).footer()).find("b").html(formatnumber( total, separador_miles, separador_decimales, 2 ));
                     },
                     scrollY:        '50vh',
                     scrollCollapse: true,
@@ -703,7 +668,7 @@ function crear_datatable(tipo){
 //                        }},'id_organisme'},
                         {'data': 'compte'},
                         {'data': 'clau'},
-                        {'data': 'import_field'},
+                        {'data': 'import_field',render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
                         {"render": function(){return '<a class="btn btn-info editar_desglossament" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
                         {"render": function(){return '<a class="btn btn-danger eliminar_desglossament" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
                     ],

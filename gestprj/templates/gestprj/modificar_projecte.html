@@ -4,6 +4,7 @@
 <!--<div name="contenedor_general" class="col-md-12 col-md-offset-1">-->
 
 {% if form.errors %}
+<script>confirmacion_salir=1;</script>
 <div id="diverror" class="text-center" title="Error al crear el projecte">
     {% for field in form %}
         {% for error in field.errors %}
@@ -222,6 +223,9 @@
                             <hr>
                             <h4>Investigadors i personal del CREAF</h4>
                             <table id="table_personal_creaf" class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="mostrar_usuaris_creaf" title="Afegir" href="#">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir usuari CREAF
+                                </a>
                                 <thead>
                                 <tr>
                                     <th></th>
@@ -233,15 +237,15 @@
                                 </thead>
                                 <tbody></tbody>
                             </table>
-                            <a class="btn btn-success" id="mostrar_usuaris_creaf" title="Afegir"
-                               href="#">
-                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir usuari
-                                CREAF
-                            </a>
                             <br><br><br><br>
                             <hr>
                             <h4>Investigadors d'altres centres o institucions</h4>
                             <table id="table_personal_extern" class="table table-striped table-bordered datatable">
+                                <a class="btn btn-success" id="mostrar_usuaris_externs" title="Afegir"
+                                   href="#">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir usuari
+                                    extern
+                                </a>
                                 <thead>
                                 <tr>
                                     <th></th>
@@ -254,11 +258,7 @@
                                 <tbody>
                                 </tbody>
                             </table>
-                            <a class="btn btn-success" id="mostrar_usuaris_externs" title="Afegir"
-                               href="#">
-                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir usuari
-                                extern
-                            </a>
+
                             <!--{{ form.id_usuari_extern.errors }}-->
                             <!--<label for="{{ form.id_usuari_extern.id_for_label }}">id usuari extern</label>-->
                             <!--{{ form.id_usuari_extern }}-->
@@ -290,8 +290,18 @@
                                     </thead>
                                     <tbody>
                                     </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td><b>Total: </b></td>
+                                            <td><b></b></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
-                                <br><b>Total(€)</b><input id="total_import_organismes_fin" disabled/>
+                                <!--<br><b>Total(€)</b><input id="total_import_organismes_fin" disabled/>-->
                                 <br><br><br>
                                 <h4>Organismes receptors</h4>
                                 <table id="table_organismes_rec" class="table table-striped table-bordered datatable">
@@ -312,8 +322,18 @@
                                     </thead>
                                     <tbody>
                                     </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td><b>Total: </b></td>
+                                            <td><b></b></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
-                                <br><b>Total(€)</b><input id="total_import_organismes_rec" disabled/>
+                                <!--<br><b>Total(€)</b><input id="total_import_organismes_rec" disabled/>-->
 
 
                             </div>
@@ -371,8 +391,20 @@
                                     </thead>
                                     <tbody>
                                     </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td><b>Total: </b></td>
+                                            <td><b></b></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
-                                <br><b>Total(€)</b><input id="total_import_justificacions_internes" disabled/>
+                                <!--<br><b>Total(€)</b><input id="total_import_justificacions_internes" disabled/>-->
 
                             </div>
 
@@ -446,10 +478,22 @@
                                     <th></th>
                                 </tr>
                                 </thead>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <td><b>Total: </b></td>
+                                    <td><b></b></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                </tfoot>
                                 <tbody>
                                 </tbody>
+
                             </table>
-                            <br><b>Total(€)</b><input id="total_import_pressupost" class="max2dec" disabled/>
+                            <!--<br><b>Total(€)</b><input id="total_import_pressupost" class="max2dec" disabled/>-->
                             <br><br><br><br><br><br>
                             <hr>
                             <h4>Periodicitat pressupost</h4>
@@ -474,13 +518,25 @@
                                 </thead>
                                 <tbody>
                                 </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <td><b>Total: </b></td>
+                                    <td><b id="total_import_periodicitat_pressupost"></b></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                </tfoot>
                             </table>
-                            <br><b>Total(€)</b><input id="total_periodicitat_pressupost" class="max2dec" disabled/>
+                            <!--<br><b>Total(€)</b><input id="total_periodicitat_pressupost" class="max2dec" disabled/>-->
                         </div>
                         <br><br><br><br><br><br>
                         <hr>
                         <div>
-                            <h4>Periodicitat partida</h4>
+                            <h4>Periodicitat partida de <b id="nombre_partida"></b></h4>
                             <table id="table_periodicitat_partida" class="table table-striped table-bordered datatable">
                                 <thead>
                                 <tr>
@@ -491,13 +547,23 @@
                                     <th>Data final</th>
                                     <th>Import</th>
                                     <th></th>
-                                    <th></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <td><b>Total: </b></td>
+                                    <td><b id="total_import_periodicitat_partida"></b></td>
+                                    <td></td>
+                                </tr>
+                                </tfoot>
                             </table>
-                            <br><b>Total(€)</b><input id="total_periodicitat_partida" class="max2dec" disabled/>
+                            <!--<br><b>Total(€)</b><input id="total_periodicitat_partida" class="max2dec" disabled/>-->
 
 
                             <br><br><br><br><br><br>
@@ -523,6 +589,17 @@
                                 </thead>
                                 <tbody>
                                 </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <td><b>Total: </b></td>
+                                    <td><b></b></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                </tfoot>
                             </table>
                         </div>
                     <br><hr>
@@ -755,6 +832,19 @@
             </thead>
             <tbody>
             </tbody>
+            <!--<tfoot>-->
+            <!--<tr>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td><b>Totals: </b></td>-->
+                <!--<td><b></b></td>-->
+                <!--<td><b></b></td>-->
+                <!--<td><b></b></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--</tfoot>-->
         </table>
         </a>
     </div>
@@ -782,7 +872,7 @@
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='mostrar_dialog("table_participants_organismes");'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -820,7 +910,7 @@
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='mostrar_dialog("table_usuaris_creaf");'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -858,7 +948,7 @@
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='mostrar_dialog("table_usuaris_externs");'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -885,13 +975,13 @@
         </select>
 
             Hores treballades: <input type="text" name="hores"/>
-            Cost x hores: <input type="text" name="cost_hora"/>
+            Cost/hora: <input name="cost_hora" class="numero"/>
 
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='mostrar_dialog("table_justificacions_personal");'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -915,14 +1005,14 @@
             {% endif %}
         </select>
             <br>
-            Import <input name="import_concedit"/>
+            Import <input name="import_concedit" class="numero" />
             <br>
 
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='cerrar_dialog();'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -944,13 +1034,13 @@
             {% endif %}
         </select>
             <br>
-            Import <input name="import_rebut"/>
+            Import <input name="import_rebut" class="numero" />
             <br>
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='cerrar_dialog();'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -963,13 +1053,13 @@
             Data assentament<input id="id_data_assentament" name="data_assentament"/><br>
             Número assentament<input name="id_assentament"/><br>
             Descripció<input name="desc_justif"/><br>
-            Import<input name="import_field"/><br>
+            Import<input name="import_field" class="numero" /><br>
             <br>
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='cerrar_dialog();'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -981,41 +1071,85 @@
             {% csrf_token %}
             Data inici<input id="data_renovacio_inici" name="data_inici"/><br>
             Data final<input id="data_renovacio_fi" name="data_fi"/><br>
-            Concedit<input name="import_concedit"/><br>
+            Concedit<input name="import_concedit" class="numero" /><br>
             <br>
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='cerrar_dialog();'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
         </form>
     </div>
 
-    <div id="editar_pressupost" class="dialogcont" title="Editar pressupost">
-        <form id="formulario_pressupost" action="/gestor_Pressupost/" method="POST">
+    <!--PRESSUPOST-->
+    <!--Para añadir,eliminar o editar conceptos presupuestarios-->
+    <!--Ojo que esta tabla de momento no se utiliza-->
+    <div id="table_conceptes_presupostaris" class="dialogcont" title="Organismes">
+        <table class="table table-striped table-bordered datatable">
+            <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>Concepte pressupostaris:</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <div id="editar_concepte_pressupostari" class="dialogcont" title="Editar concepte pressupostari">
+        <form id="formulario_concepte_pressupostari" action="/gestor_ConceptePressupostari/" method="POST">
             {% csrf_token %}
 
-            Partida<select name="id_concepte_pres" style="max-width:300px;">
-            {% if partides == None %}
-            <option value="null">Cap</option>
-            {% else %}
-            {% for partida in partides %}
-            <option value={{ partida.id_concepte_pres }}>{{ partida.desc_concepte }}
-            </option>
-            {% endfor %}
-            {% endif %}
-        </select>
+            <!--Identificador:<input name="id_concepte_pres" disabled style="max-width:50px;"/> <br>-->
 
-            Import<input name="import_field"/><br>
+
+
+            Descripció:<input name="desc_concepte" style="max-width:300px;" /><br>
             <br>
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
+                    onclick='cerrar_dialog();'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+
+    <!---->
+    <div id="editar_pressupost" class="dialogcont" title="Editar pressupost">
+        <form id="formulario_pressupost" action="/gestor_Pressupost/" method="POST">
+            {% csrf_token %}
+
+            Partida<select id='select_id_concepte_pres' name="id_concepte_pres" style="max-width:300px;">
+            <!--{% if partides == None %}-->
+            <!--<option value="null">Cap</option>-->
+            <!--{% else %}-->
+            <!--{% for partida in partides %}-->
+            <!--<option value={{ partida.id_concepte_pres }}>{{ partida.desc_concepte }}-->
+            <!--</option>-->
+            <!--{% endfor %}-->
+            <!--{% endif %}-->
+        </select>
+            <a class="btn btn-success" id="mostrar_editar_concepte_pressupostari_crear" title="Afegir"
+               href="#">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear nou concepte pressupostari
+            </a></br>
+
+            Import<input class="numero" name="import_field" /><br>
+            <br>
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='cerrar_dialog();'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -1033,7 +1167,7 @@
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='cerrar_dialog();'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -1043,13 +1177,13 @@
     <div id="editar_periodicitat_partida" class="dialogcont" title="Editar periodicitat partida">
         <form id="formulario_periodicitat_partida" action="/gestor_PeriodicitatPartida/" method="POST">
             {% csrf_token %}
-            Import<input name="import_field"/><br>
+            Import<input name="import_field" class="numero" /><br>
             <br>
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='cerrar_dialog();'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -1074,14 +1208,14 @@
         </select>
 
             <br>
-            Import<input name="import_field"/><br>
+            Import<input name="import_field" class="numero" /><br>
             Descripció<input name="desc_compte"/><br>
 
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='cerrar_dialog();'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -1100,7 +1234,7 @@
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='cerrar_dialog();'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
@@ -1119,7 +1253,7 @@
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
             </button>
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#"
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='cerrar_dialog();'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>

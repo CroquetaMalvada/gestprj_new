@@ -553,6 +553,16 @@ class GestRenovacions(viewsets.ModelViewSet):
 
 # CONCEPTE PRESSUPOST (AKA PARTIDA
 
+def ListConceptesPress(request):
+
+    conceptos = TConceptesPress.objects.all().order_by('desc_concepte')
+    resultado=[]
+    for concepte in conceptos:
+        resultado.append({'id':str(concepte.id_concepte_pres),'descripcio': concepte.desc_concepte})
+
+    resultado = json.dumps(resultado)
+    return HttpResponse(resultado, content_type='application/json;')
+
 class GestConceptesPress(viewsets.ModelViewSet):
     queryset = TConceptesPress.objects.all()
     serializer_class = GestConceptesPressSerializer

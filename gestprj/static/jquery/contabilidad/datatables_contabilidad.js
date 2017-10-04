@@ -51,7 +51,6 @@ $(document).ready(function(){
                 ////por defecto se muestran los proyectos abiertos
                 nomes_oberts();
             },
-            stateSave: true,
             scrollY:        '70vh',
             scrollCollapse: true,
             paging:         false,
@@ -285,7 +284,7 @@ $(document).ready(function(){
 //                    console.log(this.data());
                     var sum = this.data().reduce( function (a,b) {
                         return parseFloat(a) + parseFloat(b);
-                    },0 );
+                    },0 ); //OJO cambiar a 2????
                     $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                 });
               },
@@ -456,6 +455,8 @@ $(document).ready(function(){
                 { type: 'num-fmt', targets: [2,3,4,5,6,7,8,9,10] }
             ],
             columns: [
+                null,
+                null,
                 { data:'codi', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'responsable', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'concedit', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
