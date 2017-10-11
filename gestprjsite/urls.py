@@ -99,14 +99,20 @@ urlpatterns = patterns('',
     url(r'^menu/$', TemplateView.as_view(template_name="gestprj/menu.html"), name='menu'),
 
     url(r'^contabilitat/$', views.list_projectes_cont, name='contabilitat'),
+    url(r'^json_vacio/$', views.json_vacio, name='cont_json_vacio'),
     url(r'^cont_dades/$', views.cont_dades, name='cont_dades'),
+
     url(r'^cont_estat_pres/$', views.cont_estat_pres, name='cont_estat_pres'),
+    url(r'^show_estat_pres_datos/(?P<datos>.+)/$', views.ListEstatPresDatos, name='cont_despeses'),# ajax 1
+    url(r'^show_Despeses_Compte/(?P<id_partida>.+)/(?P<cod>.+)/(?P<data_min>.+)/(?P<data_max>.+)/$', views.ListDespesesCompte, name="despeses_compte"),# ajax 2
+
     url(r'^cont_despeses/$', views.cont_despeses, name='cont_despeses'),
+
     url(r'^cont_ingresos/$', views.cont_ingresos, name='cont_ingresos'),
     url(r'^cont_estat_prj_resp/$', views.cont_estat_prj_resp, name='estat_prj_resp'),
     url(r'^cont_resum_fitxa_major_prj/$', views.cont_resum_fitxa_major_prj, name='resum_fitxa_major_prj'),
     #moviments compte
-    url(r'^show_Despeses_Compte/(?P<id_partida>.+)/(?P<cod>.+)/(?P<data_min>.+)/(?P<data_max>.+)/$', views.ListDespesesCompte, name="despeses_compte"),
+
     url(r'^show_Moviments_Compte/(?P<compte>.+)/(?P<data_min>.+)/(?P<data_max>.+)/$', views.ListMovimentsCompte, name="moviments_compte"),
 
     url(r'^cont_resum_estat_prj/$', views.cont_resum_estat_prj, name='resum_estat_prj'),

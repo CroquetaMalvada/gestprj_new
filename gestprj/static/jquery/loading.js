@@ -9,12 +9,11 @@ $(document).ready(function(){
         dialogClass: "noclose"
 	});
 
-    $(document).on({
-//        ajaxStart: function(){$("#loading").dialog("open");},
-//        ajaxStop: function(){$("#loading").dialog("close");}
-        ajaxStart: function(){load = loading("Carregant...");},
-        ajaxStop: function(){load.close();}
-    });
+//    $(document).on({
+//
+//        ajaxStart: function(){load = loading("Carregant...");},
+//        ajaxStop: function(){load.close();}
+//    });
 
 });
 

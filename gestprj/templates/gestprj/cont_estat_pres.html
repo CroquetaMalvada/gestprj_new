@@ -5,17 +5,17 @@
     *Importando datos antiguos(<2009),es normal que ciertos periodos aparezcan vacíos*
     <div class="col-md-10 col-md-offset-1" style="background:white;height:75vh;overflow:scroll;">
     <div id="accordion">
-           {% for projecte in llista_estat_pres %}
-            <h3>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</h3>
+           {% for projecte in projectes %}
+            <h3>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.acronim }}</h3>
            <div>
                 <p align="left" class="text-left col-md-6">
-                NOM PROJECTE: <b>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</b><br>
-                RESPONSABLE: <b>{{ projecte.dades_prj.id_resp.id_usuari.nom_usuari }}</b><br>
+                NOM PROJECTE: <b>{{ projecte.codi_resp }}{{ projecte.codi_prj }} - {{ projecte.acronim }}</b><br>
+                RESPONSABLE: <b>{{ projecte.id_resp__id_usuari__nom_usuari }}</b><br>
                 </p>
                 <p align="right" class="col-md-3">
                 CONCEDIT :<br>
-                IVA: {{ projecte.iva_percen }} % :<br>
-                CÀNON: {{ projecte.canon_percen }} % :<br>
+                IVA( {{ projecte.percen_iva }}% ) :<br>
+                CÀNON( {{ projecte.percen_canon_creaf }}% ):<br>
                 <br>
                 NET DISPONIBLE:<br>
                 </p>
@@ -30,7 +30,8 @@
                 {% if projecte.periodes %}
                     {% for periode in projecte.periodes %}
                         <h3>Període {{ periode.num_periode }}: De {{ periode.data_min }} a {{ periode.data_max }}</h3>
-                        <table class="table table-striped table-bordered datatable table_estat_pressupostari" width="100%">
+                        <table class="table table-striped table-bordered datatable table_estat_pressupostari" cod="{{ periode.id_periode }}_{{ periode.data_min }}_{{ periode.data_max }}_{{ projecte.codi_resp }}{{projecte.codi_prj }}" width="100%">
+                            <!--<input class="datos" cod="{{ periode.id_periode }}_{{ periode.data_min }}_{{ periode.data_max }}" hidden/>-->
                             <thead>
                             <tr>
                                 <th>Partida</th>
@@ -42,37 +43,42 @@
                             </thead>
                             <tfoot>
                                 <tr>
-                                        <td><b>Totals: </b></td>
-                                        {% if periode.total_saldo > 0 %}
-                                            <td bgcolor="LightGreen"><b>{{ periode.total_pressupostat}}</b></td>
-                                            <td bgcolor="LightGreen"><b>{{ periode.total_gastat}}</b></td>
-                                            <td bgcolor="LightGreen"></td>
-                                            <td bgcolor="LightGreen"><b>{{ periode.total_saldo}}</b></td>
-                                        {% else %}
-                                            <td bgcolor="LightCoral"><b>{{ periode.total_pressupostat }}</b></td>
-                                            <td bgcolor="LightCoral"><b>{{ periode.total_gastat }}</b></td>
-                                            <td bgcolor="LightCoral"></td>
-                                            <td bgcolor="LightCoral"><b>{{ periode.total_saldo}}</b></td>
-                                        {% endif %}
-                                    </tr>
+                                    <td><b>Totals: </b></td>
+                                    <td><b></b></td>
+                                    <td><b></b></td>
+                                    <td><b></b></td>
+                                    <td><b></b></td>
+                                    <!--{% if periode.total_saldo > 0 %}-->
+                                        <!--<td bgcolor="LightGreen"><b>{{ periode.total_pressupostat}}</b></td>-->
+                                        <!--<td bgcolor="LightGreen"><b>{{ periode.total_gastat}}</b></td>-->
+                                        <!--<td bgcolor="LightGreen"></td>-->
+                                        <!--<td bgcolor="LightGreen"><b>{{ periode.total_saldo}}</b></td>-->
+                                    <!--{% else %}-->
+                                        <!--<td bgcolor="LightCoral"><b>{{ periode.total_pressupostat }}</b></td>-->
+                                        <!--<td bgcolor="LightCoral"><b>{{ periode.total_gastat }}</b></td>-->
+                                        <!--<td bgcolor="LightCoral"></td>-->
+                                        <!--<td bgcolor="LightCoral"><b>{{ periode.total_saldo}}</b></td>-->
+                                    <!--{% endif %}-->
+                                </tr>
                             </tfoot>
                             <tbody>
-                                {% for partida in periode.partides %}
-                                <tr>
-                                    <td>{{ partida.descripcio }}</td>
-                                    <td>{{ partida.pressupostat }}</td>
-                                    <td>{{ partida.gastat }}</td>
-                                    <td><a class="btn btn-info info_compte_pres" id="{{ partida.partidaperio }}" cod="{{ partida.cod }}" data_min="{{ periode.data_min }}" data_max="{{ periode.data_max }}" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a></td>
-                                    <td>{{ partida.saldo }}</td>
-                                </tr>
-                                {% endfor %}
+                                <!--{% for partida in periode.partides %}-->
+                                <!--<tr>-->
+                                    <!--<td>{{ partida.descripcio }}</td>-->
+                                    <!--<td>{{ partida.pressupostat }}</td>-->
+                                    <!--<td>{{ partida.gastat }}</td>-->
+                                    <!--<td><a class="btn btn-info info_compte_pres" id="{{ partida.partidaperio }}" cod="{{ partida.cod }}" data_min="{{ periode.data_min }}" data_max="{{ periode.data_max }}" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a></td>-->
+                                    <!--<td>{{ partida.saldo }}</td>-->
+                                <!--</tr>-->
+                                <!--{% endfor %}-->
                             </tbody>
                         </table>
                     {% endfor %}
                 {% endif %}
                         <!--Tabla que contiene el TOTAL de los totales-->
                         <h3>ESTAT PRESSUPOST TOTAL</h3>
-                        <table class="table table-striped table-bordered datatable table_estat_pressupostari" width="100%">
+                        <table class="table table-striped table-bordered datatable table_estat_pressupostari" cod="{{ projecte.id_projecte }}_{{ projecte.data_min }}_{{ projecte.data_max }}_{{ projecte.codi_resp }}{{projecte.codi_prj }}_" width="100%">
+                                <!--<input type="text" class="datos" value="{{ projecte.id_projecte }}_{{ projecte.data_min }}_{{ projecte.data_max }}_{{ projecte.codi_resp }}{{projecte.codi_prj }}" />-->
                                 <thead>
                                 <tr>
                                     <th>Partida</th>
@@ -84,34 +90,38 @@
                                 </thead>
                                 <tfoot>
                                     <tr>
-                                            <td><b>Totals: </b></td>
-                                            {% if projecte.total_prj_saldo > 0 %}
-                                                <td bgcolor="LightGreen"><b>{{ projecte.total_prj_pressupostat}}</b></td>
-                                                <td bgcolor="LightGreen"><b>{{ projecte.total_prj_gastat}}</b></td>
-                                                <td bgcolor="LightGreen"></td>
-                                                <td bgcolor="LightGreen"><b>{{ projecte.total_prj_saldo}}</b></td>
-                                            {% else %}
-                                                <td bgcolor="LightCoral"><b>{{ projecte.total_prj_pressupostat }}</b></td>
-                                                <td bgcolor="LightCoral"><b>{{ projecte.total_prj_gastat }}</b></td>
-                                                <td bgcolor="LightCoral"></td>
-                                                <td bgcolor="LightCoral"><b>{{ projecte.total_prj_saldo}}</b></td>
-                                            {% endif %}
+                                        <td><b>Totals: </b></td>
+                                        <td><b></b></td>
+                                        <td><b></b></td>
+                                        <td><b></b></td>
+                                        <td><b></b></td>
+                                            <!--{% if projecte.total_prj_saldo > 0 %}-->
+                                                <!--<td bgcolor="LightGreen"><b>{{ projecte.total_prj_pressupostat}}</b></td>-->
+                                                <!--<td bgcolor="LightGreen"><b>{{ projecte.total_prj_gastat}}</b></td>-->
+                                                <!--<td bgcolor="LightGreen"></td>-->
+                                                <!--<td bgcolor="LightGreen"><b>{{ projecte.total_prj_saldo}}</b></td>-->
+                                            <!--{% else %}-->
+                                                <!--<td bgcolor="LightCoral"><b>{{ projecte.total_prj_pressupostat }}</b></td>-->
+                                                <!--<td bgcolor="LightCoral"><b>{{ projecte.total_prj_gastat }}</b></td>-->
+                                                <!--<td bgcolor="LightCoral"></td>-->
+                                                <!--<td bgcolor="LightCoral"><b>{{ projecte.total_prj_saldo}}</b></td>-->
+                                            <!--{% endif %}-->
                                         </tr>
                                 </tfoot>
                                 <tbody>
-                                    {% for key,value in projecte.totales_partidas.items %} <!--- OJO el .items del final sirve para que el dicctionario devuelva los objetos --->
-                                    <tr>
-                                        <td>{{ value.nom_partida }}</td>
-                                        <td>{{ value.total_pressupostat }}</td>
-                                        <td>{{ value.total_gastat }}</td>
-                                        <td><a class="btn btn-info info_compte_pres" id="{{ value.id_partida }}" cod="{{ projecte.codi_resp }}{{projecte.codi_prj }}" data_min="0" data_max="0" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a></td>
-                                        <td>{{ value.total_saldo }}</td>
-                                    </tr>
-                                    {% endfor %}
+                                    <!--{% for key,value in projecte.totales_partidas.items %} &lt;!&ndash;- OJO el .items del final sirve para que el dicctionario devuelva los objetos -&ndash;&gt;-->
+                                    <!--<tr>-->
+                                        <!--<td>{{ value.nom_partida }}</td>-->
+                                        <!--<td>{{ value.total_pressupostat }}</td>-->
+                                        <!--<td>{{ value.total_gastat }}</td>-->
+                                        <!--<td><a class="btn btn-info info_compte_pres" id="{{ value.id_partida }}" cod="{{ projecte.codi_resp }}{{projecte.codi_prj }}" data_min="0" data_max="0" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a></td>-->
+                                        <!--<td>{{ value.total_saldo }}</td>-->
+                                    <!--</tr>-->
+                                    <!--{% endfor %}-->
                                 </tbody>
                         </table>
                 </div>
-                {% endfor %}
+            {% endfor %}
         </div>
 </div>
 <!--DIALOGS Y MODALS-->

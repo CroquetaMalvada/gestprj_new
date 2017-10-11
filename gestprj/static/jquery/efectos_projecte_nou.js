@@ -1,11 +1,11 @@
-window.onbeforeunload = function(){
-    if (typeof editandoproyecto === 'undefined')// en la template de modificar_projecte se crea la variable,asi que si no existe es que no se esta modificando el proyecto
-        load = loading("Carregant..."); //al final parece que esto no causa problemas de rendimiento
-    else
-        return 'Segur que vols sortir?';
-
-
-};
+//window.onbeforeunload = function(){
+//    if (typeof editandoproyecto === 'undefined')// en la template de modificar_projecte se crea la variable,asi que si no existe es que no se esta modificando el proyecto
+//        load = loading("Carregant..."); //al final parece que esto no causa problemas de rendimiento
+//    else
+//        return 'Segur que vols sortir?';
+//
+//
+//};
 
 $(window).on('unload', function() {
 

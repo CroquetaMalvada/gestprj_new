@@ -41,7 +41,7 @@ $(document).ready(function(){
                 dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
             },
             columns:[
-                {"render": function(){return '<input name="prj_select" type="checkbox" class="checkbox_responsable responsable_oberts"/>';}},
+                {"render": function(){return '<input name="prj_select" type="checkbox" />';}},
                 {'data': 'Codi'},
                 {'data': 'Estat'},
                 {'data': 'Acronim'},
@@ -262,33 +262,40 @@ $(document).ready(function(){
 ///Esto sirve para que el campo que contiene una fecha lo detecte como tal para poder asi ordenarlo correctamente por fecha
 
     if($(".table_estat_pressupostari")){// ESTAT PRESSUPOSTARI ////////////
-       $(".table_estat_pressupostari").DataTable({
-            scrollY:        '60vh',
-            scrollCollapse: true,
-            paging:         false,
-            autowidth:      true,
-            columnDefs: [
-                { type: 'de_date', targets: 0 },
-                { type: 'num-fmt', targets: [1,2,4] }
-            ],
-            columns: [
-                null,
-                { data:'Pressupostat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'Gastat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                null,
-                { data:'Saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
-            ],
-            footerCallback: function( tfoot, data, start, end, display ) {
-                var api = this.api();
-                $(this).DataTable().columns( [1,2,4] ).every(function(){
-//                    console.log(this.data());
-                    var sum = this.data().reduce( function (a,b) {
-                        return parseFloat(a) + parseFloat(b);
-                    },0 ); //OJO cambiar a 2????
-                    $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
-                });
-              },
-            language: opciones_idioma
+       $(".table_estat_pressupostari").each(function(){
+           $(this).DataTable({
+                ajax:{
+                    url:'/json_vacio/',
+                    contentType: "application/json;",
+                    dataSrc: ''
+                },
+                scrollY:        '60vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                columnDefs: [
+    //                { type: 'de_date', targets: 0 },
+                    { type: 'num-fmt', targets: [1,2,4] }
+                ],
+                columns: [
+                    { data:'desc_partida'},
+                    { data:'pressupostat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                    { data:'gastat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                    { data:{'cod':'codigo_entero','id':'id_partida'},"render": function(data){return '<a class="btn btn-info info_compte_pres" id="'+data['id_partida']+'" cod="'+data['codigo_entero']+'"data_min="0" data_max="0" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                    { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+                ],
+                footerCallback: function( tfoot, data, start, end, display ) {
+                    var api = this.api();
+                    $(this).DataTable().columns( [1,2,4] ).every(function(){
+    //                    console.log(this.data());
+                        var sum = this.data().reduce( function (a,b) {
+                            return parseFloat(a) + parseFloat(b);
+                        },0 ); //OJO cambiar a 2????
+                        $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
+                    });
+                  },
+                language: opciones_idioma
+            });
         });
     }
 
@@ -543,6 +550,57 @@ $(document).ready(function(){
 ////////////////////////////
 });
 
+function cargar_ajax_prj(elemento){
+
+    // ESTAT PRESSUPOSTARI ////////////
+    if($(elemento).find(".table_estat_pressupostari")){ /// este es el unico que necesita un each ya que puede tener varios periodos
+        $(elemento).find(".table_estat_pressupostari").each(function(){
+            var tabla=$(this).DataTable();
+            var mensaje=$(this).find(".dataTables_empty");
+            mensaje.html("Carregant...");
+            tabla.ajax.url('/show_estat_pres_datos/'+$(this).attr("cod")).load();
+            tabla.ajax.reload(function(){mensaje.html("No s'han trobat dades");});
+        });
+    }
+
+
+//       $.fn.dataTable(tabla).api().ajax.url('/show_estat_pres_datos/'+$(tabla).attr("cod"));
+
+
+//        $(tabla).DataTable({
+//                ajax:{
+//                    url: '/show_estat_pres_datos/'+$(this).attr("cod"),
+//                    contentType: "application/json;",
+//                    dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
+//                },
+//                scrollY:        '60vh',
+//                scrollCollapse: true,
+//                paging:         false,
+//                autowidth:      true,
+//                columnDefs: [
+//    //                { type: 'de_date', targets: 0 },
+//                    { type: 'num-fmt', targets: [1,2,4] }
+//                ],
+//                columns: [
+//                    { data:'desc_partida'},
+//                    { data:'pressupostat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+//                    { data:'gastat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+//                    { data:{'cod':'codigo_entero','id':'id_partida'},"render": function(data){return '<a class="btn btn-info info_compte_pres" id="'+data['id_partida']+'" cod="'+data['codigo_entero']+'"data_min="0" data_max="0" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+//                    { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+//                ],
+//                footerCallback: function( tfoot, data, start, end, display ) {
+//                    var api = this.api();
+//                    $(this).DataTable().columns( [1,2,4] ).every(function(){
+//    //                    console.log(this.data());
+//                        var sum = this.data().reduce( function (a,b) {
+//                            return parseFloat(a) + parseFloat(b);
+//                        },0 ); //OJO cambiar a 2????
+//                        $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
+//                    });
+//                  },
+//                language: opciones_idioma
+//        });
+}
 
 function projectes_de_responsable(chk,tipo){
     var val = table_responsables.cell(table_responsables.row(".selected").index(),3).data();

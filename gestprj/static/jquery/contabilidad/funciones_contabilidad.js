@@ -20,8 +20,10 @@ $(document).ready(function(){
         create: function(){
             $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
         },
-        activate: function(){
+        activate: function(event,ui){
             $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust();///IMPORTANTE sirve para alinear correctamente las cabezeras de las datatables,ya que con divs que estan hidden no se alineaban automaticamente
+            if(ui.newHeader.text()!="") ///que se ejecute solo al abrirlo
+                cargar_ajax_prj(ui.newPanel); //CARGA LAS DATATABLES DE CONTABILIDAD DEL PROYECTO QUE HAYAMOS ABIERTO
         }
     });
 ////

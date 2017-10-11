@@ -2,11 +2,9 @@ from django.shortcuts import render, get_object_or_404
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from django.db import connections
 from django.core import serializers
-from gestprj.models import Projectes, TCategoriaPrj, TOrganismes, CentresParticipants, PersonalExtern, TUsuarisExterns, \
-    PersonalCreaf, TUsuarisCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, \
-    TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, \
-    JustificProjecte, AuditoriesProjecte, Responsables
+from gestprj.models import Projectes, TCategoriaPrj, TOrganismes, CentresParticipants, PersonalExtern, TUsuarisExterns, PersonalCreaf, TUsuarisCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, Responsables
 from django.db.models import Q
 from gestprj.forms import UsuariXarxaForm
 from gestprj.forms import ProjectesForm
@@ -27,6 +25,8 @@ from gestprj.serializers import GestCentresParticipantsSerializer, ProjectesSeri
     GestAuditoriesSerializer
 from gestprj import pk,consultes_cont
 from django.db import transaction
+from datetime import datetime
+from decimal import *
 import json
 
 # #funcion para comprovar si el usuario es admin o investigador
@@ -46,6 +46,17 @@ def es_usuario_valido(user):
     else:
         return False
 ###
+
+
+def dictfetchall(cursor):
+    # Devuelve todos los campos de cada row como una lista
+    columns = [col[0] for col in cursor.description]
+    return [
+        dict(zip(columns, row))
+        for row in cursor.fetchall()
+    ]
+
+
 # Create your views here.
 @login_required(login_url='/menu/')
 # @user_passes_test(lambda u: u.groups.filter(name="Admins gestprj").count() == 0, login_url="/logout/" )
@@ -56,7 +67,7 @@ def index(request):
 
 @login_required(login_url='/menu/')
 @user_passes_test(es_admin,login_url='/contabilitat/')
-def list_projectes(request):
+def list_projectes(request): # poner ajax para funciones_datatables,pero no es nada urgente
     # llista_projectes = TUsuarisXarxa.objects.all()
     # usuarixarxa = usuari_xarxa_a_user(request)
     if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
@@ -76,168 +87,6 @@ def list_projectes(request):
     #             print projecte.id_resp.id_usuari.nom_usuari
     context = {'llista_projectes': llista_projectes, 'titulo': "LLISTA DE PROJECTES"}
     return render(request, 'gestprj/llista_projectes.html', context)
-
-
-# VERSION CONTABILIDAD
-@login_required(login_url='/menu/')
-def ListResponsablesCont(request):
-    if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los responsables
-        llista_projectes = Projectes.objects.all()
-        llista_responsables = Responsables.objects.all()
-        resultado = []
-        for responsable in llista_responsables:
-            nom = responsable.id_usuari.nom_usuari
-            id_resp = str(responsable.id_resp)
-            resultado.append({'Nom': nom, 'Id_resp': id_resp})
-        resultado = json.dumps(resultado)
-        return HttpResponse(resultado, content_type='application/json;')
-
-    else:#sino solo saldra el
-        responsable = usuari_a_responsable(request)
-        resultado = []
-        if responsable is not None:
-            nom = responsable.id_usuari.nom_usuari
-            id_resp = str(responsable.id_resp)
-            resultado.append({'Nom': nom, 'Id_resp': id_resp})
-            resultado = json.dumps(resultado)
-            return HttpResponse(resultado, content_type='application/json;')
-        else:
-            return HttpResponse([{}], content_type='application/json')
-
-    #resultado = '[{"Nom": "Dani", "Codi_resp": "1"},{"Nom": "minidani", "Codi_resp": "2"}]'
-
-@login_required(login_url='/menu/')
-def ListProjectesCont(request):
-    if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
-        llista_projectes = Projectes.objects.all()
-        resultado = []
-        for projecte in llista_projectes:
-            codi = ""
-            # codi_resp=int(projecte.id_resp.codi_resp)
-            if projecte.codi_prj < 100:
-                if projecte.codi_prj < 10:
-                    codi = "00" + str(projecte.codi_prj)
-                else:
-                    codi = "0" + str(projecte.codi_prj)
-            else:
-                codi = str(projecte.codi_prj)
-
-            if projecte.id_resp.codi_resp < 10:
-                codi = "0" + str(projecte.id_resp.codi_resp) + codi
-            else:
-                codi = str(projecte.id_resp.codi_resp) + codi
-
-            estat = projecte.id_estat_prj.desc_estat_prj
-            acronim = projecte.acronim
-            id_resp = str(projecte.id_resp.id_resp)
-            resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp})
-        resultado = json.dumps(resultado)
-        return HttpResponse(resultado, content_type='application/json;')
-
-    else:#sino solo muestra SUS proyectos
-        responsable = usuari_a_responsable(request)
-        resultado = []
-        #quitar este if cuando el gestor este acabado
-        if(request.user.username=="josepantoni"):
-            llista_projectes = Projectes.objects.filter(id_resp__id_resp="8")
-            responsable="josepanotni"
-        else:
-            llista_projectes = Projectes.objects.filter(id_resp__id_resp=responsable.id_resp)
-
-        if responsable is not None:
-            for projecte in llista_projectes:
-                codi = ""
-                # codi_resp=int(projecte.id_resp.codi_resp)
-                if projecte.codi_prj < 100:
-                    if projecte.codi_prj < 10:
-                        codi = "00" + str(projecte.codi_prj)
-                    else:
-                        codi = "0" + str(projecte.codi_prj)
-                else:
-                    codi=str(projecte.codi_prj)
-
-                if projecte.id_resp.codi_resp < 10:
-                    codi = "0"+str(projecte.id_resp.codi_resp)+codi
-                else:
-                    codi = str(projecte.id_resp.codi_resp) + codi
-
-                estat = projecte.id_estat_prj.desc_estat_prj
-                acronim = projecte.acronim
-                id_resp = str(projecte.id_resp.id_resp)
-                resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp})
-            resultado = json.dumps(resultado)
-            return HttpResponse(resultado, content_type='application/json;')
-        else:
-            return HttpResponse([{}], content_type='application/json')
-
-    #resultado = '[{"Nom": "Dani", "Codi_resp": "1"},{"Nom": "minidani", "Codi_resp": "2"}]'
-
-@login_required(login_url='/menu/')
-def list_projectes_cont(request):
-    if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
-        llista_projectes = Projectes.objects.all()
-        llista_responsables = Responsables.objects.all()
-    else:#sino solo muestra SUS proyectos
-        responsable = usuari_a_responsable(request)
-        llista_responsables = responsable
-
-        if responsable is not None:
-            llista_projectes = Projectes.objects.filter(id_resp__id_resp=responsable.id_resp)
-        else:
-            llista_projectes = None
-
-    #anadir el codigo de responsable de cada proyecto
-    # for projecte in llista_projectes:
-    #     projecte.id_resp.codi_resp = int(projecte.id_resp.codi_resp)
-    #     projecte.codi_prj = int(projecte.codi_prj)
-    # llista_responsables=list(llista_responsables)
-    # for responsable in llista_responsables:
-    # llista_responsables_json=serializers.serialize('json', llista_responsables)
-    # llista_projectes=json.dumps(ProjectesSerializer)
-    # llista_responsables = json.dumps(llista_responsables)
-    # llista_projectes=json.dumps(list(llista_projectes))
-
-    context = {'llista_projectes': llista_projectes , 'titulo': "CONTABILITAT"}
-    return render(request, 'gestprj/contabilitat.html', context)
-
-
-# @login_required(login_url='/menu/')
-# @user_passes_test(es_admin,login_url='/welcome/')
-# def new_project(request, id=None):
-#     categories = TCategoriaPrj.objects.all()
-#     organismes = TOrganismes.objects.all()
-#     feines = TFeines.objects.all()
-#     partides = TConceptesPress.objects.all()
-#     claus_comptes = ClausDiferenCompte.objects.all();
-#     nuevo = False
-#     try:
-#         instance = get_object_or_404(Projectes, id_projecte=id)
-#     except Http404:
-#         instance = None
-#         nuevo = True
-#         id = pk.generaPkProjecte()
-#
-#     form = ProjectesForm(request.POST or None, instance=instance)
-#
-#     if form.is_valid():
-#         form.save()  # \/ pasar el id por url no sirve,hay que ponerlo en la del form
-#         return render(request, 'gestprj/projecte_nou.html',
-#                       {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
-#                        'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
-#                        'id_projecte': id, 'errorprojecte':False})  # , 'id_projecte':1534
-#     else:
-#         if nuevo:  # Si esta mal pero es nuevo
-#             return render(request, 'gestprj/projecte_nou.html',
-#                           {'form': form, 'titulo': 'NOU PROJECTE', 'categories': categories, 'organismes': organismes,
-#                            'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
-#                            'id_projecte': id, 'nuevo': True, 'errorprojecte':True})
-#
-#     # Si esta mal pero se esta editando:
-#     return render(request, 'gestprj/projecte_nou.html',
-#                   {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
-#                    'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
-#                    'id_projecte': id, 'errorprojecte':True})
-
 
 @login_required(login_url='/menu/')
 @user_passes_test(es_admin,login_url='/welcome/')
@@ -276,51 +125,6 @@ def mod_project(request, id=None):
                   {'form': form, 'titulo': 'EDITANT PROJECTE', 'categories': categories, 'organismes': organismes,
                    'tipus_feines': feines, 'partides': partides, 'claus_comptes': claus_comptes,
                    'id_projecte': id})
-
-
-
-# @login_required(login_url='/menu/')
-# def update_project(request):
-#         # if this is a POST request we need to process the form data
-#
-#     categories = TCategoriaPrj.objects.all()
-#     organismes = TOrganismes.objects.all()
-#
-#     if request.method == 'POST':
-#         # create a form instance and populate it with data from the request:
-#         # validez = 0
-#
-#         form = ProjectesForm(request.POST)
-#
-#         # form = ProjectesForm(request.POST)
-#         # check whether it's valid:
-#
-#         if form.is_valid():
-#             project = form.save()
-#             # if request.POST['id_projecte'] == "-1":
-#             #     #Proyecto nuevo
-#             #     project.id_projecte = pk.generaPkProjecte()
-#             #     project.save()
-#             # else:
-#             #     #Editar proyecto
-#             #     project.update()
-#             # ####
-#             # # foreach guardando los centros participantes anadidos
-#
-#             # project = form.save()
-#             # form.save()
-#             # Projectes.objects.update_or_create(id_projecte=project.pk, **form.cleaned_data)
-#             # process the data in form.cleaned_data as required
-#             # ...
-#             # redirect to a new URL:
-#             # return HttpResponseRedirect('/mod_projecte/')
-#             return render(request, 'gestprj/projecte_nou.html', {'form': form,'titulo':'EDITANT PROJECTE', 'categories':categories, 'id_projecte':project.pk})# , 'id_projecte':1534
-#
-#     # if a GET (or any other method) we'll create a blank form
-#     else:
-#         form = ProjectesForm()
-#
-#     return render(request, 'gestprj/projecte_nou.html', {'form': form,'titulo':'NOU PROJECTE', 'categories':categories})# , 'id_projecte':1534
 
 
 def login_view(request):
@@ -706,6 +510,127 @@ class GestAuditories(viewsets.ModelViewSet):
 
 ################################ CONTABILIDAD!!!!
 
+# VERSION CONTABILIDAD
+def json_vacio(request):
+    return HttpResponse([{}], content_type='application/json;')
+
+@login_required(login_url='/menu/')
+def list_projectes_cont(request): #simplemente carga la template
+    # if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
+    #     llista_projectes = Projectes.objects.all()
+    #     llista_responsables = Responsables.objects.all()
+    # else:#sino solo muestra SUS proyectos
+    #     responsable = usuari_a_responsable(request)
+    #     llista_responsables = responsable
+    #
+    #     if responsable is not None:
+    #         llista_projectes = Projectes.objects.filter(id_resp__id_resp=responsable.id_resp)
+    #     else:
+    #         llista_projectes = None
+
+
+    context = { 'titulo': "CONTABILITAT"} # 'llista_projectes': llista_projectes ,
+    return render(request, 'gestprj/contabilitat.html', context)
+
+#AJAX PARA RELLENAR RESPONSABLES
+@login_required(login_url='/menu/')
+def ListResponsablesCont(request):
+    if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los responsables
+        llista_responsables = Responsables.objects.all().values('id_usuari__nom_usuari','id_resp')
+        resultado = []
+        for responsable in llista_responsables:
+            nom = responsable['id_usuari__nom_usuari']
+            id_resp = str(responsable['id_resp'])
+            resultado.append({'Nom': nom, 'Id_resp': id_resp})
+        resultado = json.dumps(resultado)
+        return HttpResponse(resultado, content_type='application/json;')
+
+    else:#sino solo saldra el
+        responsable = usuari_a_responsable(request)
+        resultado = []
+        if responsable is not None:
+            nom = responsable.id_usuari.nom_usuari
+            id_resp = str(responsable.id_resp)
+            resultado.append({'Nom': nom, 'Id_resp': id_resp})
+            resultado = json.dumps(resultado)
+            return HttpResponse(resultado, content_type='application/json;')
+        else:
+            return HttpResponse([{}], content_type='application/json')
+
+#AJAX PARA RELLENAR PROYECTOS
+@login_required(login_url='/menu/')
+def ListProjectesCont(request):
+    if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
+        llista_projectes = Projectes.objects.all().values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp')
+        resultado = []
+        for projecte in llista_projectes:
+            codi = ""
+            # codi_resp=int(projecte.id_resp.codi_resp)
+            codi_prj=str(projecte['codi_prj'])
+            estat = projecte['id_estat_prj__desc_estat_prj']
+            acronim = projecte['acronim']
+            id_resp = str(projecte['id_resp__id_resp'])
+            codi_resp = str(projecte['id_resp__codi_resp'])
+
+            if len(codi_prj) < 3:
+                if len(codi_prj) < 2:
+                    codi = "00" + codi_prj
+                else:
+                    codi = "0" + codi_prj
+            else:
+                codi = str(codi_prj)
+
+            if len(codi_resp) < 2:
+                codi = "0" + codi_resp + codi
+            else:
+                codi = codi_resp + codi
+
+
+            resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp})
+        resultado = json.dumps(resultado)
+        return HttpResponse(resultado, content_type='application/json;')
+
+    else:#sino solo muestra SUS proyectos
+        responsable = usuari_a_responsable(request)
+        resultado = []
+        #quitar este if cuando el gestor este acabado
+        if(request.user.username=="josepantoni"):
+            llista_projectes = Projectes.objects.filter(id_resp__id_resp="8").values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp')
+            responsable="josepanotni"
+        else:
+            llista_projectes = Projectes.objects.filter(id_resp__id_resp=responsable.id_resp).values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp')
+
+        if responsable is not None:
+            for projecte in llista_projectes:
+                codi = ""
+                # codi_resp=int(projecte.id_resp.codi_resp)
+                codi_prj = str(projecte['codi_prj'])
+                estat = projecte['id_estat_prj__desc_estat_prj']
+                acronim = projecte['acronim']
+                id_resp = str(projecte['id_resp__id_resp'])
+                codi_resp = str(projecte['id_resp__codi_resp'])
+
+                if len(codi_prj) < 3:
+                    if len(codi_prj) < 2:
+                        codi = "00" + codi_prj
+                    else:
+                        codi = "0" + codi_prj
+                else:
+                    codi = str(codi_prj)
+
+                if len(codi_resp) < 2:
+                    codi = "0" + codi_resp + codi
+                else:
+                    codi = codi_resp + codi
+
+                resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp})
+            resultado = json.dumps(resultado)
+            return HttpResponse(resultado, content_type='application/json;')
+        else:
+            return HttpResponse([{}], content_type='application/json')
+
+    #resultado = '[{"Nom": "Dani", "Codi_resp": "1"},{"Nom": "minidani", "Codi_resp": "2"}]'
+
 # DADES PROJECTE
 
 @login_required(login_url='/menu/')
@@ -721,14 +646,181 @@ def cont_dades(request):
 
 @login_required(login_url='/menu/')
 def cont_estat_pres(request):
+    try:
+        projectes = request.POST
+        fecha_min = datetime.strptime(projectes["data_min"], "%d-%m-%Y")
+        fecha_max = datetime.strptime(projectes["data_max"], "%d-%m-%Y")
+        resultado=[]
+        for projecte_chk in projectes.getlist("prj_select"): # dentro de projectes tenemos prj_select que es una lista llena de xx-xxx.Aqui los obtenemos
+            ##### Para extraer el objeto proyecto y el codigo:
+            cod_responsable = projecte_chk.split("-")[0]
+            id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
+            cod_projecte = projecte_chk.split("-")[1]
+            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'percen_iva', 'percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
+            projecte=projecte[0]# Ojo aunque devuelva solo un proyecto sigue siendo una lista con diccionario
+            ##### Cuentas:
+            concedit = 0
+            for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
+                concedit = concedit + importe['import_concedit']
+            iva = concedit - (concedit / (1 + projecte['percen_iva'] / 100))
+            canon = (concedit * projecte['percen_canon_creaf']) / (100 * (1 + projecte['percen_iva'] / 100))
+            net_disponible = concedit - iva - canon
 
-    projectes = request.POST
-    llista_estat_pres = consultes_cont.ContEstatPres(projectes)
+            concedit = round(concedit, 2)
+            iva = round(iva, 2)
+            canon = round(canon, 2)
+            net_disponible = round(net_disponible, 2)
+            #####
+            num_periodes=1 #marcamos uno ya que pueden haber gastos totales sin periodos
+            periodes=[]
+            if PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']):#Si hay periodos(el __lte es menor que o igual)
+                #OJO!!! poner ", data_inicial__mte=fecha_min, data_final__lte=fecha_max"?
+                for periode in PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']).values('data_inicial','data_final','id_periodicitat'):
+                    data_min_periode = datetime.strptime(str(periode['data_inicial']), "%Y-%m-%d")
+                    data_max_periode = datetime.strptime(str(periode['data_final']), "%Y-%m-%d")
+                    id_periodicitat = periode['id_periodicitat']
+                    periodes.append({"id_periode":id_periodicitat,"num_periode":num_periodes,"data_min":str(data_min_periode),"data_max":str(data_max_periode)})
+                    num_periodes += 1
 
-    context = {'llista_estat_pres': llista_estat_pres, 'titulo': "ESTAT PRESSUPOSTARI"}
+
+            projecte["codi_resp"]=cod_responsable
+            projecte["codi_prj"]=cod_projecte
+            projecte["iva"]=iva
+            projecte["canon"]=canon
+            projecte["net_disponible"]=net_disponible
+            projecte["concedit"]=concedit
+            projecte["periodes"]=periodes
+            projecte["data_min"]=str(fecha_min)
+            projecte["data_max"]=str(fecha_max)
+
+
+            resultado.append(projecte)
+
+            # llista_estat_pres = consultes_cont.ContEstatPres(projectes)
+
+        context = { 'projectes':resultado,'titulo': "ESTAT PRESSUPOSTARI"} # 'llista_estat_pres': llista_estat_pres,
+    except:
+        context = {'projectes': [], 'titulo': "ESTAT PRESSUPOSTARI"}  # 'llista_estat_pres': llista_estat_pres,
     return render(request, 'gestprj/cont_estat_pres.html', context)
 
-def ListDespesesCompte(request,id_partida,cod,data_min,data_max):
+
+
+@login_required(login_url='/menu/') # AJAX 1
+def ListEstatPresDatos(request,datos):
+
+    cursor = connections['contabilitat'].cursor()  # la primera vez le lleva mucho tiempo?!
+    if (datos.count("_")== 3): #en la pos 0 se obtiene el id del periodo,la 1 y 2 son las fechas del periodo y en la 3 el codigo entero)
+        partidas = []
+        id_periode = datos.split("_")[0]
+        data_min_periode = datos.split("_")[1]
+        data_max_periode = datos.split("_")[2]
+        codigo_entero = datos.split("_")[3]
+        tipos_partida = {}
+        for partidaperio in PeriodicitatPartida.objects.filter(id_periodicitat=id_periode).values('id_partida','id_partida__id_partida','id_partida__id_concepte_pres__desc_concepte','import_field'):  # partida de x periodo
+            id_partida = partidaperio['id_partida']
+            desc_partida = partidaperio['id_partida__id_concepte_pres__desc_concepte']
+            pressupostat = float(partidaperio['import_field'])
+            if desc_partida not in tipos_partida:
+                tipos_partida[desc_partida] = {"desc_partida": desc_partida, "pressupostat": float(0), "gastat": float(0),"saldo": float(0), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero}
+            ### para obtener el gastat
+            gastat = 0
+            cuenta = 0
+            for compte in Desglossaments.objects.filter(id_partida=partidaperio['id_partida__id_partida']).values('compte','id_compte','id_compte__clau_compte'):
+                cod_compte = str(compte['compte'])
+                if cod_compte is None:
+                    cod_compte = "0000"
+                # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
+                # if primer_digito =='6' or primer_digito =='2' :
+                if len(cod_compte) < 4:
+                    if len(cod_compte) < 3:
+                        if len(cod_compte) < 2:
+                            cod_compte = cod_compte + "%%%"
+                        else:
+                            cod_compte = cod_compte + "%%"
+                    else:
+                        cod_compte = cod_compte + "%"
+
+                if compte['id_compte']:
+                    clau = str(compte['id_compte__clau_compte'])
+
+                # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
+                # OJO UTILIZAR FECHAS?
+                cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE(  CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N'  AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA NOT LIKE 6296+(?) ) ) ",[codigo_entero, data_max_periode, data_min_periode, cod_compte, codigo_entero])
+                cuentacont = dictfetchall(cursor)
+                if cuentacont:
+                    for cont in cuentacont:
+                        if cont["DEBE"] is None:
+                            cont["DEBE"] = 0
+                        if cont["HABER"] is None:
+                            cont["HABER"] = 0
+                        gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
+
+            saldo = pressupostat - float(gastat)  # pasamos datos a float ya que los decimal no los pilla bien el json
+            #partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero})
+            tipos_partida[desc_partida]["pressupostat"]=float(tipos_partida[desc_partida]["pressupostat"]+pressupostat)
+            tipos_partida[desc_partida]["gastat"] = float(tipos_partida[desc_partida]["gastat"] + float(gastat))
+            tipos_partida[desc_partida]["saldo"] = float(tipos_partida[desc_partida]["saldo"] + saldo)
+        for partida in tipos_partida:
+            partidas.append(tipos_partida[partida])
+        resultado = json.dumps(partidas)
+        return HttpResponse(resultado, content_type='application/json;')
+            # codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
+
+
+    if (datos.count("_")==4):  # si no es un periodo sino el total(en este caso en la pos 0 se obtiene el id del prj,la 1 y 2 son la FECHAS DEL PROYECTO y en la 3 el codigo entero)
+        partidas = []
+        for partida in Pressupost.objects.filter(id_projecte=datos.split("_")[0]).values('id_partida','id_concepte_pres__desc_concepte','import_field'):  # partidas de proyecto
+            id_partida = partida['id_partida']
+            desc_partida = partida['id_concepte_pres__desc_concepte']
+            pressupostat = float(partida['import_field'])
+            id_prj = datos.split("_")[0]
+            data_min = datos.split("_")[1]
+            data_max = datos.split("_")[2]
+            codigo_entero = datos.split("_")[3]
+
+            ### para obtener el gastat
+            gastat = 0
+            for compte in Desglossaments.objects.filter(id_partida=id_partida).values('compte'):
+                cod_compte = str(compte['compte'])
+                if cod_compte is None:
+                    cod_compte = "0000"
+                # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
+                # if primer_digito =='6' or primer_digito =='2' :
+                if len(cod_compte) < 4:
+                    if len(cod_compte) < 3:
+                        if len(cod_compte) < 2:
+                            cod_compte = cod_compte + "%%%"
+                        else:
+                            cod_compte = cod_compte + "%%"
+                    else:
+                        cod_compte = cod_compte + "%"
+
+                # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
+                # OJO UTILIZAR FECHAS?
+                cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",[codigo_entero, data_max, data_min, cod_compte])  # AND ( FECHA<'2017-01-01 00:00:00.000' )
+                cuentacont = dictfetchall(cursor)
+                if cuentacont:
+                    for cont in cuentacont:
+                        if cont["DEBE"] is None:
+                            cont["DEBE"] = 0
+                        if cont["HABER"] is None:
+                            cont["HABER"] = 0
+                        gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
+
+            saldo = pressupostat - float(gastat)  # pasamos datos a float ya que los decimal no los pilla bien el json
+            partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero})
+        resultado = json.dumps(partidas)
+        return HttpResponse(resultado, content_type='application/json;')
+    # projectes = request.POST
+    # fecha_min = datetime.strptime(projectes["data_min"], "%d-%m-%Y")
+    # fecha_max = datetime.strptime(projectes["data_max"], "%d-%m-%Y")
+
+    # resultado = consultes_cont.ContEstatPres(datos)
+    # resultado = json.dumps(resultado)
+    return HttpResponse([], content_type='application/json;')
+
+
+def ListDespesesCompte(request,id_partida,cod,data_min,data_max): # AJAX 2
     if int(id_partida) != 0:
         fetch = consultes_cont.DespesesCompte(id_partida,cod,data_min,data_max)
         # resultado = json.dumps(fetch, ensure_ascii=False)
