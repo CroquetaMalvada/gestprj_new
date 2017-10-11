@@ -48,6 +48,7 @@ $(document).ready(function(){
                             pressupost.$('tr.selected').hide("highlight",{color:"red"},function(){
                                 refrescaTabla(12);
                                  refrescaTabla(14);
+                                 refrescaTabla(15);
                             });
                     }
                 });
@@ -269,7 +270,7 @@ $(document).ready(function(){
 
         var load = loading("Carregant...");
         $.get(desglossament.row(".selected").data()["url"],function( data ){
-            form.children("[name='compte']").val(data["id_concepte_pres"]);
+            form.children("[name='compte']").val(data["compte"]);
             form.children("[name='id_compte']").val(data["id_compte"]);
             form.children("[name='import_field']").val(formatnumber( data["import_field"], separador_miles, separador_decimales, 2 ));
             form.children("[name='desc_compte']").val(data["desc_compte"]);

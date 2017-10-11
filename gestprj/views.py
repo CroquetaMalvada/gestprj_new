@@ -562,6 +562,7 @@ def ListResponsablesCont(request):
 def ListProjectesCont(request):
     if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
         llista_projectes = Projectes.objects.all().values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp')
+        # prefetch_related("id_resp__id_estat_prj")
         resultado = []
         for projecte in llista_projectes:
             codi = ""

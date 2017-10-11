@@ -14,11 +14,18 @@ $(document).ready(function(){
 
 
 //EFECTOS ACCORDION
+    var primero_creado=0;
     $("#accordion").accordion({
         collapsible: true,
         heightStyle: "content",
-        create: function(){
+        create: function(event, ui){
             $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+            if (primero_creado==0){ // por defecto,el primer proyecto está abierto por defecto,ergo cargaremos su ajax
+                cargar_ajax_prj(ui.panel);
+                primero_creado=1;
+            }
+
+
         },
         activate: function(event,ui){
             $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust();///IMPORTANTE sirve para alinear correctamente las cabezeras de las datatables,ya que con divs que estan hidden no se alineaban automaticamente

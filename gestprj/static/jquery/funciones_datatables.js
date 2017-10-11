@@ -89,6 +89,7 @@ $(document).ready(function(){
                 id_current_partida=$("#table_pressupost").DataTable().row(".selected").data()["id_part"];
                 $("#nombre_partida").html($("#table_pressupost").DataTable().row(".selected").data()["nom_partida"]);
                 refrescaTabla(14);
+                refrescaTabla(15);
     });
 
 
@@ -96,6 +97,7 @@ $(document).ready(function(){
 
 
 function actu_import_pres_total(){//////////////// suma los importes de la partida y los muestra en periodicitat pressupost
+    var total_perio = 0;
     var total_perio = 0;
     periodicitat_pressupost.rows().every(function(rowindx){//pone a 0 toda la columna
         periodicitat_pressupost.cell(rowindx,5).data(0);
@@ -562,6 +564,7 @@ function crear_datatable(tipo){
                         }
 
                         refrescaTabla(14);
+                        refrescaTabla(15);
 //                        if($(this).DataTable().row( 0 ).data()["id_partida"])
 //                            id_current_partida=$(this).DataTable().row( 0 ).data()["id_part"];
 //                            alert(id_current_partida);
