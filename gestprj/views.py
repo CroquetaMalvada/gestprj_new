@@ -71,7 +71,7 @@ def list_projectes(request): # poner ajax para funciones_datatables,pero no es n
     # llista_projectes = TUsuarisXarxa.objects.all()
     # usuarixarxa = usuari_xarxa_a_user(request)
     if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
-        llista_projectes = Projectes.objects.all()
+        llista_projectes = Projectes.objects.select_related('id_estat_prj').all()
     else:#sino solo muestra SUS proyectos
         responsable = usuari_a_responsable(request)
 
@@ -561,7 +561,7 @@ def ListResponsablesCont(request):
 @login_required(login_url='/menu/')
 def ListProjectesCont(request):
     if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
-        llista_projectes = Projectes.objects.all().values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp')
+        llista_projectes = Projectes.objects.select_related('id_resp').select_related('id_estat_prj').all().values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp')
         # prefetch_related("id_resp__id_estat_prj")
         resultado = []
         for projecte in llista_projectes:
