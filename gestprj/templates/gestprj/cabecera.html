@@ -39,10 +39,12 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li class="dropdown-header">Edició:</li>
-                    <li class="divider"></li>
                     <!--<li><a href="/welcome/">Idioma</a></li>-->
-                    <li><a href="#" onclick='mostrar_dialog("editar_organismes_participants");'>Organismes</a></li>
+                    <li><a href="#" onclick='mostrar_dialog_cabecera("table_organismes_cabecera");'>Organismes</a></li>
+                    <li class="dropdown-header">  Usuaris:</li>
+                    <li class="divider"></li>
+                    <li><a href="#" onclick='mostrar_dialog_cabecera("table_organismes_cabecera");'>Usuaris CREAF</a></li>
+                    <li><a href="#" onclick='mostrar_dialog_cabecera("table_organismes_cabecera");'>Usuaris extern</a></li>
                 </ul>
             </li>
                 {% endif %}
@@ -82,59 +84,58 @@
 </nav>
 </header>
 
-
+<!--DIALOGS Y MODALS DE LA CABECERA(SOLO PARA ADMINS)-->
+<div id="dialogs_cabecera" title="">
 <!---->
-<!--<div id="table_participants_organismes" class="dialogcont" title="Organismes">-->
-    <!--<table class="table table-striped table-bordered datatable">-->
-        <!--<a class="btn btn-success" id="mostrar_editar_organismes_participants_crear" title="Afegir"-->
-           <!--href="#">-->
-            <!--<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear nou organisme-->
-        <!--</a>-->
-        <!--<thead>-->
-        <!--<tr>-->
-            <!--<th></th>-->
-            <!--<th></th>-->
-            <!--<th>Centres participants en el projecte:</th>-->
-            <!--<th></th>-->
-            <!--<th></th>-->
-            <!--<th></th>-->
-        <!--</tr>-->
-        <!--</thead>-->
-        <!--<tbody>-->
-        <!--</tbody>-->
-    <!--</table>-->
-    <!--</a>-->
-<!--</div>-->
-<!--&lt;!&ndash;&ndash;&gt;-->
+<div id="table_organismes_cabecera" class="dialogcabecera" title="Organismes">
+    <table class="table table-striped table-bordered datatable">
+        <a class="btn btn-success" id="editar_organismes_crear_cabecera" title="Afegir"
+           href="#">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear nou organisme
+        </a>
+        <thead>
+        <tr>
+            <th></th>
+            <th></th>
+            <th>Nom:</th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    </a>
+</div>
+<!---->
+<div id="editar_organismes_cabecera" class="dialogcabecera" title="Editar organismes">
+    <form id="formulario_editar_organismes_cabecera" action="/gestor_TOrganismes/"
+          method="POST">
+        {% csrf_token %}
 
-<!--<div id="dialogs_cabecera" title="">-->
-        <!--<div id="editar_organismes_participants_edicio" class="dialogcont" title="Editar organismes">-->
-        <!--<form id="formulario_editar_organismes_participants_edicio" action="/gestor_TOrganismes/"-->
-              <!--method="POST">-->
-            <!--{% csrf_token %}-->
+        Nom organisme<input type="text" name="nom_organisme"><br>
+        Contacte<input type="text" name="contacte"><br>
+        Adreça<input type="text" name="adreca"><br>
+        Codi postal<input type="text" name="cp"><br>
+        Població<input type="text" name="poblacio"><br>
+        Provincia<input type="text" name="provincia"><br>
+        País<input type="text" name="pais"><br>
+        Telefon 1<input type="text" name="tel1"><br>
+        Telefon 2<input type="text" name="tel2"><br>
+        Fax<input type="text" name="fax"><br>
+        Correu electrónic<input type="text" name="e_mail1"><br>
+        Correu electrónic 2<input type="text" name="e_mail2"><br>
 
-            <!--Nom organisme<input type="text" name="nom_organisme"><br>-->
-            <!--Contacte<input type="text" name="contacte"><br>-->
-            <!--Adreça<input type="text" name="adreca"><br>-->
-            <!--Codi postal<input type="text" name="cp"><br>-->
-            <!--Població<input type="text" name="poblacio"><br>-->
-            <!--Provincia<input type="text" name="provincia"><br>-->
-            <!--País<input type="text" name="pais"><br>-->
-            <!--Telefon 1<input type="text" name="tel1"><br>-->
-            <!--Telefon 2<input type="text" name="tel2"><br>-->
-            <!--Fax<input type="text" name="fax"><br>-->
-            <!--Correu electrónic<input type="text" name="e_mail1"><br>-->
-            <!--Correu electrónic 2<input type="text" name="e_mail2"><br>-->
+        <button class="btn btn-success" type="submit" title="Guardar" href="#">
+            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+        </button>
 
-            <!--<button class="btn btn-success" type="submit" title="Guardar" href="#">-->
-                <!--<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar-->
-            <!--</button>-->
+        <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
+                onclick='mostrar_dialog_cabecera("table_organismes_cabecera");'>
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+        </button>
+    </form>
+</div>
 
-            <!--<button class="btn btn-danger" title="Cancel·lar" href="#" type="button"-->
-                    <!--onclick='mostrar_dialog("table_participants_organismes");'>-->
-                <!--<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar-->
-            <!--</button>-->
-        <!--</form>-->
-    <!--</div>-->
-<!--</div>-->
+</div>
 {% endif %}

@@ -896,15 +896,16 @@
             Fax<input type="text" name="fax"><br>
             Correu electrónic<input type="text" name="e_mail1"><br>
             Correu electrónic 2<input type="text" name="e_mail2"><br>
-            Organisme<select name="id_organisme">
-            {% if organismes == None %}
-            <option value="null">Cap</option>
-            {% else %}
-            {% for organisme in organismes %}
-            <option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}</option>
-            {% endfor %}
-            {% endif %}
-        </select>
+            Organisme: <select class='select_id_organisme' name="id_organisme" style="max-width:300px;"></select>
+            <!--<select name="id_organisme">-->
+            <!--{% if organismes == None %}-->
+            <!--<option value="null">Cap</option>-->
+            <!--{% else %}-->
+            <!--{% for organisme in organismes %}-->
+            <!--<option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}</option>-->
+            <!--{% endfor %}-->
+            <!--{% endif %}-->
+        <!--</select>-->
 
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
@@ -933,15 +934,16 @@
             Fax<input type="text" name="fax"><br>
             Correu electrónic<input type="text" name="e_mail1"><br>
             Correu electrónic 2<input type="text" name="e_mail2"><br>
-            Organisme<select name="id_organisme">
-            {% if organismes == None %}
-            <option value="null">Cap</option>
-            {% else %}
-            {% for organisme in organismes %}
-            <option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}</option>
-            {% endfor %}
-            {% endif %}
-        </select>
+            Organisme: <select class='select_id_organisme' name="id_organisme" style="max-width:300px;"></select>
+            <!--<select name="id_organisme">-->
+            <!--{% if organismes == None %}-->
+            <!--<option value="null">Cap</option>-->
+            <!--{% else %}-->
+            <!--{% for organisme in organismes %}-->
+            <!--<option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}</option>-->
+            <!--{% endfor %}-->
+            <!--{% endif %}-->
+        <!--</select>-->
 
 
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
@@ -994,17 +996,23 @@
         <form id="formulario_organisme_fin" action="/gestor_OrganismesFin/" method="POST">
             {% csrf_token %}
 
-            Organisme <select name="id_organisme" style="max-width:300px;">
-            {% if organismes == None %}
-            <option value="null">Cap</option>
-            {% else %}
-            {% for organisme in organismes %}
-            <option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}
-            </option>
-            {% endfor %}
-            {% endif %}
-        </select>
+            Organisme: <select class='select_id_organisme' name="id_organisme" style="max-width:300px;"></select>
+            <!--Organisme <select name="id_organisme" style="max-width:300px;">-->
+            <!--{% if organismes == None %}-->
+            <!--<option value="null">Cap</option>-->
+            <!--{% else %}-->
+            <!--{% for organisme in organismes %}-->
+            <!--<option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}-->
+            <!--</option>-->
+            <!--{% endfor %}-->
+            <!--{% endif %}-->
+        <!--</select>-->
             <br>
+        <!--<a class="btn btn-success" id="editar_organismes_crear_cabecera" title="Afegir"-->
+           <!--href="#">-->
+            <!--<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear nou organisme-->
+        <!--</a>-->
+            <!--<br>-->
             Import <input name="import_concedit" class="numero" />
             <br>
 
@@ -1023,16 +1031,17 @@
         <form id="formulario_organisme_rec" action="/gestor_OrganismesRec/" method="POST">
             {% csrf_token %}
 
-            Organisme <select name="id_organisme" style="max-width:300px;">
-            {% if organismes == None %}
-            <option value="null">Cap</option>
-            {% else %}
-            {% for organisme in organismes %}
-            <option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}
-            </option>
-            {% endfor %}
-            {% endif %}
-        </select>
+            Organisme: <select class='select_id_organisme' name="id_organisme" style="max-width:300px;"></select></select>
+            <!--Organisme <select name="id_organisme" style="max-width:300px;">-->
+            <!--{% if organismes == None %}-->
+            <!--<option value="null">Cap</option>-->
+            <!--{% else %}-->
+            <!--{% for organisme in organismes %}-->
+            <!--<option value={{ organisme.id_organisme }}>{{ organisme.nom_organisme }}-->
+            <!--</option>-->
+            <!--{% endfor %}-->
+            <!--{% endif %}-->
+        <!--</select>-->
             <br>
             Import <input name="import_rebut" class="numero" />
             <br>

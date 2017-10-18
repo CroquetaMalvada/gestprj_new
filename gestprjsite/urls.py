@@ -56,6 +56,9 @@ urlpatterns = patterns('',
     url(r'^', include(router.urls)),
     url('^show_centresPart/(?P<id_projecte>.+)/$', views.ListCentresParticipantsProjecte.as_view()),
     url('^show_TOrganismes/(?P<id_projecte>.+)/$', views.ListTOrganismesNoProjecte.as_view()),# organismos que no estan en el proyecto
+    url('^llista_Organismes/', views.ListTOrganismes.as_view()),# para la datatable de organismes
+    url('^llista_organismes_select/', views.ListOrganismesSelect),# para los select con el nombre de los organismos
+
 
     url('^show_Personal_creaf/(?P<id_projecte>.+)/$', views.ListPersonalCreafNoProjecte.as_view()),# personal itnerno que no este en el proyecto
     url('^show_Personal_creaf_prj/(?P<id_projecte>.+)/$', views.ListPersonalCreafProjecte.as_view()),# personal interno de un proyecto
@@ -75,7 +78,7 @@ urlpatterns = patterns('',
 
     url('^show_Pressupost/(?P<id_projecte>.+)/$', views.ListPressupost.as_view()),
 
-    url('^llista_ConceptesPres/', views.ListConceptesPress),
+    url('^llista_ConceptesPres/', views.ListConceptesPress),# para los select con el nombre de las partidas
 
     url('^show_PeriodicitatPres/(?P<id_projecte>.+)/$', views.ListPeriodicitatPres.as_view()),
     url('^show_PeriodicitatPartida/(?P<id_partida>.+)/$', views.ListPeriodicitatPartida.as_view()),

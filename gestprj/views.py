@@ -171,10 +171,20 @@ class ListCentresParticipantsProjecte(generics.ListAPIView):  # todos los centro
         return CentresParticipants.objects.filter(id_projecte=_id_projecte)
 
 # ORGANISMES #################
+def ListOrganismesSelect(request):
+    organismos = TOrganismes.objects.all().order_by('nom_organisme')
+    resultado=[]
+    for organismo in organismos:
+        resultado.append({'id':str(organismo.id_organisme),'nom': organismo.nom_organisme})
 
-class ListTOrganismes(viewsets.ModelViewSet):  # todos los organismos
-    queryset = TOrganismes.objects.all()
+    resultado = json.dumps(resultado)
+    return HttpResponse(resultado, content_type='application/json;')
+
+class ListTOrganismes(generics.ListAPIView):  # todos los organismos(usamos serializer ya que no es el  select y necesitaremos la url del serializer)
     serializer_class = GestTOrganismesSerializer
+
+    def get_queryset(self):
+        return TOrganismes.objects.all().order_by('nom_organisme')# .values("url","id_organisme", "nom_organisme")
 
 
 class GestTOrganismes(viewsets.ModelViewSet):  # gestionar organismos

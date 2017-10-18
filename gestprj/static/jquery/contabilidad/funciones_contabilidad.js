@@ -93,12 +93,21 @@ $(document).ready(function(){
 	    mostrar_dialog("dialog_llista_comptes");
 	});
 
-//	$("#imprimir_compte").click(function(){
-//        var divToPrint=document.getElementById('dialog_llista_comptes');
-//        var newWin=window.open('','Print-Window');
-//        newWin.document.open();
-//        newWin.document.write('<html><body onload="window.print()">'+divToPrint.innerHTML+'</body></html>');
-//        newWin.document.close();
-//        setTimeout(function(){newWin.close();},10);
-//	});
+
+    $("#formulario_projectes_cont").submit(function(e){// comprueba que haya al menos un proyecto seleccionado
+        var num=0;
+        table_projectes.rows().every(function(rowidx,tableloop,rowloop){
+            if($(table_projectes.row(rowidx,0).node()).find(":checkbox").is(':checked')){
+                num=1;
+                return false;
+            }
+        });
+        if(num!=0)
+            return true;
+        else{
+            alert("Error: No hi ha cap projecte seleccionat.");
+            return false;
+        }
+
+    });
 });

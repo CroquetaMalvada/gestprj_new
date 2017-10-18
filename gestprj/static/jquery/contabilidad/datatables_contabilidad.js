@@ -563,43 +563,6 @@ function cargar_ajax_prj(elemento){
         });
     }
 
-
-//       $.fn.dataTable(tabla).api().ajax.url('/show_estat_pres_datos/'+$(tabla).attr("cod"));
-
-
-//        $(tabla).DataTable({
-//                ajax:{
-//                    url: '/show_estat_pres_datos/'+$(this).attr("cod"),
-//                    contentType: "application/json;",
-//                    dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
-//                },
-//                scrollY:        '60vh',
-//                scrollCollapse: true,
-//                paging:         false,
-//                autowidth:      true,
-//                columnDefs: [
-//    //                { type: 'de_date', targets: 0 },
-//                    { type: 'num-fmt', targets: [1,2,4] }
-//                ],
-//                columns: [
-//                    { data:'desc_partida'},
-//                    { data:'pressupostat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-//                    { data:'gastat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-//                    { data:{'cod':'codigo_entero','id':'id_partida'},"render": function(data){return '<a class="btn btn-info info_compte_pres" id="'+data['id_partida']+'" cod="'+data['codigo_entero']+'"data_min="0" data_max="0" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
-//                    { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
-//                ],
-//                footerCallback: function( tfoot, data, start, end, display ) {
-//                    var api = this.api();
-//                    $(this).DataTable().columns( [1,2,4] ).every(function(){
-//    //                    console.log(this.data());
-//                        var sum = this.data().reduce( function (a,b) {
-//                            return parseFloat(a) + parseFloat(b);
-//                        },0 ); //OJO cambiar a 2????
-//                        $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
-//                    });
-//                  },
-//                language: opciones_idioma
-//        });
 }
 
 function projectes_de_responsable(chk,tipo){

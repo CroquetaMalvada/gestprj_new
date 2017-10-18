@@ -160,27 +160,31 @@ $("#justificacions").click(function(){
 	 });
 
     actualizar_conceptes_press();
+    actualizar_organismes();
 });
 
-//function confimacion_eliminar(){
-//    var confirm=0;
-//    $.confirm({
-//        title: 'Confirmació',
-//        content: "Segur que vols eliminar aquest element?",
-//        confirmButton: 'Si',
-//        cancelButton: 'No',
-//        confirmButtonClass: 'btn-info',
-//        cancelButtonClass: 'btn-danger',
-//        closeIcon: false,
-//        confirm: function(){
-//            return 1;
-//        },
-//        cancel: function(){
-//        }
-//    });
-//
-//
-//}
+/////ACTUALIZAR LOS SELECTS
+
+function actualizar_organismes(){
+        $.ajax({
+                    url: '/llista_organismes_select/',
+//                    type: form.attr('method'),
+//                    data: form.serialize(),
+                    datatype:'json',
+                    success: function(result) {
+                        var html="";
+                        $(result).each(function(){
+                            html=html+"<option value='"+this.id+"'>"+this.nom+"</option>";
+                        });
+                        $(".select_id_organisme").each(function(){
+                            $(this).html(html);
+                        });
+                        //$("#select_id_organisme").html(html);
+
+                    }
+
+        });
+}
 
 function actualizar_conceptes_press(){
         $.ajax({
@@ -199,6 +203,9 @@ function actualizar_conceptes_press(){
 
         });
 }
+
+
+///////////////
 
 function mostrar_menu(nombre){
 var id_div;
