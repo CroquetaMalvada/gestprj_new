@@ -311,22 +311,22 @@ $(document).ready(function(){
             autowidth:      true,
             columnDefs: [
                 { type: 'de_date', targets: 0 },
-                { type: 'num-fmt', targets: [6,7,8] }
+                { type: 'num-fmt', targets: [5,6] }
             ],
             columns: [
                 null,
                 null,
+//                null,
                 null,
                 null,
                 null,
-                null,
-                { data:'pagat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+//                { data:'pagat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'despesa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'saldo disponible', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $( api.columns( [7,8] ).footer() ).find("b").each(function(){
+                $( api.columns( [5,6] ).footer() ).find("b").each(function(){
                     $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
                 });
             },

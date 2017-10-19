@@ -171,7 +171,7 @@ class ListCentresParticipantsProjecte(generics.ListAPIView):  # todos los centro
         return CentresParticipants.objects.filter(id_projecte=_id_projecte)
 
 # ORGANISMES #################
-def ListOrganismesSelect(request):
+def ListOrganismesSelect(request): # AJAX
     organismos = TOrganismes.objects.all().order_by('nom_organisme')
     resultado=[]
     for organismo in organismos:
@@ -204,6 +204,14 @@ class ListTOrganismesNoProjecte(generics.ListAPIView):  # todos los organismos m
             return TOrganismes.objects.exclude(id_organisme__in=centres.values_list('id_organisme'))
 
 # PERSONAL CREAF #################
+# def ListPersonalCreaf(request):
+#     personal = PersonalCreaf.objects.all().order_by('id_usuari__nom_usuari') # AJAX
+#     resultado=[]
+#     for pers in personal:
+#         resultado.append({'id':str(smo.id_organisme),'nom': organismo.nom_organisme})
+#
+#     resultado = json.dumps(resultado)
+#     return HttpResponse(resultado, content_type='application/json;')
 
 class ListPersonalCreafProjecte(generics.ListAPIView):
     serializer_class = PersonalCreafSerializer
@@ -228,6 +236,12 @@ class GestPersonalCreaf(viewsets.ModelViewSet):
 
 
 # USUARIS CREAF #################
+class ListUsuarisCreaf(generics.ListAPIView):  # todos los organismos(usamos serializer ya que no es el  select y necesitaremos la url del serializer)
+    serializer_class = GestTUsuarisCreafSerializer
+
+    def get_queryset(self):
+        return TUsuarisCreaf.objects.all().order_by('nom_usuari')
+
 class GestTUsuarisCreaf(viewsets.ModelViewSet):
     queryset = TUsuarisCreaf.objects.all()
     serializer_class = GestTUsuarisCreafSerializer
@@ -258,6 +272,11 @@ class GestPersonalExtern(viewsets.ModelViewSet):
 
 
 # USUARIS EXTERNS #################
+class ListUsuarisExterns(generics.ListAPIView):  # todos los organismos(usamos serializer ya que no es el  select y necesitaremos la url del serializer)
+    serializer_class = TUsuarisExternsSerializer
+
+    def get_queryset(self):
+        return TUsuarisExterns.objects.all().order_by('nom_usuari_extern')
 
 class GestTUsuarisExterns(viewsets.ModelViewSet):  # todos los usuarios externos
     queryset = TUsuarisExterns.objects.all()

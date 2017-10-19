@@ -35,9 +35,9 @@
                         <th>Assent.</th>
                         <th>Compte</th>
                         <th>Clau</th>
-                        <th>Factura</th>
+                        <!--<th>Factura</th>-->
                         <th>Descripció</th>
-                        <th>Pagat</th>
+                        <!--<th>Pagat</th>-->
                         <th>Despesa</th>
                         <th>Saldo Disponible</th>
                     </tr>
@@ -45,10 +45,10 @@
                     <tfoot>
                                 <td></td>
                                 <td></td>
+                                <!--<td></td>-->
                                 <td></td>
                                 <td></td>
-                                <td></td>
-                                <td></td>
+                                <!--<td></td>-->
                                 <td><b>Totals: </b></td>
                                 {% if projecte.total_disponible > 0 %}
                                     <td class="resultado" bgcolor="LightGreen"><b>{{ projecte.total_despeses }}</b></td>
@@ -65,9 +65,9 @@
                             <td>{{ despesa.Asiento }}</td>
                             <td>{{ despesa.Cuenta }}</td>
                             <td>{{ despesa.Clau}}</td>
-                            <td>{{ despesa.Documento }}</td>
+                            <!--<td>{{ despesa.Documento }}</td>-->
                             <td>{{ despesa.Descripcion }}</td>
-                            <td>{{ despesa.Haber }}</td>
+                            <!--<td>{{ despesa.Haber }}</td>-->
                             <td>{{ despesa.Debe }}</td>
                             <td>{{ despesa.saldo_disponible}}</td>
                         </tr>
