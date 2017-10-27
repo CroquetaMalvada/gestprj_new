@@ -2,14 +2,15 @@
 
 {% block contenido %}
 <div class="content text-center">
-    <h1>Fitxa Major Projectes</h1><br><br><br><br>
-    <div class="col-md-10 col-md-offset-1" style="background:white;height:75vh;overflow:scroll;">
+    <!--<h1>Fitxa Major Projectes</h1><br><br><br><br>-->
+    <br>
+    <div class="col-md-12 col-md-offset-0" style="background:white;height:90vh;overflow:scroll;">
         <div id="accordion">
             {% for projecte in llista_dades %}
             <h3>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</h3>
             <div>
                 <p align="left" class="text-left col-md-6">
-                NOM PROJECTE: <b>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</b><br>
+                NOM PROJECTE: <b class="nombre_del_responsable">{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</b><br>
                 RESPONSABLE: <b>{{ projecte.dades_prj.id_resp.id_usuari.nom_usuari }}</b><br>
                 DE <b>{{ projecte.data_min }}</b> A <b>{{ projecte.data_max }}</b>
                 </p>
@@ -33,12 +34,14 @@
                     <thead>
                     <tr>
                         <th>Data</th>
-                        <th>Assent.</th>
-                        <th>Compte</th>
+                        <th>Nº Asiento</th>
+                        <th>Nº Compte</th>
+                        <th>Desc.Compte</th>
                         <th>Descripció</th>
-                        <th>Càrrec</th>
+                        <th>Observacions</th>
+                        <th>Despesa</th>
                         <th>Ingrés</th>
-                        <th>Saldo Caixa</th>
+                        <!--<th>Saldo Caixa</th>-->
                     </tr>
                     </thead>
                     <tbody>
@@ -47,10 +50,18 @@
                             <td>{{ despesa.Fecha }}</td>
                             <td>{{ despesa.Asiento }}</td>
                             <td>{{ despesa.Cuenta }}</td>
+                            <td>{{ despesa.Desc_cuenta }}</td>
                             <td>{{ despesa.Descripcion }}</td>
+                            {% if despesa.Observaciones == "Sense observacions." %}
+                            <td><a class="btn btn-danger observacions" title="{{ despesa.Observaciones }}"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span></a></td>
+                            {% else %}
+                            <td><a class="btn btn-success observacions" title="{{ despesa.Observaciones }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a></td>
+                            {% endif %}
+
+
                             <td>{{ despesa.Debe }}</td>
                             <td>{{ despesa.Haber }}</td>
-                            <td>{{ despesa.Saldo_caja }}</td>
+                            <!--<td>{{ despesa.Saldo_caja }}</td>-->
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -59,15 +70,17 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
+                                <td></td>
+                                <td></td>
                                 <td><b>Totals: </b></td>
-                                {% if projecte.total_disponible > 0 %}
+                                {% if projecte.total_disponible > -25 %}
                                     <td bgcolor="LightGreen"><b>{{ projecte.total_debe }}</b></td>
                                     <td bgcolor="LightGreen"><b>{{ projecte.total_haber }}</b></td>
-                                    <td bgcolor="LightGreen"><b>{{ projecte.total_caja }}</b></td>
+                                    <!--<td bgcolor="LightGreen"><b>{{ projecte.total_caja }}</b></td>-->
                                 {% else %}
                                     <td bgcolor="LightCoral"><b>{{ projecte.total_debe }}</b></td>
                                     <td bgcolor="LightCoral"><b>{{ projecte.total_haber }}</b></td>
-                                    <td bgcolor="LightCoral"><b>{{ projecte.total_caja }}</b></td>
+                                    <!--<td bgcolor="LightCoral"><b>{{ projecte.total_caja }}</b></td>-->
                                 {% endif %}
                             </tr>
                     </tfoot>

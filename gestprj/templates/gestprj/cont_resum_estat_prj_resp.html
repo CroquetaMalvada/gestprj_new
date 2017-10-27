@@ -1,14 +1,15 @@
 {% extends "gestprj/base.html" %}
 
 {% block contenido %}
-<h1 align="center">Estat Projectes agrupat per Responsable</h1><br><br>
-    <div class="col-md-10 col-md-offset-1" style="background:white;height:75vh;overflow:scroll;">
+<!--<h1 align="center">Estat Projectes agrupat per Responsable</h1><br><br>-->
+<br>
+    <div class="col-md-12 col-md-offset-0" style="background:white;height:90vh;overflow:scroll;">
         <div id="accordion">
             {% for responsable in llista_dades %}
             <h3>{{ responsable.0.nom_responsable }}</h3>
             <div>
                 <p align="left" class="text-left col-md-6">
-               ESTAT DELS PROJECTES DEL RESPONSABLE: <b>{{ responsable.0.nom_responsable }}</b><br>
+               ESTAT DELS PROJECTES DEL RESPONSABLE: <b class="nombre_del_responsable">{{ responsable.0.nom_responsable }}</b><br>
                 </p>
                 <p align="right" class="col-md-3">
                 Fins a: <b>{{ responsable.0.data_max }}</b>
@@ -19,13 +20,13 @@
                             <th>Codi</th>
                             <th>Nom</th>
                             <th>Concedit</th>
-                            <th>Iva</th>
+                            <!--<th>Iva</th>-->
                             <th>Cànon Total</th>
-                            <th>Ingressos</th>
+                            <th>Cobrat</th> <!-- Ingressos -->
                             <th>Pendent</th>
                             <th>Despeses</th>
                             <th>Cànon Aplicat</th>
-                            <th>Disponible Caixa</th>
+                            <!--<th>Disponible Caixa</th>-->
                             <th>Disponible Real</th>
                         </tr>
                         </thead>
@@ -33,25 +34,25 @@
                                 <tr>
                                     <td></td>
                                     <td><b>Totals: </b></td>
-                                    {% if responsable.0.totals.0.total_disponible_real > 0 %}
+                                    {% if responsable.0.totals.0.total_disponible_real > -25 %}
                                         <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_concedit}}</b></td>
-                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_iva}}</b></td>
+                                        <!--<td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_iva}}</b></td>-->
                                         <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_canon_total}}</b></td>
                                         <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_ingressos}}</b></td>
                                         <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_pendent}}</b></td>
                                         <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_despeses}}</b></td>
                                         <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_canon_aplicat}}</b></td>
-                                        <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_disponible_caixa}}</b></td>
+                                        <!--<td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_disponible_caixa}}</b></td>-->
                                         <td bgcolor="LightGreen"><b>{{ responsable.0.totals.0.total_disponible_real}}</b></td>
                                     {% else %}
                                         <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_concedit}}</b></td>
-                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_iva}}</b></td>
+                                        <!--<td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_iva}}</b></td>-->
                                         <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_canon_total}}</b></td>
                                         <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_ingressos}}</b></td>
                                         <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_pendent}}</b></td>
                                         <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_despeses}}</b></td>
                                         <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_canon_aplicat}}</b></td>
-                                        <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_disponible_caixa}}</b></td>
+                                        <!--<td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_disponible_caixa}}</b></td>-->
                                         <td bgcolor="LightCoral"><b>{{ responsable.0.totals.0.total_disponible_real}}</b></td>
                                     {% endif %}
                                 </tr>
@@ -62,13 +63,13 @@
                             <td>{{ projecte.codi }}</td>
                             <td>{{ projecte.nom }}</td>
                             <td>{{ projecte.concedit }}</td>
-                            <td>{{ projecte.iva }}</td>
+                            <!--<td>{{ projecte.iva }}</td>-->
                             <td>{{ projecte.canon_total }}</td>
                             <td>{{ projecte.ingressos }}</td>
                             <td>{{ projecte.pendent }}</td>
                             <td>{{ projecte.despeses }}</td>
                             <td>{{ projecte.canon_aplicat }}</td>
-                            <td>{{ projecte.disponible_caixa }}</td>
+                            <!--<td>{{ projecte.disponible_caixa }}</td>-->
                             <td>{{ projecte.disponible_real }}</td>
                         </tr>
                         {% endfor %}

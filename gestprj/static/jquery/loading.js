@@ -9,11 +9,23 @@ $(document).ready(function(){
         dialogClass: "noclose"
 	});
 
-//    $(document).on({
-//
-//        ajaxStart: function(){load = loading("Carregant...");},
-//        ajaxStop: function(){load.close();}
-//    });
+    $(document).on({
+
+        ajaxStart: function(){
+            if($(this).find(".dataTables_empty")){
+                var mensaje=$(this).find(".dataTables_empty");
+                mensaje.html("Carregant...");
+            }
+            load = loading("Carregant...");
+        },
+        ajaxStop: function(){
+            if($(this).find(".dataTables_empty")){
+                var mensaje=$(this).find(".dataTables_empty");
+                mensaje.html("No s'han trobat dades");
+            }
+        load.close();
+        }
+    });
 
 });
 

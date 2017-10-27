@@ -142,282 +142,317 @@ def ContDades(projectes):#Fitxa Dades Projectes
         return resultado
 
 
-def ContEstatPres(projecte, fecha_min, fecha_max):  # Estat Pressupostari Projectes
-
-
-    cursor = connections['contabilitat'].cursor()
-    resultado = []
-    proyectos = []
-    periodos = []
-    partidas = []
-    # for projecte_chk in projectes.getlist("prj_select"): # dentro de projectes tenemos prj_select que es una lista llena de xx-xxx.Aqui los obtenemos
-    # totales de totales
-    total_prj_pressupostat = 0
-    total_prj_gastat = 0
-    total_prj_saldo = 0
-    tipos_partida = {}
-
-    ##### Para extraer el objeto proyecto y el codigo:
-    cod_responsable = projecte.split("-")[0]
-    id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
-    cod_projecte = projecte.split("-")[1]
-    projecte = Projectes.objects.get(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'percen_iva',
-                                                                                    'percen_canon_creaf')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
-
-    if len(cod_responsable) < 2:
-        cod_responsable = "0" + str(cod_responsable)
-    if len(cod_projecte) < 3:
-        if len(cod_projecte) < 2:
-            cod_projecte = "00" + str(cod_projecte)
-        else:
-            cod_projecte = "0" + str(cod_projecte)
-
-    #####
-    codigo_entero = cod_responsable + cod_projecte
-    #####
-
-    # PRESSUPOST
-
-    periodos = []
-    n_periode = 0
-    max_periodes = 0;
-    # al suma de cada periodo
-    totals = [0, 0, 0, 0, 0, 0, 0, 0]
-    total_import = 0
-    partida_total = 0
-
-    ######ZONA EXPERIMENTAL
-    if PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']):  # Si hay periodos
-        for periode in PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']).values('data_inicial',
-                                                                                                   'data_final',
-                                                                                                   'id_periodicitat'):
-            total_pressupostat = 0
-            total_gastat = 0
-            total_saldo = 0
-            data_min_periode = datetime.strptime(str(periode['data_inicial']), "%Y-%m-%d")
-            data_max_periode = datetime.strptime(str(periode['data_final']), "%Y-%m-%d")
-            for partidaperio in PeriodicitatPartida.objects.filter(id_periodicitat=periode['id_periodicitat']).values(
-                    'id_partida__id_partida', 'id_partida__id_concepte_pres__desc_concepte',
-                    'import_field'):  # partida de x periodo
-                desc_partida = partidaperio['id_partida__id_concepte_pres__desc_concepte']
-                # para el total de totales necesitaremos ir anadiendo aquellas partidas que no existan
-                if desc_partida not in tipos_partida:
-                    tipos_partida[desc_partida] = {"nom_partida": desc_partida, "total_pressupostat": 0,
-                                                   "total_gastat": 0, "total_saldo": 0}
-                pressupostat = partidaperio['import_field']
-                ### para obtener el gastat
-                gastat = 0
-                cuenta = 0
-                for compte in Desglossaments.objects.filter(id_partida=partidaperio['id_partida__id_partida']).values(
-                        'compte', 'id_compte', 'id_compte__clau_compte'):
-                    cod_compte = str(compte['compte'])
-                    if cod_compte is None:
-                        cod_compte = "0000"
-                    # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
-                    # if primer_digito =='6' or primer_digito =='2' :
-                    if len(cod_compte) < 4:
-                        if len(cod_compte) < 3:
-                            if len(cod_compte) < 2:
-                                cod_compte = cod_compte + "%%%"
-                            else:
-                                cod_compte = cod_compte + "%%"
-                        else:
-                            cod_compte = cod_compte + "%"
-
-                    codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
-                    if compte['id_compte']:
-                        clau = str(compte['id_compte__clau_compte'])
-                    # cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE( ( Cuenta LIKE (?) AND Cuenta  NOT LIKE 6296+(?) ) AND ( (Apuntes.Opc1=(?) AND Fecha<={d '2009-12-31'}) OR (Apuntes.Opc3=(?) AND Fecha>={d '2010-01-01'}) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",[codigo_final,codigo_entero,clau,clau,data_max_periode,data_min_periode])
-                    # else:
-                    cursor.execute(
-                        "SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE(  CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N'  AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA NOT LIKE 6296+(?) ) ) ",
-                        [codigo_entero, data_max_periode, data_min_periode, cod_compte, codigo_entero])
-                    cuentacont = dictfetchall(
-                        cursor)  # Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
-                    if cuentacont:
-                        for cont in cuentacont:
-                            if cont["DEBE"] is None:
-                                cont["DEBE"] = 0
-                            if cont["HABER"] is None:
-                                cont["HABER"] = 0
-                            gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
-                ####
-                saldo = pressupostat - gastat
-                # totales
-                total_pressupostat = total_pressupostat + pressupostat
-                total_gastat = total_gastat + gastat
-                total_saldo = total_saldo + saldo
-                # redondeo
-                pressupostat = round(pressupostat, 2)
-                gastat = round(gastat, 2)
-                saldo = round(saldo, 2)
-                # los gastos de el tipo de partida con el que estamos actualmente se sumara al del proyecto
-                tipos_partida[desc_partida]["total_pressupostat"] = tipos_partida[desc_partida][
-                                                                        "total_pressupostat"] + pressupostat
-                tipos_partida[desc_partida]["total_gastat"] = tipos_partida[desc_partida]["total_gastat"] + gastat
-                tipos_partida[desc_partida]["total_saldo"] = tipos_partida[desc_partida]["total_saldo"] + saldo
-                tipos_partida[desc_partida]["id_partida"] = partidaperio.id_partida.id_partida
-                partidas.append(
-                    {"descripcio": desc_partida, "pressupostat": pressupostat, "gastat": gastat, "saldo": saldo,
-                     "partidaperio": partidaperio.id_partida.id_partida, "cod": codigo_entero})
-            # redondeo totales
-            total_pressupostat = round(total_pressupostat, 2)
-            total_gastat = round(total_gastat, 2)
-            total_saldo = round(total_saldo, 2)
-            # sumas a los totales del proyecto
-            total_prj_pressupostat = total_prj_pressupostat + total_pressupostat
-            total_prj_gastat = total_prj_gastat + total_gastat
-            total_prj_saldo = total_prj_saldo + saldo
-            #
-            periodos.append({"partides": partidas, "num_periode": n_periode, "total_pressupostat": total_pressupostat,
-                             "total_gastat": total_gastat, "total_saldo": total_saldo, "data_min": periode.data_inicial,
-                             "data_max": periode.data_final})
-            n_periode = n_periode + 1
-            partidas = []
-
-        resultado.append(
-            {"dades_prj": projecte, "periodes": periodos, "codi_resp": cod_responsable, "codi_prj": cod_projecte,
-             "concedit": concedit, "canon": canon, "canon_percen": round(projecte.percen_canon_creaf, 2), "iva": iva,
-             "iva_percen": round(projecte.percen_iva, 2), "net_disponible": net_disponible,
-             "totales_partidas": tipos_partida, "total_prj_pressupostat": total_prj_pressupostat,
-             "total_prj_gastat": total_prj_gastat, "total_prj_saldo": total_prj_saldo})
-    else:  # Si no hay periodos hay que comprobar igualmente los gastos
-        for partida in Pressupost.objects.filter(id_projecte=projecte.id_projecte):  # partidas de proyecto
-            total_pressupostat = 0
-            total_gastat = 0
-            total_saldo = 0
-            desc_partida = partida.id_concepte_pres.desc_concepte
-            # para el total de totales necesitaremos ir anadiendo aquellas partidas que no existan
-            if desc_partida not in tipos_partida:
-                tipos_partida[desc_partida] = {"nom_partida": desc_partida, "total_pressupostat": 0, "total_gastat": 0,
-                                               "total_saldo": 0}
-            pressupostat = partida.import_field
-
-            ### para obtener el gastat
-            gastat = 0
-            for compte in Desglossaments.objects.filter(id_partida=partida.id_partida):
-                cod_compte = str(compte.compte)
-                if cod_compte is None:
-                    cod_compte = "0000"
-                # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
-                # if primer_digito =='6' or primer_digito =='2' :
-                if int(cod_compte) < 1000:
-                    if int(cod_compte) < 100:
-                        if int(cod_compte) < 10:
-                            cod_compte = cod_compte + "%%%"
-                        else:
-                            cod_compte = cod_compte + "%%"
-                    else:
-                        cod_compte = cod_compte + "%"
-
-                codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
-                # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
-                cursor.execute(
-                    "SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",
-                    [codigo_entero, fecha_max, fecha_min, cod_compte])  # AND ( FECHA<'2017-01-01 00:00:00.000' )
-                cuentacont = dictfetchall(cursor)
-                if cuentacont:
-                    for cont in cuentacont:
-                        if cont["DEBE"] is None:
-                            cont["DEBE"] = 0
-                        if cont["HABER"] is None:
-                            cont["HABER"] = 0
-                        gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
-            ####
-            saldo = pressupostat - gastat
-            # totales
-            total_pressupostat = total_pressupostat + pressupostat
-            total_gastat = total_gastat + gastat
-            total_saldo = total_saldo + saldo
-            # redondeo
-            pressupostat = round(pressupostat, 2)
-            gastat = round(gastat, 2)
-            saldo = round(saldo, 2)
-            # sumas a los totales del proyecto
-            total_prj_pressupostat = total_prj_pressupostat + total_pressupostat
-            total_prj_gastat = total_prj_gastat + total_gastat
-            total_prj_saldo = total_prj_saldo + saldo
-            # los gastos de el tipo de partida con el que estamos actualmente se sumara al del proyecto
-            tipos_partida[desc_partida]["total_pressupostat"] = tipos_partida[desc_partida][
-                                                                    "total_pressupostat"] + pressupostat
-            tipos_partida[desc_partida]["total_gastat"] = tipos_partida[desc_partida]["total_gastat"] + gastat
-            tipos_partida[desc_partida]["total_saldo"] = tipos_partida[desc_partida]["total_saldo"] + saldo
-            tipos_partida[desc_partida]["id_partida"] = partida.id_partida
-
-            # partidas.append({"descripcio":desc_partida,"pressupostat":pressupostat,"gastat":gastat,"saldo":saldo})
-        resultado.append(
-            {"dades_prj": projecte, "codi_resp": cod_responsable, "codi_prj": cod_projecte, "concedit": concedit,
-             "canon": canon, "canon_percen": round(projecte.percen_canon_creaf, 2), "iva": iva,
-             "iva_percen": round(projecte.percen_iva, 2), "net_disponible": net_disponible,
-             "totales_partidas": tipos_partida, "total_prj_pressupostat": total_prj_pressupostat,
-             "total_prj_gastat": total_prj_gastat, "total_prj_saldo": total_prj_saldo})
-
-    return resultado
+# def ContEstatPres(projecte, fecha_min, fecha_max):  # Estat Pressupostari Projectes
+#
+#
+#     cursor = connections['contabilitat'].cursor()
+#     resultado = []
+#     proyectos = []
+#     periodos = []
+#     partidas = []
+#     # for projecte_chk in projectes.getlist("prj_select"): # dentro de projectes tenemos prj_select que es una lista llena de xx-xxx.Aqui los obtenemos
+#     # totales de totales
+#     total_prj_pressupostat = 0
+#     total_prj_gastat = 0
+#     total_prj_saldo = 0
+#     tipos_partida = {}
+#
+#     ##### Para extraer el objeto proyecto y el codigo:
+#     cod_responsable = projecte.split("-")[0]
+#     id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
+#     cod_projecte = projecte.split("-")[1]
+#     projecte = Projectes.objects.get(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'percen_iva',
+#                                                                                     'percen_canon_creaf')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
+#
+#     if len(cod_responsable) < 2:
+#         cod_responsable = "0" + str(cod_responsable)
+#     if len(cod_projecte) < 3:
+#         if len(cod_projecte) < 2:
+#             cod_projecte = "00" + str(cod_projecte)
+#         else:
+#             cod_projecte = "0" + str(cod_projecte)
+#
+#     #####
+#     codigo_entero = cod_responsable + cod_projecte
+#     #####
+#
+#     # PRESSUPOST
+#
+#     periodos = []
+#     n_periode = 0
+#     max_periodes = 0;
+#     # al suma de cada periodo
+#     totals = [0, 0, 0, 0, 0, 0, 0, 0]
+#     total_import = 0
+#     partida_total = 0
+#
+#     ######ZONA EXPERIMENTAL
+#     if PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']):  # Si hay periodos
+#         for periode in PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']).values('data_inicial',
+#                                                                                                    'data_final',
+#                                                                                                    'id_periodicitat'):
+#             total_pressupostat = 0
+#             total_gastat = 0
+#             total_saldo = 0
+#             data_min_periode = datetime.strptime(str(periode['data_inicial']), "%Y-%m-%d")
+#             data_max_periode = datetime.strptime(str(periode['data_final']), "%Y-%m-%d")
+#             for partidaperio in PeriodicitatPartida.objects.filter(id_periodicitat=periode['id_periodicitat']).values(
+#                     'id_partida__id_partida', 'id_partida__id_concepte_pres__desc_concepte',
+#                     'import_field'):  # partida de x periodo
+#                 desc_partida = partidaperio['id_partida__id_concepte_pres__desc_concepte']
+#                 # para el total de totales necesitaremos ir anadiendo aquellas partidas que no existan
+#                 if desc_partida not in tipos_partida:
+#                     tipos_partida[desc_partida] = {"nom_partida": desc_partida, "total_pressupostat": 0,
+#                                                    "total_gastat": 0, "total_saldo": 0}
+#                 pressupostat = partidaperio['import_field']
+#                 ### para obtener el gastat
+#                 gastat = 0
+#                 cuenta = 0
+#                 for compte in Desglossaments.objects.filter(id_partida=partidaperio['id_partida__id_partida']).values(
+#                         'compte', 'id_compte', 'id_compte__clau_compte'):
+#                     cod_compte = str(compte['compte'])
+#                     if cod_compte is None:
+#                         cod_compte = "0000"
+#                     # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
+#                     # if primer_digito =='6' or primer_digito =='2' :
+#                     if len(cod_compte) < 4:
+#                         if len(cod_compte) < 3:
+#                             if len(cod_compte) < 2:
+#                                 cod_compte = cod_compte + "%%%"
+#                             else:
+#                                 cod_compte = cod_compte + "%%"
+#                         else:
+#                             cod_compte = cod_compte + "%"
+#
+#                     codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
+#                     if compte['id_compte']:
+#                         clau = str(compte['id_compte__clau_compte'])
+#                     # cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE( ( Cuenta LIKE (?) AND Cuenta  NOT LIKE 6296+(?) ) AND ( (Apuntes.Opc1=(?) AND Fecha<={d '2009-12-31'}) OR (Apuntes.Opc3=(?) AND Fecha>={d '2010-01-01'}) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",[codigo_final,codigo_entero,clau,clau,data_max_periode,data_min_periode])
+#                     # else:
+#                     cursor.execute(
+#                         "SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE(  CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N'  AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA NOT LIKE 6296+(?) ) ) ",
+#                         [codigo_entero, data_max_periode, data_min_periode, cod_compte, codigo_entero])
+#                     cuentacont = dictfetchall(
+#                         cursor)  # Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
+#                     if cuentacont:
+#                         for cont in cuentacont:
+#                             if cont["DEBE"] is None:
+#                                 cont["DEBE"] = 0
+#                             if cont["HABER"] is None:
+#                                 cont["HABER"] = 0
+#                             gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
+#                 ####
+#                 saldo = pressupostat - gastat
+#                 # totales
+#                 total_pressupostat = total_pressupostat + pressupostat
+#                 total_gastat = total_gastat + gastat
+#                 total_saldo = total_saldo + saldo
+#                 # redondeo
+#                 pressupostat = round(pressupostat, 2)
+#                 gastat = round(gastat, 2)
+#                 saldo = round(saldo, 2)
+#                 # los gastos de el tipo de partida con el que estamos actualmente se sumara al del proyecto
+#                 tipos_partida[desc_partida]["total_pressupostat"] = tipos_partida[desc_partida][
+#                                                                         "total_pressupostat"] + pressupostat
+#                 tipos_partida[desc_partida]["total_gastat"] = tipos_partida[desc_partida]["total_gastat"] + gastat
+#                 tipos_partida[desc_partida]["total_saldo"] = tipos_partida[desc_partida]["total_saldo"] + saldo
+#                 tipos_partida[desc_partida]["id_partida"] = partidaperio.id_partida.id_partida
+#                 partidas.append(
+#                     {"descripcio": desc_partida, "pressupostat": pressupostat, "gastat": gastat, "saldo": saldo,
+#                      "partidaperio": partidaperio.id_partida.id_partida, "cod": codigo_entero})
+#             # redondeo totales
+#             total_pressupostat = round(total_pressupostat, 2)
+#             total_gastat = round(total_gastat, 2)
+#             total_saldo = round(total_saldo, 2)
+#             # sumas a los totales del proyecto
+#             total_prj_pressupostat = total_prj_pressupostat + total_pressupostat
+#             total_prj_gastat = total_prj_gastat + total_gastat
+#             total_prj_saldo = total_prj_saldo + saldo
+#             #
+#             periodos.append({"partides": partidas, "num_periode": n_periode, "total_pressupostat": total_pressupostat,
+#                              "total_gastat": total_gastat, "total_saldo": total_saldo, "data_min": periode.data_inicial,
+#                              "data_max": periode.data_final})
+#             n_periode = n_periode + 1
+#             partidas = []
+#
+#         resultado.append(
+#             {"dades_prj": projecte, "periodes": periodos, "codi_resp": cod_responsable, "codi_prj": cod_projecte,
+#              "concedit": concedit, "canon": canon, "canon_percen": round(projecte.percen_canon_creaf, 2), "iva": iva,
+#              "iva_percen": round(projecte.percen_iva, 2), "net_disponible": net_disponible,
+#              "totales_partidas": tipos_partida, "total_prj_pressupostat": total_prj_pressupostat,
+#              "total_prj_gastat": total_prj_gastat, "total_prj_saldo": total_prj_saldo})
+#     else:  # Si no hay periodos hay que comprobar igualmente los gastos
+#         for partida in Pressupost.objects.filter(id_projecte=projecte.id_projecte):  # partidas de proyecto
+#             total_pressupostat = 0
+#             total_gastat = 0
+#             total_saldo = 0
+#             desc_partida = partida.id_concepte_pres.desc_concepte
+#             # para el total de totales necesitaremos ir anadiendo aquellas partidas que no existan
+#             if desc_partida not in tipos_partida:
+#                 tipos_partida[desc_partida] = {"nom_partida": desc_partida, "total_pressupostat": 0, "total_gastat": 0,
+#                                                "total_saldo": 0}
+#             pressupostat = partida.import_field
+#
+#             ### para obtener el gastat
+#             gastat = 0
+#             for compte in Desglossaments.objects.filter(id_partida=partida.id_partida):
+#                 cod_compte = str(compte.compte)
+#                 if cod_compte is None:
+#                     cod_compte = "0000"
+#                 # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
+#                 # if primer_digito =='6' or primer_digito =='2' :
+#                 if int(cod_compte) < 1000:
+#                     if int(cod_compte) < 100:
+#                         if int(cod_compte) < 10:
+#                             cod_compte = cod_compte + "%%%"
+#                         else:
+#                             cod_compte = cod_compte + "%%"
+#                     else:
+#                         cod_compte = cod_compte + "%"
+#
+#                 codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
+#                 # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
+#                 cursor.execute(
+#                     "SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",
+#                     [codigo_entero, fecha_max, fecha_min, cod_compte])  # AND ( FECHA<'2017-01-01 00:00:00.000' )
+#                 cuentacont = dictfetchall(cursor)
+#                 if cuentacont:
+#                     for cont in cuentacont:
+#                         if cont["DEBE"] is None:
+#                             cont["DEBE"] = 0
+#                         if cont["HABER"] is None:
+#                             cont["HABER"] = 0
+#                         gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
+#             ####
+#             saldo = pressupostat - gastat
+#             # totales
+#             total_pressupostat = total_pressupostat + pressupostat
+#             total_gastat = total_gastat + gastat
+#             total_saldo = total_saldo + saldo
+#             # redondeo
+#             pressupostat = round(pressupostat, 2)
+#             gastat = round(gastat, 2)
+#             saldo = round(saldo, 2)
+#             # sumas a los totales del proyecto
+#             total_prj_pressupostat = total_prj_pressupostat + total_pressupostat
+#             total_prj_gastat = total_prj_gastat + total_gastat
+#             total_prj_saldo = total_prj_saldo + saldo
+#             # los gastos de el tipo de partida con el que estamos actualmente se sumara al del proyecto
+#             tipos_partida[desc_partida]["total_pressupostat"] = tipos_partida[desc_partida][
+#                                                                     "total_pressupostat"] + pressupostat
+#             tipos_partida[desc_partida]["total_gastat"] = tipos_partida[desc_partida]["total_gastat"] + gastat
+#             tipos_partida[desc_partida]["total_saldo"] = tipos_partida[desc_partida]["total_saldo"] + saldo
+#             tipos_partida[desc_partida]["id_partida"] = partida.id_partida
+#
+#             # partidas.append({"descripcio":desc_partida,"pressupostat":pressupostat,"gastat":gastat,"saldo":saldo})
+#         resultado.append(
+#             {"dades_prj": projecte, "codi_resp": cod_responsable, "codi_prj": cod_projecte, "concedit": concedit,
+#              "canon": canon, "canon_percen": round(projecte.percen_canon_creaf, 2), "iva": iva,
+#              "iva_percen": round(projecte.percen_iva, 2), "net_disponible": net_disponible,
+#              "totales_partidas": tipos_partida, "total_prj_pressupostat": total_prj_pressupostat,
+#              "total_prj_gastat": total_prj_gastat, "total_prj_saldo": total_prj_saldo})
+#
+#     return resultado
 
 #OJO que este esta relacionado con estat pressupostari projectes
 def DespesesCompte(id_partida,codigo_entero,data_min,data_max):
     if id_partida is None:
         return None
     else:
-        if data_min=="0" and data_max=="0": # Ojo este else es para ver los gastos en los TOTALES
-            cursor = connections['contabilitat'].cursor()
-            for compte in Desglossaments.objects.filter(id_partida=id_partida):
-                cod_compte = str(compte.compte)
-                if cod_compte is None:
-                    cod_compte = "0000"
-                # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
-                # if primer_digito =='6' or primer_digito =='2' :
-                if int(cod_compte) < 1000:
-                    if int(cod_compte) < 100:
-                        if int(cod_compte) < 10:
-                            cod_compte = cod_compte + "%%%"
-                        else:
-                            cod_compte = cod_compte + "%%"
+        # if data_min=="0" and data_max=="0": # Ojo este else es para ver los gastos en los TOTALES
+        #     cursor = connections['contabilitat'].cursor()
+        #     resultado=[]
+        #     for compte in Desglossaments.objects.filter(id_partida=id_partida).values('compte'):
+        #         cod_compte = str(compte['compte'])
+        #         if cod_compte is None:
+        #             cod_compte = "0000"
+        #         # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
+        #         # if primer_digito =='6' or primer_digito =='2' :
+        #         if len(cod_compte) < 4:
+        #             if len(cod_compte) < 3:
+        #                 if len(cod_compte) < 2:
+        #                     cod_compte = cod_compte + "%%%"
+        #                 else:
+        #                     cod_compte = cod_compte + "%%"
+        #             else:
+        #                 cod_compte = cod_compte + "%"
+        #
+        #         codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
+        #         #En esta version(erp) el valor de la bdd es un decimal,el cual no cojera el json.Asi que lo convertimos a varchar EXCEPTO(ojo!!) los campos de descripcion que han de ser nvarchar para que pillen acentos y utf-8
+        #         cursor.execute("SELECT CENTROCOSTE,CENTROCOSTE2,NUMAPUNTE,CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?) AND TIPAPU='N' AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",[codigo_entero, cod_compte])
+        #         cuentacont = dictfetchall(cursor)  # Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
+        #
+        #         if cuentacont:
+        #             for cont in cuentacont:
+        #                 if cont["Debe"] is None:
+        #                     cont["Debe"] = 0
+        #
+        #                 # OJO CENTROCOSTE3 SIEMPRE ES NULO,PERO NO DESCARTAR QUE EN UN FUTUR PUEDA TENER ALGUN VALOR,NUMAPUNTE ES MUY IMPROTANTE PESE A NO SER UNA FK!!!
+        #                 cursor.execute("SELECT OBSERVACIONES FROM CABEFACC WHERE CENTROCOSTE=(?) AND CENTROCOSTE2=(?) AND NUMAPUNTE=(?)",[cont["CENTROCOSTE"], cont["CENTROCOSTE2"], cont["NUMAPUNTE"]])
+        #                 # if prjfet["NUMAPUNTE"] == 201605605.00:
+        #                 observacion = cursor.fetchall()
+        #                 cont["NUMAPUNTE"]=""
+        #                 if observacion:
+        #                     if observacion[0][0] is None:
+        #                         cont["Observaciones"] = "Sense observacions."
+        #                     else:
+        #                         cont["Observaciones"] = observacion[0][0]
+        #                 else:
+        #                     cont["Observaciones"] = "Sense observacions."
+        #
+        #                 resultado.append(cont)
+        #     return resultado
+        # else:
+        # data_min_periode = datetime.strptime(data_min, "%d-%m-%Y")
+        # data_max_periode = datetime.strptime(data_max, "%d-%m-%Y")
+        cursor = connections['contabilitat'].cursor()
+        resultado=[]
+        for compte in Desglossaments.objects.filter(id_partida=id_partida):
+            cod_compte = str(compte.compte)
+            if cod_compte is None:
+                cod_compte = "0000"
+            # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
+            # if primer_digito =='6' or primer_digito =='2' :
+            if len(cod_compte) < 4:
+                if len(cod_compte) < 3:
+                    if len(cod_compte) < 2:
+                        cod_compte = cod_compte + "%%%"
                     else:
-                        cod_compte = cod_compte + "%"
+                        cod_compte = cod_compte + "%%"
+                else:
+                    cod_compte = cod_compte + "%"
 
-                codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
-                #En esta version(erp) el valor de la bdd es un decimal,el cual no cojera el json.Asi que lo convertimos a varchar EXCEPTO(ojo!!) los campos de descripcion que han de ser nvarchar para que pillen acentos y utf-8
-                cursor.execute("SELECT CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?) AND TIPAPU='N' AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",[codigo_entero, cod_compte])
-                cuentacont = dictfetchall(cursor)  # Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
-                if cuentacont:
-                    for cont in cuentacont:
-                        if cont["Debe"] is None:
-                            cont["Debe"] = 0
-                return cuentacont
-        else:
-            data_min_periode = datetime.strptime(data_min, "%d-%m-%Y")
-            data_max_periode = datetime.strptime(data_max, "%d-%m-%Y")
-            cursor = connections['contabilitat'].cursor()
-            for compte in Desglossaments.objects.filter(id_partida=id_partida):
-                cod_compte = str(compte.compte)
-                if cod_compte is None:
-                    cod_compte = "0000"
-                # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
-                # if primer_digito =='6' or primer_digito =='2' :
-                if int(cod_compte) < 1000:
-                    if int(cod_compte) < 100:
-                        if int(cod_compte) < 10:
-                            cod_compte = cod_compte + "%%%"
+            codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
+            # if compte.id_compte:
+            #     clau = str(compte.id_compte.clau_compte)
+            #     cursor.execute(
+            #         "SELECT CONVERT(varchar, Fecha,105) AS Fecha, Asiento, Cuenta, Descripcion, Debe FROM Apuntes WHERE ( (Diario='0' OR Diario='4' OR Diario='1') AND ( Cuenta LIKE (?) AND Cuenta  NOT LIKE 6296+(?) ) AND ( (Apuntes.Opc1=(?) AND Fecha<={d '2009-12-31'}) OR (Apuntes.Opc3=(?) AND Fecha>={d '2010-01-01'}) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",
+            #         [codigo_final, codigo_entero, clau, clau, data_max_periode, data_min_periode])
+            # else:
+            cursor.execute("SELECT CENTROCOSTE,CENTROCOSTE2,NUMAPUNTE,CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE) AS Debe, CONVERT(varchar,HABER) AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?)  AND TIPAPU='N' AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) )  AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA  NOT LIKE 6296+(?) ) ",[codigo_entero,data_max,data_min, cod_compte, codigo_entero])
+            cuentacont = dictfetchall(cursor)  # Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
+            if cuentacont:
+                for cont in cuentacont:
+                    if cont["Debe"] is None:
+                        cont["Debe"] = 0
+                    if cont["Haber"] is None:
+                        cont["Haber"] = 0
+                    cont["Debe"] = float(cont["Debe"]) - float(cont["Haber"])
+                    # OJO CENTROCOSTE3 SIEMPRE ES NULO,PERO NO DESCARTAR QUE EN UN FUTUR PUEDA TENER ALGUN VALOR,NUMAPUNTE ES MUY IMPROTANTE PESE A NO SER UNA FK!!!
+                    cursor.execute("SELECT OBSERVACIONES FROM CABEFACC WHERE CENTROCOSTE=(?) AND CENTROCOSTE2=(?) AND NUMAPUNTE=(?)",[cont["CENTROCOSTE"], cont["CENTROCOSTE2"], cont["NUMAPUNTE"]])
+                    # if prjfet["NUMAPUNTE"] == 201605605.00:
+                    observacion = cursor.fetchall()
+                    cont["NUMAPUNTE"]=""
+                    if observacion:
+                        if observacion[0][0] is None:
+                            cont["Observaciones"] = "Sense observacions."
                         else:
-                            cod_compte = cod_compte + "%%"
+                            cont["Observaciones"] = observacion[0][0]
                     else:
-                        cod_compte = cod_compte + "%"
+                        cont["Observaciones"] = "Sense observacions."
 
-                codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
-                # if compte.id_compte:
-                #     clau = str(compte.id_compte.clau_compte)
-                #     cursor.execute(
-                #         "SELECT CONVERT(varchar, Fecha,105) AS Fecha, Asiento, Cuenta, Descripcion, Debe FROM Apuntes WHERE ( (Diario='0' OR Diario='4' OR Diario='1') AND ( Cuenta LIKE (?) AND Cuenta  NOT LIKE 6296+(?) ) AND ( (Apuntes.Opc1=(?) AND Fecha<={d '2009-12-31'}) OR (Apuntes.Opc3=(?) AND Fecha>={d '2010-01-01'}) ) AND ( CONVERT(date,Fecha,105)<=(?) AND CONVERT(date,Fecha,105)>=(?) )  ) ",
-                #         [codigo_final, codigo_entero, clau, clau, data_max_periode, data_min_periode])
-                # else:
-                cursor.execute("SELECT CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?)  AND TIPAPU='N' AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) )  AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA  NOT LIKE 6296+(?) ) ",[codigo_entero,data_max_periode,data_min_periode, cod_compte, codigo_entero])
-                cuentacont = dictfetchall(cursor)  # Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
-                if cuentacont:
-                    for cont in cuentacont:
-                        if cont["Debe"] is None:
-                            cont["Debe"] = 0
-                return cuentacont
+                    resultado.append(cont)
+        return resultado
     return [] # devolvemos esta ya que si no encontraba ninguna cuenta en el for no se hacia un return
 
 
@@ -621,7 +656,7 @@ def FitxaMajorProjectes(projectes):#Fitxa Major Projectes (Ingressos i Despeses)
             canon = round(canon,2)
             net_disponible = round(net_disponible,2)
             ##### OJO que para ir restando el saldo hay que devolver los resultados ordenados por la fecha,para ello he tenido que modificar el ORDER BY
-            cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '7%' OR CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero, fecha_max, fecha_min])
+            cursor.execute("SELECT CENTROCOSTE,CENTROCOSTE2,NUMAPUNTE,CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),CUENTAS.DESCCUE) AS Desc_cuenta,CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '7%' OR CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero, fecha_max, fecha_min])
             #cursor.execute("SELECT TOP 100 PERCENT CONVERT(VARCHAR,Fecha,105) as Fecha, Asiento, Cuenta, Descripcion, Debe, Haber FROM  Apuntes WHERE ((Diario='0' OR Diario='1' OR Diario='4') AND ((Cuenta LIKE '2%'+(?)) OR (Cuenta LIKE '6%'+(?)) OR (Cuenta LIKE '7%'+(?))) AND ((Fecha >=CONVERT(date, (?),105)) AND (Fecha<=CONVERT(date, (?),105)))) ORDER BY cast(Fecha as date)",[codigo_entero, codigo_entero, codigo_entero, fecha_min, fecha_max])
             projectfetch = dictfetchall(cursor) # un cursor.description tambien sirve
 
@@ -640,6 +675,18 @@ def FitxaMajorProjectes(projectes):#Fitxa Major Projectes (Ingressos i Despeses)
                 total_debe = total_debe+float(prjfet["Debe"])
                 total_haber = total_haber+float(prjfet["Haber"])
                 total_caja = float(prjfet["Saldo_caja"])
+                # OJO CENTROCOSTE3 SIEMPRE ES NULO,PERO NO DESCARTAR QUE EN UN FUTUR PUEDA TENER ALGUN VALOR,NUMAPUNTE ES MUY IMPROTANTE PESE A NO SER UNA FK!!!
+                cursor.execute("SELECT OBSERVACIONES FROM CABEFACC WHERE CENTROCOSTE=(?) AND CENTROCOSTE2=(?) AND NUMAPUNTE=(?)",[prjfet["CENTROCOSTE"],prjfet["CENTROCOSTE2"],prjfet["NUMAPUNTE"]])
+                # if prjfet["NUMAPUNTE"] == 201605605.00:
+                observacion=cursor.fetchall()
+                if observacion:
+                    if observacion[0][0] is None:
+                        prjfet["Observaciones"] = "Sense observacions."
+                    else:
+                        prjfet["Observaciones"] = observacion[0][0]
+                else:
+                    prjfet["Observaciones"] = "Sense observacions."
+
 
 
                 if total_caja<0.1 and total_caja>-0.1: # esto sirve para evitar el floating point arithmetic y que muestre 0 en lugar de un numero largisimo

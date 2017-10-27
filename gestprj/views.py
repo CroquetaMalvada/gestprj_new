@@ -751,7 +751,7 @@ def ListEstatPresDatos(request,datos):
             desc_partida = partidaperio['id_partida__id_concepte_pres__desc_concepte']
             pressupostat = float(partidaperio['import_field'])
             if desc_partida not in tipos_partida:
-                tipos_partida[desc_partida] = {"desc_partida": desc_partida, "pressupostat": float(0), "gastat": float(0),"saldo": float(0), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero}
+                tipos_partida[desc_partida] = {"desc_partida": desc_partida, "pressupostat": float(0), "gastat": float(0),"saldo": float(0), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': data_min_periode, 'fecha_max': data_max_periode}
             ### para obtener el gastat
             gastat = 0
             cuenta = 0
@@ -838,7 +838,7 @@ def ListEstatPresDatos(request,datos):
                         gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
 
             saldo = pressupostat - float(gastat)  # pasamos datos a float ya que los decimal no los pilla bien el json
-            partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero})
+            partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': data_min, 'fecha_max': data_max})
         resultado = json.dumps(partidas)
         return HttpResponse(resultado, content_type='application/json;')
     # projectes = request.POST
@@ -907,7 +907,7 @@ def cont_resum_fitxa_major_prj(request):
     projectes = request.POST
     llista_dades = consultes_cont.ResumFitxaMajorProjectes(projectes)
 
-    context = {'llista_dades': llista_dades, 'titulo': "RESUM ESTAT MAJOR PROJECTES"}
+    context = {'llista_dades': llista_dades, 'titulo': "RESUM PER PARTIDES"}
     return render(request, 'gestprj/cont_resum_fitxa_major_prj.html', context)
 
 def ListMovimentsCompte(request,compte,data_min,data_max):
@@ -925,7 +925,7 @@ def cont_fitxa_major_prj(request):
     projectes = request.POST
     llista_dades = consultes_cont.FitxaMajorProjectes(projectes)
 
-    context = {'llista_dades': llista_dades, 'titulo': "RESUM ESTAT MAJOR PROJECTES"}
+    context = {'llista_dades': llista_dades, 'titulo': "INGRESSOS I DESPESES"}
     return render(request, 'gestprj/cont_fitxa_major_prj.html', context)
 
 @login_required(login_url='/menu/')

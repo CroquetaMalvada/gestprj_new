@@ -1,15 +1,16 @@
 {% extends "gestprj/base.html" %}
 
 {% block contenido %}
-<h1 align="center">Estat Pressupostari Projectes</h1><br><br>
-    *Importando datos antiguos(<2009),es normal que ciertos periodos aparezcan vacíos*
-    <div class="col-md-10 col-md-offset-1" style="background:white;height:75vh;overflow:scroll;">
+<!--<h1 align="center">Estat Pressupostari</h1>-->
+    <!--*Importando datos antiguos(<2009),es normal que ciertos periodos aparezcan vacíos*-->
+<br>
+    <div class="col-md-12 col-md-offset-0" style="background:white;height:90vh;overflow:scroll;">
     <div id="accordion">
            {% for projecte in projectes %}
             <h3>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.acronim }}</h3>
            <div>
                 <p align="left" class="text-left col-md-6">
-                NOM PROJECTE: <b>{{ projecte.codi_resp }}{{ projecte.codi_prj }} - {{ projecte.acronim }}</b><br>
+                NOM PROJECTE: <b id="nombre_del_proyecto">{{ projecte.codi_resp }}{{ projecte.codi_prj }} - {{ projecte.acronim }}</b><br>
                 RESPONSABLE: <b>{{ projecte.id_resp__id_usuari__nom_usuari }}</b><br>
                 </p>
                 <p align="right" class="col-md-3">
@@ -26,6 +27,7 @@
                     <br>
                     <b><u class="datos_contables">{{ projecte.net_disponible }}</u></b><br>
                 </p>
+               <!--<a class="dt-button buttons-print" tabindex="0" aria-controls="DataTables_Table_3" href="#"><span><span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span></span></a><a class="dt-button buttons-excel buttons-html5" tabindex="0" aria-controls="DataTables_Table_3" href="#"><span><span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span></span></a><a class="dt-button buttons-pdf buttons-html5" tabindex="0" aria-controls="DataTables_Table_3" href="#"><span><span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span></span></a><a class="dt-button buttons-csv buttons-html5" tabindex="0" aria-controls="DataTables_Table_3" href="#"><span><span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span></span></a>-->
                 <br><br>
                 {% if projecte.periodes %}
                     {% for periode in projecte.periodes %}
@@ -48,29 +50,9 @@
                                     <td><b></b></td>
                                     <td><b></b></td>
                                     <td><b></b></td>
-                                    <!--{% if periode.total_saldo > 0 %}-->
-                                        <!--<td bgcolor="LightGreen"><b>{{ periode.total_pressupostat}}</b></td>-->
-                                        <!--<td bgcolor="LightGreen"><b>{{ periode.total_gastat}}</b></td>-->
-                                        <!--<td bgcolor="LightGreen"></td>-->
-                                        <!--<td bgcolor="LightGreen"><b>{{ periode.total_saldo}}</b></td>-->
-                                    <!--{% else %}-->
-                                        <!--<td bgcolor="LightCoral"><b>{{ periode.total_pressupostat }}</b></td>-->
-                                        <!--<td bgcolor="LightCoral"><b>{{ periode.total_gastat }}</b></td>-->
-                                        <!--<td bgcolor="LightCoral"></td>-->
-                                        <!--<td bgcolor="LightCoral"><b>{{ periode.total_saldo}}</b></td>-->
-                                    <!--{% endif %}-->
                                 </tr>
                             </tfoot>
                             <tbody>
-                                <!--{% for partida in periode.partides %}-->
-                                <!--<tr>-->
-                                    <!--<td>{{ partida.descripcio }}</td>-->
-                                    <!--<td>{{ partida.pressupostat }}</td>-->
-                                    <!--<td>{{ partida.gastat }}</td>-->
-                                    <!--<td><a class="btn btn-info info_compte_pres" id="{{ partida.partidaperio }}" cod="{{ partida.cod }}" data_min="{{ periode.data_min }}" data_max="{{ periode.data_max }}" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a></td>-->
-                                    <!--<td>{{ partida.saldo }}</td>-->
-                                <!--</tr>-->
-                                <!--{% endfor %}-->
                             </tbody>
                         </table>
                     {% endfor %}
@@ -135,11 +117,13 @@
                     <th>Assent.</th>
                     <th>Compte</th>
                     <th>Descripció</th>
+                    <th>Observacions</th>
                     <th>Despeses</th>
                 </tr>
             </thead>
             <tbody>
             <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>

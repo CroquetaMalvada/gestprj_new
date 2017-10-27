@@ -2,15 +2,16 @@
 
 {% block contenido %}
 <div class="content text-center">
-    <h1>Resum Fitxa Major Projectes per Comptes</h1><br><br><br><br>
-    <div class="col-md-10 col-md-offset-1" style="background:white;height:75vh;overflow:scroll;">
+    <!--<h1>Resum Fitxa Major Projectes per Comptes</h1><br><br><br><br>-->
+    <br>
+    <div class="col-md-12 col-md-offset-0" style="background:white;height:90vh;overflow:scroll;">
         <div id="accordion">
             {% for projecte in llista_dades %}
             <h3>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</h3>
             <div>
                 <p align="left" class="text-left col-md-6">
                 NOM PROJECTE: <b>{{ projecte.codi_resp }}{{projecte.codi_prj }} - {{ projecte.dades_prj.acronim }}</b><br>
-                RESPONSABLE: <b>{{ projecte.dades_prj.id_resp.id_usuari.nom_usuari }}</b><br>
+                RESPONSABLE: <b class="nombre_del_responsable">{{ projecte.dades_prj.id_resp.id_usuari.nom_usuari }}</b><br>
                 DE <b>{{ projecte.data_min }}</b> A <b>{{ projecte.data_max }}</b>
                         <input id="data_min" value="{{ projecte.data_min }}" style="display: none;"/>
                         <input id="data_max" value="{{ projecte.data_max }}" style="display: none;"/>
@@ -35,7 +36,7 @@
                     <tr>
                         <th>Compte</th>
                         <th>Descripció</th>
-                        <th>Càrrec</th>
+                        <th>Despesa</th>
                         <th>Ingrés</th>
                         <th></th>
                         <th>Saldo</th>
@@ -45,7 +46,7 @@
                             <tr>
                                 <td></td>
                                 <td><b>Totals: </b></td>
-                                {% if projecte.total_disponible > 0 %}
+                                {% if projecte.total_disponible > -25 %}
                                     <td bgcolor="LightGreen"><b>{{ projecte.total_debe }}</b></td>
                                     <td bgcolor="LightGreen"><b>{{ projecte.total_haber }}</b></td>
                                     <td></td>
@@ -89,7 +90,7 @@
                     <th>Data</th>
                     <th>Assent.</th>
                     <th>Descripció</th>
-                    <th>Càrrec</th>
+                    <th>Despesa</th>
                     <th>Ingrés</th>
                     <th>Saldo</th>
                 </tr>

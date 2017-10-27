@@ -74,7 +74,8 @@ $(document).ready(function(){
 	    data_min = $(this).attr("data_min");
 	    data_max = $(this).attr("data_max");
 	    cod=$(this).attr("cod");
-	    partida = $(this).parents(".datatable").DataTable().row(".selected").data()[0];
+	    //console.log($(this).parents(".datatable").DataTable().row(".selected").data()["desc_partida"]);
+	    partida = $(this).parents(".datatable").DataTable().row(".selected",0).data()["desc_partida"];
 	    $("#dialog_llista_comptes").attr("title","DETALL DE LES DESPESES DE LA PARTIDA: "+partida);
         table_llista_despeses.ajax.url('/show_Despeses_Compte/'+id_compte+'/'+cod+'/'+data_min+'/'+data_max);
 	    table_llista_despeses.ajax.reload();
@@ -86,7 +87,7 @@ $(document).ready(function(){
 	    id_compte = $(this).attr("id");
 	    data_min = $("#data_min").val();
 	    data_max = $("#data_max").val();
-	    descripcio = $(this).parents(".datatable").DataTable().row(".selected").data()[1];
+	    descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
 	    $("#dialog_llista_comptes").attr("title","DETALL MOVIMENTS COMPTE:"+id_compte+" - "+descripcio);
         table_comptes.ajax.url('/show_Moviments_Compte/'+id_compte+'/'+data_min+'/'+data_max);
 	    table_comptes.ajax.reload();
@@ -96,18 +97,50 @@ $(document).ready(function(){
 
     $("#formulario_projectes_cont").submit(function(e){// comprueba que haya al menos un proyecto seleccionado
         var num=0;
+        var proyectos=[];
         table_projectes.rows().every(function(rowidx,tableloop,rowloop){
             if($(table_projectes.row(rowidx,0).node()).find(":checkbox").is(':checked')){
                 num=1;
-                return false;
+                proyectos.push($(table_projectes.row(rowidx,0).node()).find(":checkbox").val());
+//                alert(proyectos.push($(table_projectes.row(rowidx,0).node()).find(":checkbox").val()));
+//                return false;
             }
+
         });
-        if(num!=0)
+        if(num!=0){
+
+            Cookies.set('proyectos',proyectos, { expires: 1 });
+//            alert($('input:checked[name=opcio_cont]').val());
+            Cookies.set('opcion',$('input:checked[name=opcio_cont]').val()), { expires: 1 };
+            Cookies.set('fecha_min',$("#data_min").val(), { expires: 1 });
+            Cookies.set('fecha_max',$("#data_max").val(), { expires: 1 });
             return true;
-        else{
+        }else{
             alert("Error: No hi ha cap projecte seleccionat.");
             return false;
         }
 
     });
+
+    $(".observacions").tooltip();
+
 });
+
+function cargar_cookies(){ //se ejecuta cuando termina de cargar las tablas para evitar problemas con checkbox inexistentes
+    //Cargar Cookies
+    $( "input[name=opcio_cont][value="+Cookies.get('opcion')+"]" ).trigger( "click" );
+    $.each(Cookies.getJSON("proyectos"),function(){
+//          alert($( "input[name=prj_select][value="+this+"]" ).val());
+        $( "input[name=prj_select][value="+this+"]" ).trigger( "click" );
+    });
+    $("#data_min").val(Cookies.get('fecha_min',));
+    $("#data_max").val(Cookies.get('fecha_max',));
+
+}
+
+function borrar_cookies(){
+    Cookies.remove("opcion");
+    Cookies.remove("proyectos");
+    Cookies.remove("data_min");
+    Cookies.remove("data_max");
+}

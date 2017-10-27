@@ -63,17 +63,26 @@ $(document).ready(function(){
             ],
             dom: 'Bfrtip',
             buttons:[{
-                text: '<span class="glyphicon glyphicon-check" aria-hidden="true">  Només Seleccionats</span>',
+                text: '<span class="glyphicon glyphicon-check" aria-hidden="true" title="Mostrar només els projectes seleccionats.">  Només Seleccionats</span>',
                 action: function(){nomes_seleccionats();}
             },{
-                text: '<span class="glyphicon glyphicon-ok" aria-hidden="true">  Només Oberts</span>',
+                text: '<span class="glyphicon glyphicon-plus-sign" aria-hidden="true" title="Mostrar tots els projectes oberts.">  Només Oberts</span>',
                 action: function () {nomes_oberts();}
             },{
-                text: '<span class="glyphicon glyphicon-remove" aria-hidden="true">  Només Tancats</span>',
+                text: '<span class="glyphicon glyphicon-minus-sign" aria-hidden="true" title="Mostrar tots els projectes tancats.">  Només Tancats</span>',
                 action: function () {nomes_tancats();}
             },{
-                text: '<span class="glyphicon glyphicon-asterisk" aria-hidden="true">  Mostrar Tots</span>',
+                text: '<span class="glyphicon glyphicon-asterisk" aria-hidden="true" title="Mostrar tots els projectes.">  Mostrar Tots</span>',
                 action: function () {mostrar_tots();}
+            },{
+                text: '<span class="glyphicon glyphicon-ok" aria-hidden="true" title="Selecciona tots els projectes oberts.">  Seleccionar Oberts</span>',
+                action: function () {seleccionar_oberts();}
+            },{
+                text: '<span class="glyphicon glyphicon-remove" aria-hidden="true" title="Selecciona tots els projectes tancats.">  Seleccionar Tancats</span>',
+                action: function () {seleccionar_tancats();}
+            },{
+                text: '<span class="glyphicon glyphicon-ban-circle" aria-hidden="true" title="Desselecciona tots els projectes.">  Cap</span>',
+                action: function () {cap();}
             }],
             fnInitComplete:function(){
                 var tabla=$(this).DataTable();
@@ -93,6 +102,7 @@ $(document).ready(function(){
 
                 });
                 nomes_oberts();
+                cargar_cookies();
             },
             language: opciones_idioma
         });
@@ -142,6 +152,13 @@ $(document).ready(function(){
                 {'data': 'Asiento'},
                 {'data': 'Cuenta'},
                 {'data': 'Descripcion'},
+                { data:{'Observaciones':'Observaciones'},"render": function(data){
+
+                    if(data['Observaciones']=="Sense observacions.")
+                        return '<a class="btn btn-danger observacions" title="'+data['Observaciones']+'"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span></a>';
+                    else
+                        return '<a class="btn btn-success observacions" title="'+data['Observaciones']+'"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>';
+                }},
                 {'data': 'Debe', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
             ],
             dom: 'Bfrtip',
@@ -160,8 +177,10 @@ $(document).ready(function(){
                     columns: ':visible',
                     format: {
                         body: function(data, row, column, node) {
-                            if(column==4)// solo nos interesa formatear los numeros de saldo(columna 4)
+                            if(column==5)// solo nos interesa formatear los numeros de saldo(columna 4)
                                 data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                            else if(column==4)
+                                data=$(data).attr("title");
                             return data;
                         }
                     }
@@ -188,8 +207,14 @@ $(document).ready(function(){
 //            order:          [[ 0, "asc" ]],
             columnDefs: [
                 { type: 'de_date', targets: 0 },
-                { type: 'num-fmt', targets: [1,2,4] }
+                { type: 'num-fmt', targets: [1,2,5] },
+                {"width": "10%","className":"dt-center", targets: [0,1,2,4] },
+                {"width": "20%", targets:[5]},
+                {"width": "40%","className":"dt-left", targets:[3]}
             ],
+            drawCallback: function(){
+                $(".observacions").tooltip();
+            },
             language: opciones_idioma
         });
    }
@@ -269,21 +294,71 @@ $(document).ready(function(){
                     contentType: "application/json;",
                     dataSrc: ''
                 },
-                scrollY:        '60vh',
+                scrollY:        '90vh',
                 scrollCollapse: true,
                 paging:         false,
                 autowidth:      true,
                 columnDefs: [
     //                { type: 'de_date', targets: 0 },
-                    { type: 'num-fmt', targets: [1,2,4] }
+                    {"width": "5%","className":"dt-center", targets: [3] },
+                    {"width": "30%","className":"dt-left", targets:[0]},
+                    {"width": "20%", type: 'num-fmt', targets: [1,2,4] }
+
                 ],
                 columns: [
                     { data:'desc_partida'},
                     { data:'pressupostat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                     { data:'gastat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                    { data:{'cod':'codigo_entero','id':'id_partida'},"render": function(data){return '<a class="btn btn-info info_compte_pres" id="'+data['id_partida']+'" cod="'+data['codigo_entero']+'"data_min="0" data_max="0" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                    { data:{'cod':'codigo_entero','id':'id_partida', 'fecha_min':'fecha_min', 'fecha_max':'fecha_max'},"render": function(data){return '<a class="btn btn-info info_compte_pres" id="'+data['id_partida']+'" cod="'+data['codigo_entero']+'"data_min="'+data['fecha_min']+'" data_max="'+data['fecha_max']+'" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
                     { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
                 ],
+                dom: 'Bfrtip',
+                buttons:[{
+                    extend: 'print',
+                    header: true,
+                    footer: true,
+                    title: "", //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
+                    text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                    exportOptions: { columns: '0,1,2,4'},
+                    autoPrint: true
+                },{
+                    extend: 'excel',
+                    filename: function(){return "Estat Pressupostari de "+$("#nombre_del_proyecto").text();},
+                    text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                    exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                        columns: '0,1,2,4',
+                        format: {
+                            body: function(data, row, column, node) {
+                                if(column==1 || column==2 || column==3)
+                                    data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                                return data;
+                            }
+                        }
+                    },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                        var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                        $('row c[r^="B"]', sheet).each(function () {// "B" es la columna en el excel
+                              $(this).attr('s', 64);
+                        });
+                        $('row c[r^="C"]', sheet).each(function () {
+                              $(this).attr('s', 64);
+                        });
+                        $('row c[r^="D"]', sheet).each(function () {
+                              $(this).attr('s', 64);
+                        });
+                    }
+                },{
+                    extend: 'pdf',
+                    title: function(){return "Estat Pressupostari de "+$("#nombre_del_proyecto").text();},
+                    footer: true,
+                    exportOptions: { columns: '0,1,2,4'},
+                    text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+                },{
+                    extend: 'csv',
+                    filename: function(){return "Estat Pressupostari de "+$("#nombre_del_proyecto").text();},
+                    footer: true,
+                    exportOptions: { columns: '0,1,2,4'},
+                    text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+                }],
                 footerCallback: function( tfoot, data, start, end, display ) {
                     var api = this.api();
                     $(this).DataTable().columns( [1,2,4] ).every(function(){
@@ -291,6 +366,10 @@ $(document).ready(function(){
                         var sum = this.data().reduce( function (a,b) {
                             return parseFloat(a) + parseFloat(b);
                         },0 ); //OJO cambiar a 2????
+                        var bgcolor="LightGreen";
+                        if(sum<-25)
+                            bgcolor="LightCoral";
+                        $(this.footer()).attr("bgcolor",bgcolor);
                         $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                     });
                   },
@@ -363,7 +442,7 @@ $(document).ready(function(){
         });
     }
 
-    if($(".table_fitxa_major_prj")){// FITXA MAJOR PROJECTES
+    if($(".table_fitxa_major_prj")){// INGRESOS I DESPESES (FITXA MAJOR PROJECTES)
        $(".table_fitxa_major_prj").DataTable({
             scrollY:        '60vh',
             scrollCollapse: true,
@@ -371,20 +450,101 @@ $(document).ready(function(){
             autowidth:      true,
             columnDefs: [
                 { type: 'de_date', targets: 0 },
-                { type: 'num-fmt', targets: [4,5,6] }
+                { type: 'num-fmt', targets: [6,7] },
+                {"width": "5%","className":"dt-center", targets: [0,1,2,5] },
+                {"width": "10%", targets:[6,7]},
+                {"width": "30%","className":"dt-left", targets:[3,4]}
             ],
             columns: [
                 null,
                 null,
                 null,
                 null,
+                null,
+                null,
                 { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+                { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+//                { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: function(){ return "Ingressos i despeses de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();}, //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true,
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==5)
+                                data=$(data).attr("title");
+                            return data;
+                        }
+                    }
+                }
+            },{
+                extend: 'excel',
+                filename: function(){return "Ingressos i despeses de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==6 || column==7)
+                                data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                            else if(column==5)
+                                data=$(data).attr("title");
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+//                    $('row c[r^="E"]', sheet).each(function () {
+//                          $(this).attr('s', 64);
+//                    });
+                    $('row c[r^="H"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="I"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                }
+            },{
+                extend: 'pdf',
+                title: function(){return "Ingressos i despeses de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                footer: true,
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==5)
+                                data=$(data).attr("title");
+                            return data;
+                        }
+                    }
+                }
+            },{
+                extend: 'csv',
+                filename: function(){return "Ingressos i despeses de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                footer: true,
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==5)
+                                data=$(data).attr("title");
+                            return data;
+                        }
+                    }
+                }
+            }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $( api.columns( [4,5,6] ).footer() ).find("b").each(function(){
+                $( api.columns( [6,7] ).footer() ).find("b").each(function(){
                     $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
                 });
             },
@@ -399,32 +559,102 @@ $(document).ready(function(){
             paging:         false,
             autowidth:      true,
             columnDefs: [
-                { type: 'num-fmt', targets: [2,3,4,5,6,7,8,9,10] }
+                { type: 'num-fmt', targets: [2,3,4,5,6,7,8] },
+                { type: 'text', targets: [1] },
+                {"width": "5%","className":"dt-center", "targets": [0,3] },
+                {"width": "10%","className":"dt-center", "targets": [1,2,4,5,6,7,8] }
             ],
             columns: [
                 null,
                 null,
                 { data:'concedit', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'iva', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                //{ data:'iva', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'canontotal', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'ingressos', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'pendent', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'despeses', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'canonaplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'disponiblecaixa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                //{ data:'disponiblecaixa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'disponiblereal', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: function(){ return "Estat projectes de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();}, //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: function(){return "Estat projectes de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column!=0 && column!=1)
+                                data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="C"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="D"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="E"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="F"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="G"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="H"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="I"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+//                    $('row c[r^="J"]', sheet).each(function () {
+//                          $(this).attr('s', 64);
+//                    });
+//                    $('row c[r^="K"]', sheet).each(function () {
+//                          $(this).attr('s', 64);
+//                    });
+                }
+            },{
+                extend: 'pdf',
+                title: function(){return "Estat projectes de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                footer: true,
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: function(){return "Estat projectes de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                footer: true,
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $( api.columns( [2,3,4,5,6,7,8,9,10] ).footer() ).find("b").each(function(){
+                $( api.columns( [2,3,4,5,6,7,8] ).footer() ).find("b").each(function(){
                     $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
                 });
+//                var bgcolor="LightGreen";  #OJO! descomentar cuando esta table se adapte a ajax
+//                if(sum<-25)
+//                    bgcolor="LightCoral";
+//                $(this.footer()).attr("bgcolor",bgcolor);
+//                $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
             },
             language: opciones_idioma
         });
     }
 
-    if($(".table_resum_fitxa_major_prj")){// RESUM FITXA MAJOR PROJECTES PER COMPTES
+    if($(".table_resum_fitxa_major_prj")){// RESUM PER PARTIDES(RESUM FITXA MAJOR PROJECTES PER COMPTES)
        $(".table_resum_fitxa_major_prj").DataTable({
             scrollY:        '60vh',
             scrollCollapse: true,
@@ -442,6 +672,53 @@ $(document).ready(function(){
                 null,
                 { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                exportOptions: { columns: '0,1,2,3,5'},
+                title: function(){ return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();}, //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: '0,1,2,3,5',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==2 || column==3 || column==4)
+                                data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="C"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="D"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="E"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                }
+            },{
+                extend: 'pdf',
+                title: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                footer: true,
+                exportOptions: { columns: '0,1,2,3,5'},
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                footer: true,
+                exportOptions: { columns: '0,1,2,3,5'},
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
                 $( api.columns( [2,3,5] ).footer() ).find("b").each(function(){
@@ -618,6 +895,32 @@ function nomes_tancats() {
 function mostrar_tots() {
     $("#table_llista_projectes_cont tbody>tr").each(function() {
             $(this).show();
+    });
+}
+
+function seleccionar_oberts() {
+    $("#table_llista_projectes_cont tbody>tr").each(function() {
+        if($(this).find("td:eq(2)").text() == "Obert") {
+            $(this).find(":checkbox").prop("checked",true);
+        }else{
+            $(this).find(":checkbox").prop("checked",false);
+        }
+    });
+}
+
+function seleccionar_tancats() {
+    $("#table_llista_projectes_cont tbody>tr").each(function() {
+        if($(this).find("td:eq(2)").text() == "Tancat") {
+            $(this).find(":checkbox").prop("checked",true);
+        }else{
+            $(this).find(":checkbox").prop("checked",false);
+        }
+    });
+}
+
+function cap() {
+    $("#table_llista_projectes_cont tbody>tr").each(function() {
+        $(this).find(":checkbox").prop("checked",false);
     });
 }
 
