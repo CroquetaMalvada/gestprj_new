@@ -626,13 +626,6 @@ def FitxaMajorProjectes(projectes):#Fitxa Major Projectes (Ingressos i Despeses)
             projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
             ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
 
-            # if int(cod_responsable) < 10:
-            #     cod_responsable="0"+str(cod_responsable)
-            # if int(cod_projecte) < 100:
-            #     if int(cod_projecte) < 10:
-            #         cod_projecte="00"+str(cod_projecte)
-            #     else:
-            #         cod_projecte="0"+str(cod_projecte)
             if len(cod_responsable) < 2:
                 cod_responsable="0"+str(cod_responsable)
             if len(cod_projecte) < 3:
@@ -756,13 +749,6 @@ def EstatProjectesResp(projectes):#Estat Projectes per Responsable
                     cod_projecte = projecte_chk.split("-")[1]
                     projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp) # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
                     ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
-                    # if int(cod_responsable) < 10:
-                    #     cod_responsable="0"+str(cod_responsable)
-                    # if int(cod_projecte) < 100:
-                    #     if int(cod_projecte) < 10:
-                    #         cod_projecte="00"+str(cod_projecte)
-                    #     else:
-                    #         cod_projecte="0"+str(cod_projecte)
                     if len(cod_responsable) < 2:
                         cod_responsable = "0" + str(cod_responsable)
                     if len(cod_projecte) < 3:
@@ -987,7 +973,7 @@ def ResumFitxaMajorProjectes(projectes):#Resum Fitxa Major Projectes per Comptes
         return resultado
 
 #OJO que este esta relacionado con resum fitxa projecte
-def MovimentsCompte(compte,data_min,data_max):
+def MovimentsCompte(compte,fecha_min,fecha_max):
     if compte is None:
         return None
     else:
@@ -995,8 +981,8 @@ def MovimentsCompte(compte,data_min,data_max):
         codigo_entero=compte.split("-")[1]
         # fecha_min = data_min
         # fecha_max = data_max
-        fecha_min = datetime.strptime(data_min, "%d-%m-%Y")
-        fecha_max = datetime.strptime(data_max, "%d-%m-%Y")
+        # fecha_min = datetime.strptime(data_min, "%d-%m-%Y")
+        # fecha_max = datetime.strptime(data_max, "%d-%m-%Y")
         cursor = connections['contabilitat'].cursor()
         #he modificado el primer resultado y ultimo resultado(que eran simplemente "Fecha"),el primero para que devuelva un "Fecha" como string en lugar de en partes,y el ultimo para relizar los calculos del saldo(ya que se deben hacer de mas antiguos a nuevos)
         cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CUENTAS.CUENTA LIKE (?)+'%' AND CENTROCOSTE2='   '+(?) AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[cuenta,codigo_entero, fecha_max, fecha_min])

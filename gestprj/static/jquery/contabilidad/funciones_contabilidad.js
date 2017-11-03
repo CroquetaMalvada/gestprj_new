@@ -82,11 +82,11 @@ $(document).ready(function(){
 	    mostrar_dialog("dialog_llista_comptes");
 	});
 
-	//Al mostrar la info de un compte en "Resum Fitxa Major Projectes per Comptes"
+	//Al mostrar la info de un compte en "Resum per partides"(Resum Fitxa Major Projectes per Comptes)
     $(".datatable").on( 'click', '.info_compte', function (){
 	    id_compte = $(this).attr("id");
-	    data_min = $("#data_min").val();
-	    data_max = $("#data_max").val();
+	    data_min = $(this).attr("data_min");
+	    data_max = $(this).attr("data_max");
 	    descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
 	    $("#dialog_llista_comptes").attr("title","DETALL MOVIMENTS COMPTE:"+id_compte+" - "+descripcio);
         table_comptes.ajax.url('/show_Moviments_Compte/'+id_compte+'/'+data_min+'/'+data_max);
@@ -122,8 +122,6 @@ $(document).ready(function(){
 
     });
 
-    $(".observacions").tooltip();
-
 });
 
 function cargar_cookies(){ //se ejecuta cuando termina de cargar las tablas para evitar problemas con checkbox inexistentes
@@ -133,14 +131,20 @@ function cargar_cookies(){ //se ejecuta cuando termina de cargar las tablas para
 //          alert($( "input[name=prj_select][value="+this+"]" ).val());
         $( "input[name=prj_select][value="+this+"]" ).trigger( "click" );
     });
-    $("#data_min").val(Cookies.get('fecha_min',));
-    $("#data_max").val(Cookies.get('fecha_max',));
+    if(Cookies.get("fecha_max")==undefined){
+        $("#data_min").datepicker("setDate", new Date(1997, 0, 1));
+        $("#data_max").datepicker("setDate", new Date());
+    }else{
+        $("#data_min").val(Cookies.get('fecha_min'));
+        $("#data_max").val(Cookies.get('fecha_max'));
+    }
+
 
 }
 
 function borrar_cookies(){
     Cookies.remove("opcion");
     Cookies.remove("proyectos");
-    Cookies.remove("data_min");
-    Cookies.remove("data_max");
+    Cookies.remove("fecha_min");
+    Cookies.remove("fecha_max");
 }

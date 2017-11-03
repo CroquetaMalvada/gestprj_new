@@ -448,6 +448,11 @@ $(document).ready(function(){
             scrollCollapse: true,
             paging:         false,
             autowidth:      true,
+            ajax:{
+                url:'/json_vacio/',
+                contentType: "application/json;",
+                dataSrc: ''
+            },
             columnDefs: [
                 { type: 'de_date', targets: 0 },
                 { type: 'num-fmt', targets: [6,7] },
@@ -456,13 +461,18 @@ $(document).ready(function(){
                 {"width": "30%","className":"dt-left", targets:[3,4]}
             ],
             columns: [
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'data'},
+                { data:'asiento'},
+                { data:'compte'},
+                { data:'desc_compte'},
+                { data:'descripcio'},
+                { data:{'Observaciones':'Observaciones'},"render": function(data){
+                    if(data['Observaciones']=="Sense observacions.")
+                        return '<a class="btn btn-danger observacions" title="'+data['Observaciones']+'"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span></a>';
+                    else
+                        return '<a class="btn btn-success observacions" title="'+data['Observaciones']+'"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>';
+                }},
+                { data:'despesa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
 //                { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
@@ -544,9 +554,20 @@ $(document).ready(function(){
             }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $( api.columns( [6,7] ).footer() ).find("b").each(function(){
-                    $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
+                $(this).DataTable().columns( [6,7] ).every(function(){
+//                    console.log(this.data());
+                    var sum = this.data().reduce( function (a,b) {
+                        return parseFloat(a) + parseFloat(b);
+                    },0 ); //OJO cambiar a 2????
+                    var bgcolor="LightGreen";
+                    if(sum<-25)
+                        bgcolor="LightCoral";
+                    $(this.footer()).attr("bgcolor",bgcolor);
+                    $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                 });
+            },
+            drawCallback: function(){
+                $(".observacions").tooltip();
             },
             language: opciones_idioma
         });
@@ -558,6 +579,11 @@ $(document).ready(function(){
             scrollCollapse: true,
             paging:         false,
             autowidth:      true,
+            ajax:{
+                url:'/json_vacio/',
+                contentType: "application/json;",
+                dataSrc: ''
+            },
             columnDefs: [
                 { type: 'num-fmt', targets: [2,3,4,5,6,7,8] },
                 { type: 'text', targets: [1] },
@@ -565,17 +591,17 @@ $(document).ready(function(){
                 {"width": "10%","className":"dt-center", "targets": [1,2,4,5,6,7,8] }
             ],
             columns: [
-                null,
-                null,
+                {data:'codi'},
+                {data:'nom'},
                 { data:'concedit', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 //{ data:'iva', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'canontotal', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'canon_total', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'ingressos', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'pendent', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'despeses', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'canonaplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'canon_aplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 //{ data:'disponiblecaixa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'disponiblereal', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+                { data:'disponible_real', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
             dom: 'Bfrtip',
             buttons:[{
@@ -641,9 +667,21 @@ $(document).ready(function(){
             }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $( api.columns( [2,3,4,5,6,7,8] ).footer() ).find("b").each(function(){
-                    $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
+                $(this).DataTable().columns( [2,3,4,5,6,7,8] ).every(function(){
+//                    console.log(this.data());
+                    var sum = this.data().reduce( function (a,b) {
+                        return parseFloat(a) + parseFloat(b);
+                    },0 ); //OJO cambiar a 2????
+                    var bgcolor="LightGreen";
+                    if(sum<-25)
+                        bgcolor="LightCoral";
+                    $(this.footer()).attr("bgcolor",bgcolor);
+                    $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                 });
+
+//                $( api.columns( [2,3,4,5,6,7,8] ).footer() ).children("b").each(function(){
+//                    $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
+//                });
 //                var bgcolor="LightGreen";  #OJO! descomentar cuando esta table se adapte a ajax
 //                if(sum<-25)
 //                    bgcolor="LightCoral";
@@ -660,16 +698,21 @@ $(document).ready(function(){
             scrollCollapse: true,
             paging:         false,
             autowidth:      true,
+            ajax:{
+                url:'/json_vacio/',
+                contentType: "application/json;",
+                dataSrc: ''
+            },
             columnDefs: [
                 { type: 'de_date', targets: 0 },
                 { type: 'num-fmt', targets: [2,3,5] }
             ],
             columns: [
-                null,
-                null,
-                { data:'carrec', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'compte'},
+                { data:'descripcio'},
+                { data:'despesa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                null,
+                { data:{'codigo_entero':'codigo_entero','compte':'compte','fecha_min':'fecha_min', 'fecha_max':'fecha_max'},"render": function(data){return '<a class="btn btn-info info_compte" id="'+data["compte"]+'-'+data["codigo_entero"]+'" data_min="'+data['fecha_min']+'" data_max="'+data['fecha_max']+'" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
                 { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
             dom: 'Bfrtip',
@@ -721,8 +764,16 @@ $(document).ready(function(){
             }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $( api.columns( [2,3,5] ).footer() ).find("b").each(function(){
-                    $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
+                $(this).DataTable().columns( [2,3,5] ).every(function(){
+//                    console.log(this.data());
+                    var sum = this.data().reduce( function (a,b) {
+                        return parseFloat(a) + parseFloat(b);
+                    },0 ); //OJO cambiar a 2????
+                    var bgcolor="LightGreen";
+                    if(sum<-25)
+                        bgcolor="LightCoral";
+                    $(this.footer()).attr("bgcolor",bgcolor);
+                    $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                 });
             },
             language: opciones_idioma
@@ -836,6 +887,39 @@ function cargar_ajax_prj(elemento){
             var mensaje=$(this).find(".dataTables_empty");
             mensaje.html("Carregant...");
             tabla.ajax.url('/show_estat_pres_datos/'+$(this).attr("cod")).load();
+            tabla.ajax.reload(function(){mensaje.html("No s'han trobat dades");});
+        });
+    }
+
+    // RESUM ESTAT PROJECTES PER RESPONSABLE
+    if($(elemento).find(".table_resum_estat_prj_resp")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+        $(elemento).find(".table_resum_estat_prj_resp").each(function(){
+            var tabla=$(this).DataTable();
+            var mensaje=$(this).find(".dataTables_empty");
+            mensaje.html("Carregant...");
+            tabla.ajax.url('/show_estat_prj_resp_datos/'+$(this).attr("fecha_min")+'/'+$(this).attr("fecha_max")+'/'+$(this).attr("proyectos")).load();
+            tabla.ajax.reload(function(){mensaje.html("No s'han trobat dades");});
+        });
+    }
+
+    // ESTAT PRESSUPOSTARI
+    if($(elemento).find(".table_fitxa_major_prj")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+        $(elemento).find(".table_fitxa_major_prj").each(function(){
+            var tabla=$(this).DataTable();
+            var mensaje=$(this).find(".dataTables_empty");
+            mensaje.html("Carregant...");
+            tabla.ajax.url('/show_fitxa_major_prj_datos/'+$(this).attr("fecha_min")+'/'+$(this).attr("fecha_max")+'/'+$(this).attr("cod")).load();
+            tabla.ajax.reload(function(){mensaje.html("No s'han trobat dades");});
+        });
+    }
+
+    // RESUM PER PARTIDES(RESUM FITXA MAJOR PROJECTES PER COMPTES)
+    if($(elemento).find(".table_resum_fitxa_major_prj")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+        $(elemento).find(".table_resum_fitxa_major_prj").each(function(){
+            var tabla=$(this).DataTable();
+            var mensaje=$(this).find(".dataTables_empty");
+            mensaje.html("Carregant...");
+            tabla.ajax.url('/show_resum_fitxa_major_prj_datos/'+$(this).attr("fecha_min")+'/'+$(this).attr("fecha_max")+'/'+$(this).attr("cod")).load();
             tabla.ajax.reload(function(){mensaje.html("No s'han trobat dades");});
         });
     }

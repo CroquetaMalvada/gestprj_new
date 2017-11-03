@@ -61,6 +61,7 @@ urlpatterns = patterns('',
     url('^llista_Usuaris_creaf/', views.ListUsuarisCreaf.as_view()),# para la datatable de personal creaf cabecera
     url('^llista_Usuaris_externs/', views.ListUsuarisExterns.as_view()),# para la datatable de personal extern cabecera
     url('^llista_ConceptesPres/', views.ListConceptesPress),# para los select con el nombre de las partidas
+    url('^llista_justificacions_cabecera/(?P<fecha_min>.+)/(?P<fecha_max>.+)/$', views.ListJustificacionsCabecera),# justificaciones en edicio en la cabecera
 
     url('^show_Personal_creaf/(?P<id_projecte>.+)/$', views.ListPersonalCreafNoProjecte.as_view()),# personal itnerno que no este en el proyecto
     url('^show_Personal_creaf_prj/(?P<id_projecte>.+)/$', views.ListPersonalCreafProjecte.as_view()),# personal interno de un proyecto
@@ -108,21 +109,26 @@ urlpatterns = patterns('',
     url(r'^cont_dades/$', views.cont_dades, name='cont_dades'),
 
     url(r'^cont_estat_pres/$', views.cont_estat_pres, name='cont_estat_pres'),
-    url(r'^show_estat_pres_datos/(?P<datos>.+)/$', views.ListEstatPresDatos, name='cont_despeses'),# ajax 1
+    url(r'^show_estat_pres_datos/(?P<datos>.+)/$', views.ListEstatPresDatos, name='cont_estat_pres_datos'),# ajax 1
     url(r'^show_Despeses_Compte/(?P<id_partida>.+)/(?P<cod>.+)/(?P<data_min>.+)/(?P<data_max>.+)/$', views.ListDespesesCompte, name="despeses_compte"),# ajax 2
 
     url(r'^cont_despeses/$', views.cont_despeses, name='cont_despeses'),
 
     url(r'^cont_ingresos/$', views.cont_ingresos, name='cont_ingresos'),
     url(r'^cont_estat_prj_resp/$', views.cont_estat_prj_resp, name='estat_prj_resp'),
-    url(r'^cont_resum_fitxa_major_prj/$', views.cont_resum_fitxa_major_prj, name='resum_fitxa_major_prj'),
-    #moviments compte
+    url(r'^show_estat_prj_resp_datos/(?P<fecha_min>.+)/(?P<fecha_max>.+)/(?P<proyectos>.+)/$', views.ListEstatPrjRespDatos, name='estat_prj_resp_datos'),# ajax 1
 
-    url(r'^show_Moviments_Compte/(?P<compte>.+)/(?P<data_min>.+)/(?P<data_max>.+)/$', views.ListMovimentsCompte, name="moviments_compte"),
+    url(r'^cont_resum_fitxa_major_prj/$', views.cont_resum_fitxa_major_prj, name='resum_fitxa_major_prj'),
+    url(r'^show_resum_fitxa_major_prj_datos/(?P<fecha_min>.+)/(?P<fecha_max>.+)/(?P<codigo>.+)/$', views.ListResumFitxaMajorPrjDatos, name='resum_fitxa_major_prj_datos'),# ajax 1
+    #moviments compte
+    url(r'^show_Moviments_Compte/(?P<compte>.+)/(?P<data_min>.+)/(?P<data_max>.+)/$', views.ListMovimentsCompte, name="moviments_compte"), # ajax2
 
     url(r'^cont_resum_estat_prj/$', views.cont_resum_estat_prj, name='resum_estat_prj'),
     url(r'^cont_resum_estat_canon/$', views.cont_resum_estat_canon, name='resum_estat_canon'),
+
     url(r'^cont_fitxa_major_prj/$', views.cont_fitxa_major_prj, name='fitxa_major_prj'),
+    url(r'^show_fitxa_major_prj_datos/(?P<fecha_min>.+)/(?P<fecha_max>.+)/(?P<codigo>.+)/$', views.ListFitxaMajorPrjDatos, name='fitxa_major_prj_datos'), # ajax1
+
     url(r'^cont_comptes_no_assignats/$', views.cont_comptes_no_assignats, name='comptes_no_assignats'),
 
     # JSON de contabilidad
