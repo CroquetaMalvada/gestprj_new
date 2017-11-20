@@ -1014,16 +1014,16 @@ def ResumEstatProjectes(projectes):#Resum Estat Projectes
         num_investigadores = 0
 
         # totales para el footer
-        totals = []
-        total_concedit = 0
-        total_iva = 0
-        total_canon_total = 0
-        total_ingressos = 0
-        total_pendent = 0
-        total_despeses = 0
-        total_canon_aplicat = 0
-        total_disponible_caixa = 0
-        total_disponible_real = 0
+        # totals = []
+        # total_concedit = 0
+        # total_iva = 0
+        # total_canon_total = 0
+        # total_ingressos = 0
+        # total_pendent = 0
+        # total_despeses = 0
+        # total_canon_aplicat = 0
+        # total_disponible_caixa = 0
+        # total_disponible_real = 0
 
         # Averiguar el numero de investigadores a partir de inspeccionar todos los proyectos que hemos recibido
         for projecte_chk in projectes.getlist("prj_select"):
@@ -1185,23 +1185,23 @@ def ResumEstatProjectes(projectes):#Resum Estat Projectes
                     #totales:
                     proyectos[0][0]["cod_responsable"]=cod_responsable # este y el de abajo so correctos pero se superponen una y otra vez por cada proyecto,a ver si se puede mejorar
                     proyectos[0][0]["nom_responsable"]=Responsables.objects.get(codi_resp=cod_responsable).id_usuari.nom_usuari
-                    total_concedit = round(total_concedit+concedit,2)
-                    total_iva = round(total_iva+iva,2)
-                    total_canon_total = round(total_canon_total+canon_total,2)
-                    total_ingressos = round(total_ingressos+ingressos,2)
-                    total_pendent = round(total_pendent+pendent,2)
-                    total_despeses = round(total_despeses+despeses,2)
-                    total_canon_aplicat = round(total_canon_aplicat+canon_aplicat,2)
-                    total_disponible_caixa = round(total_disponible_caixa+disponible_caixa,2)
-                    total_disponible_real = round(total_disponible_real+disponible_real,2)
+                    # total_concedit = round(total_concedit+concedit,2)
+                    # total_iva = round(total_iva+iva,2)
+                    # total_canon_total = round(total_canon_total+canon_total,2)
+                    # total_ingressos = round(total_ingressos+ingressos,2)
+                    # total_pendent = round(total_pendent+pendent,2)
+                    # total_despeses = round(total_despeses+despeses,2)
+                    # total_canon_aplicat = round(total_canon_aplicat+canon_aplicat,2)
+                    # total_disponible_caixa = round(total_disponible_caixa+disponible_caixa,2)
+                    # total_disponible_real = round(total_disponible_real+disponible_real,2)
                     #
             resultado.append(proyectos)
 
             proyectos= []
 
         #anadimos finalmente solo los totales
-        totals.append({"total_concedit":total_concedit,"total_iva":total_iva,"total_canon_total":total_canon_total,"total_ingressos":total_ingressos,"total_pendent":total_pendent,"total_despeses":total_despeses,"total_canon_aplicat":total_canon_aplicat,"total_disponible_caixa":total_disponible_caixa,"total_disponible_real":total_disponible_real,"data_max":projectes["data_max"]})
-        return resultado,totals
+        # totals.append({"total_concedit":total_concedit,"total_iva":total_iva,"total_canon_total":total_canon_total,"total_ingressos":total_ingressos,"total_pendent":total_pendent,"total_despeses":total_despeses,"total_canon_aplicat":total_canon_aplicat,"total_disponible_caixa":total_disponible_caixa,"total_disponible_real":total_disponible_real,"data_max":projectes["data_max"]})
+        return resultado
 
 
 
@@ -1438,8 +1438,6 @@ def ResumEstatCanon(projectes):#Resum Estat Canon Projectes per Responsable
 def ComptesNoAssignats(projectes):#Comptes NO assignats a cap projecte
         fecha_min = datetime.strptime(projectes["data_min"], "%d-%m-%Y")
         fecha_max = datetime.strptime(projectes["data_max"], "%d-%m-%Y")
-        # fecha_min = projectes["data_min"]
-        # fecha_max = projectes["data_max"]
         cursor = connections['contabilitat'].cursor()
         comptes = []
         resultado = []

@@ -276,7 +276,8 @@ class Renovacions(models.Model):
 
 
 class PrjUsuaris(models.Model):
-    id_prj_usuaris = models.DecimalField(db_column='ID_PRJ_USUARIS', max_digits=10, decimal_places=0, blank=True, primary_key=True)  # Field name made lowercase.
+    # id_prj_usuaris = models.DecimalField(db_column='ID_PRJ_USUARIS', max_digits=10, decimal_places=0, blank=True, primary_key=True)  # Field name made lowercase.
+    id_prj_usuaris = models.AutoField(db_column='ID_PRJ_USUARIS', primary_key=True)  # Field name made lowercase.
     id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE')
     id_usuari_xarxa = models.ForeignKey(TUsuarisXarxa,db_column='ID_USUARI_XARXA')
 

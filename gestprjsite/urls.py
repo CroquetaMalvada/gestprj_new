@@ -7,7 +7,7 @@ from django.conf import settings
 from django.conf.urls import include, patterns, url
 
 
-
+# Estos son necesarios para que funcione los serializers de cada uno
 router = routers.DefaultRouter()
 router.register(r'centresPart_rest',views.CentresParticipantsViewSet) #post crear put actualizar y delete eliminar
 router.register(r'gestor_centresPart',views.GestCentresParticipants)
@@ -42,6 +42,8 @@ router.register(r'gestor_Desglossament',views.GestDesglossament)
 router.register(r'gestor_JustificacionsProjecte',views.GestJustificacionsProjecte)
 router.register(r'gestor_Auditories',views.GestAuditories)
 
+router.register(r'gestor_PermisosUsuarisConsultar',views.GestPrjUsuaris)
+
 router.register(r'projectes_rest',views.ProjectesViewSet)
 
 
@@ -56,10 +58,15 @@ urlpatterns = patterns('',
     url(r'^', include(router.urls)),
     url('^show_centresPart/(?P<id_projecte>.+)/$', views.ListCentresParticipantsProjecte.as_view()),
     url('^show_TOrganismes/(?P<id_projecte>.+)/$', views.ListTOrganismesNoProjecte.as_view()),# organismos que no estan en el proyecto
-    url('^llista_Organismes/', views.ListTOrganismes.as_view()),# para la datatable de organismes cabecera
+    # AJAX selects:
     url('^llista_organismes_select/', views.ListOrganismesSelect),# para los select con el nombre de los organismos
+    url('^llista_projectes_select/', views.ListProjectesSelect),# para el select con los proyectos
+    url('^llista_usuaris_xarxa_select/', views.ListUsuarisXarxaSelect),# para el select con los usuarios de red
+
+    url('^llista_Organismes/', views.ListTOrganismes.as_view()),# para la datatable de organismes cabecera
     url('^llista_Usuaris_creaf/', views.ListUsuarisCreaf.as_view()),# para la datatable de personal creaf cabecera
     url('^llista_Usuaris_externs/', views.ListUsuarisExterns.as_view()),# para la datatable de personal extern cabecera
+    url('^llista_permisos_usuaris_consultar/', views.ListPermisosUsuarisConsultar.as_view()),# para la datatable de permisos usuaris cabecera
     url('^llista_ConceptesPres/', views.ListConceptesPress),# para los select con el nombre de las partidas
     url('^llista_justificacions_cabecera/(?P<fecha_min>.+)/(?P<fecha_max>.+)/$', views.ListJustificacionsCabecera),# justificaciones en edicio en la cabecera
 
@@ -113,8 +120,11 @@ urlpatterns = patterns('',
     url(r'^show_Despeses_Compte/(?P<id_partida>.+)/(?P<cod>.+)/(?P<data_min>.+)/(?P<data_max>.+)/$', views.ListDespesesCompte, name="despeses_compte"),# ajax 2
 
     url(r'^cont_despeses/$', views.cont_despeses, name='cont_despeses'),
+    url(r'^cont_despeses_datos/(?P<fecha_min>.+)/(?P<fecha_max>.+)/(?P<codigo>.+)/$', views.ListDespesesDatos, name='cont_despeses_datos'),# ajax 1
 
     url(r'^cont_ingresos/$', views.cont_ingresos, name='cont_ingresos'),
+    url(r'^cont_ingresos_datos/(?P<fecha_min>.+)/(?P<fecha_max>.+)/(?P<codigo>.+)/$', views.ListIngresosDatos, name='cont_ingresos_datos'),# ajax 1
+
     url(r'^cont_estat_prj_resp/$', views.cont_estat_prj_resp, name='estat_prj_resp'),
     url(r'^show_estat_prj_resp_datos/(?P<fecha_min>.+)/(?P<fecha_max>.+)/(?P<proyectos>.+)/$', views.ListEstatPrjRespDatos, name='estat_prj_resp_datos'),# ajax 1
 
@@ -125,6 +135,7 @@ urlpatterns = patterns('',
 
     url(r'^cont_resum_estat_prj/$', views.cont_resum_estat_prj, name='resum_estat_prj'),
     url(r'^cont_resum_estat_canon/$', views.cont_resum_estat_canon, name='resum_estat_canon'),
+    url(r'^show_resum_estat_canon_datos/(?P<fecha_min>.+)/(?P<fecha_max>.+)/(?P<codigo>.+)/$',views.ListResumEstatCanonDatos, name='resum_estat_canon_datos'),  # ajax 1
 
     url(r'^cont_fitxa_major_prj/$', views.cont_fitxa_major_prj, name='fitxa_major_prj'),
     url(r'^show_fitxa_major_prj_datos/(?P<fecha_min>.+)/(?P<fecha_max>.+)/(?P<codigo>.+)/$', views.ListFitxaMajorPrjDatos, name='fitxa_major_prj_datos'), # ajax1

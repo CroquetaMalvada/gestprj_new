@@ -1,4 +1,4 @@
-from gestprj.models import CentresParticipants, TOrganismes, Projectes, TUsuarisExterns, PersonalExtern, TUsuarisCreaf, PersonalCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte
+from gestprj.models import CentresParticipants, TOrganismes, Projectes, TUsuarisExterns, PersonalExtern, TUsuarisCreaf, PersonalCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, PrjUsuaris
 from rest_framework import serializers
 from gestprj import pk
 
@@ -184,3 +184,16 @@ class GestAuditoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuditoriesProjecte
         fields =('url','id_projecte','data_auditoria','data_inici_periode','data_fi_periode','comentaris')
+
+# PERMISOS USUARIS PER CONSULTAR PROJECTES
+class GestPrjUsuarisSerializer(serializers.ModelSerializer):
+    nom_xarxa= serializers.CharField(source='id_usuari_xarxa.nom_xarxa', read_only=True)
+    codi_resp = serializers.CharField(source='id_projecte.id_resp.codi_resp', read_only=True)# serializers.SerializerMethodField()
+    codi_prj = serializers.CharField(source='id_projecte.codi_prj', read_only=True)
+    acronim = serializers.CharField(source='id_projecte.acronim', read_only=True)
+
+    # def get_codi(self,obj):
+    #     return ''+str(serializers.CharField(source='id_usuari_xarxa', read_only=True))+str(serializers.CharField(source='id_projecte.codi_prj', read_only=True))
+    class Meta:
+        model = PrjUsuaris
+        fields =('url','id_prj_usuaris','id_projecte','id_usuari_xarxa','nom_xarxa','codi_resp','codi_prj','acronim')

@@ -12,9 +12,9 @@
                ESTAT DELS PROJECTES DEL RESPONSABLE: <b class="nombre_del_responsable">{{ responsable.nom_responsable }}</b><br>
                 </p>
                 <p align="right" class="col-md-3">
-                Fins a: <b>{{ responsable.data_max }}</b>
+                Fins a: <b>{{ data_max }}</b>
                 </p>
-                <table class="table table-striped table-bordered datatable table_resum_estat_prj_resp" fecha_min="{{ responsable.data_min }}" fecha_max="{{ responsable.data_max }}" proyectos="{{ responsable.projectes }}" width="100%">
+                <table class="table table-striped table-bordered datatable table_resum_estat_prj_resp" fecha_min="{{ data_min }}" fecha_max="{{ data_max }}" proyectos="{{ responsable.projectes }}" width="100%">
                         <thead>
                         <tr>
                             <th>Codi</th>

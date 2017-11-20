@@ -178,7 +178,7 @@ $(document).ready(function(){
                     format: {
                         body: function(data, row, column, node) {
                             if(column==5)// solo nos interesa formatear los numeros de saldo(columna 4)
-                                data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             else if(column==4)
                                 data=$(data).attr("title");
                             return data;
@@ -250,7 +250,7 @@ $(document).ready(function(){
                     format: {
                         body: function(data, row, column, node) {
                             if(column==3 || column==4 || column==5)
-                                data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             return data;
                         }
                     }
@@ -330,7 +330,7 @@ $(document).ready(function(){
                         format: {
                             body: function(data, row, column, node) {
                                 if(column==1 || column==2 || column==3)
-                                    data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                                    data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                                 return data;
                             }
                         }
@@ -388,27 +388,83 @@ $(document).ready(function(){
             scrollCollapse: true,
             paging:         false,
             autowidth:      true,
+            ajax:{
+                url:'/json_vacio/',
+                contentType: "application/json;",
+                dataSrc: ''
+            },
             columnDefs: [
-                { type: 'de_date', targets: 0 },
-                { type: 'num-fmt', targets: [5,6] }
+                {"width": "10%", type: 'de_date', targets: 0 },
+                {"width": "10%",type: 'num-fmt', targets: [1,2,3,5,6] },
+                {"width": "40%","className":"dt-left", targets:[4]}
             ],
             columns: [
-                null,
-                null,
-//                null,
-                null,
-                null,
-                null,
+                { data:'data' },
+                { data:'asiento' },
+                { data:'compte' },
+                { data:'clau' },
+                { data:'descripcio' },
 //                { data:'pagat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'despesa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'saldo disponible', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+                { data:'saldo_disponible', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
-            footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: "Llista Despeses de "+$("#nombre_del_proyecto").text(), //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: function(){return "Llista Despeses de "+$("#nombre_del_proyecto").text();},
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    format: {
+                        body: function(data, row, column, node) {
+                            if( column==5 || column==6)
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="F"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="G"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                }
+            },{
+                extend: 'pdf',
+                title: function(){return "Llista Despeses de "+$("#nombre_del_proyecto").text();},
+                footer: true,
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: function(){return "Llista Despeses de "+$("#nombre_del_proyecto").text();},
+                footer: true,
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
+            footerCallback: function( tfoot, data, start, end, display ) {
                 var api = this.api();
-                $( api.columns( [5,6] ).footer() ).find("b").each(function(){
-                    $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
+                $(this).DataTable().columns( [5,6] ).every(function(index){
+//                    console.log(this.data());
+                    if(index==5)
+                        var sum = this.data().reduce( function (a,b) {
+                            return parseFloat(a) + parseFloat(b);
+                        },0 ); //OJO cambiar a 2????
+                    else
+                        var sum = this.cell(":last",6).data();
+                    var bgcolor="LightGreen";
+                    if(sum<-25)
+                        bgcolor="LightCoral";
+                    $(this.footer()).attr("bgcolor",bgcolor);
+                    $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                 });
-            },
+              },
             language: opciones_idioma
         });
     }
@@ -420,22 +476,81 @@ $(document).ready(function(){
             scrollCollapse: true,
             paging:         false,
             autowidth:      true,
+            ajax:{
+                url:'/json_vacio/',
+                contentType: "application/json;",
+                dataSrc: ''
+            },
             columnDefs: [
-                { type: 'de_date', targets: 0 },
-                { type: 'num-fmt', targets: [4,5] }
+                {"width": "10%", type: 'de_date', targets: 0 },
+                {"width": "10%",type: 'num-fmt', targets: [1,2] },
+                {"width": "40%","className":"dt-left", targets:[3]},
+                {"width": "10%",type: 'num-fmt', targets: [4,5] }
             ],
             columns: [
-                null,
-                null,
-                null,
-                null,
+                { data: "data" },
+                { data: "asiento" },
+                { data: "compte" },
+                { data: "descripcio" },
                 { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: function(){ return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();}, //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==4 || column==5)
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="E"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="F"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                }
+            },{
+                extend: 'pdf',
+                title: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                footer: true,
+
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                footer: true,
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $( api.columns( [4,5] ).footer() ).find("b").each(function(){
-                    $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
+                $(this).DataTable().columns( [4,5] ).every(function(index){
+//                    console.log(this.data());
+                    if(index==5)
+                        var sum = this.cell(":last",5).data();
+                    else
+                        var sum = this.data().reduce( function (a,b) {
+                            return parseFloat(a) + parseFloat(b);
+                        },0 ); //OJO cambiar a 2????
+                    var bgcolor="LightGreen";
+                    if(sum<-25)
+                        bgcolor="LightCoral";
+                    $(this.footer()).attr("bgcolor",bgcolor);
+                    $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                 });
             },
             language: opciones_idioma
@@ -503,7 +618,7 @@ $(document).ready(function(){
                     format: {
                         body: function(data, row, column, node) {
                             if(column==6 || column==7)
-                                data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             else if(column==5)
                                 data=$(data).attr("title");
                             return data;
@@ -620,7 +735,7 @@ $(document).ready(function(){
                     format: {
                         body: function(data, row, column, node) {
                             if(column!=0 && column!=1)
-                                data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             return data;
                         }
                     }
@@ -733,7 +848,7 @@ $(document).ready(function(){
                     format: {
                         body: function(data, row, column, node) {
                             if(column==2 || column==3 || column==4)
-                                data=parseFloat(data.replace(separador_miles,'').replace(separador_decimales,'.'))//quitamos los separadores de miles y dejamos que los de decimales sean "."
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             return data;
                         }
                     }
@@ -764,11 +879,14 @@ $(document).ready(function(){
             }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $(this).DataTable().columns( [2,3,5] ).every(function(){
+                $(this).DataTable().columns( [2,3,5] ).every(function(index){
 //                    console.log(this.data());
-                    var sum = this.data().reduce( function (a,b) {
-                        return parseFloat(a) + parseFloat(b);
-                    },0 ); //OJO cambiar a 2????
+                    if(index==5)
+                        var sum = this.cell(":last",5).data();
+                    else
+                        var sum = this.data().reduce( function (a,b) {
+                            return parseFloat(a) + parseFloat(b);
+                        },0 ); //OJO cambiar a 2????
                     var bgcolor="LightGreen";
                     if(sum<-25)
                         bgcolor="LightCoral";
@@ -787,13 +905,13 @@ $(document).ready(function(){
             paging:         false,
             autowidth:      true,
             columnDefs: [
-                { type: 'num-fmt', targets: [2,3,4,5,6,7,8,9,10] }
+                { type: 'num-fmt', targets: [0,1,2,3,4,5,6,7,8,9,10] }
             ],
             columns: [
-                null,
-                null,
-                { data:'codi', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'responsable', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+//                null,
+//                null,
+                { data:'codi' },
+                { data:'responsable' },
                 { data:'concedit', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'iva', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'canon_total', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
@@ -804,10 +922,79 @@ $(document).ready(function(){
                 { data:'disponible_caixa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'disponible_real', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: "Resum estat projectes",
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: "Resum estat projectes",
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==2 || column==3 || column==4 || column==5 || column==6 || column==7 || column==8 || column==9 || column==10 )
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="C"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="D"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="E"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="F"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="G"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="H"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="I"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="J"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="K"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                }
+            },{
+                extend: 'pdf',
+                title: "Resum estat projectes",
+                footer: true,
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: "Resum estat projectes",
+                footer: true,
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $( api.columns( [2,3,4,5,6,7,8,9,10] ).footer() ).find("b").each(function(){
-                    $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
+                $(this).DataTable().columns( [2,3,4,5,6,7,8,9,10] ).every(function(){
+//                    console.log(this.data());
+                    var sum = this.data().reduce( function (a,b) {
+                        return parseFloat(a) + parseFloat(b);
+                    },0 ); //OJO cambiar a 2????
+                    var bgcolor="LightGreen";
+                    if(sum<-25)
+                        bgcolor="LightCoral";
+                    $(this.footer()).attr("bgcolor",bgcolor);
+                    $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                 });
             },
             language: opciones_idioma
@@ -820,28 +1007,102 @@ $(document).ready(function(){
             scrollCollapse: true,
             paging:         false,
             autowidth:      true,
+            ajax:{
+                url:'/json_vacio/',
+                contentType: "application/json;",
+                dataSrc: ''
+            },
             columnDefs: [
                 { type: 'num-fmt', targets: [2,3,4,5,6,7,8,9,10,11,12] }
             ],
             columns: [
-                null,
-                null,
+                { data:"codi" },
+                { data:"nom" },
                 { data:'base_canon', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'percen1', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'percen_1', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'canon_creaf', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'percen2', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'percen_2', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'canon_oficial', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'dif_canon', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'ingressos', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'percen3', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'percen_3', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'canon_aplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'canon_pendent_aplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'canon_pendent_aplicar', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'saldo_canon_oficial', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: "Resum estat projectes",
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: "Resum estat projectes",
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==2 || column==3 || column==4 || column==5 || column==6 || column==7 || column==8 || column==9 || column==10 )
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="C"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="D"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="E"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="F"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="G"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="H"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="I"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="J"]', sheet).each(function () {// "B" es la columna en el excel
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="K"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                }
+            },{
+                extend: 'pdf',
+                title: "Resum estat projectes",
+                footer: true,
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: "Resum estat projectes",
+                footer: true,
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $( api.columns( [2,3,4,5,6,7,8,9,10,11,12] ).footer() ).find("b").each(function(){
-                    $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
+                $(this).DataTable().columns( [2,4,6,7,8,10,11,12] ).every(function(){
+//                    console.log(this.data());
+                    var sum = this.data().reduce( function (a,b) {
+                        return parseFloat(a) + parseFloat(b);
+                    },0 ); //OJO cambiar a 2????
+                    var bgcolor="LightGreen";
+                    if(sum<-25)
+                        bgcolor="LightCoral";
+                    $(this.footer()).attr("bgcolor",bgcolor);
+                    $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                 });
             },
             language: opciones_idioma
@@ -864,10 +1125,64 @@ $(document).ready(function(){
                 { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: "Comptes no assignats a cap projecte",
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: "Comptes no assignats a cap projecte",
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==2 || column==3 || column==4)
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="C"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="D"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="E"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                }
+            },{
+                extend: 'pdf',
+                title: "Comptes no assignats a cap projecte",
+                footer: true,
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: "Comptes no assignats a cap projecte",
+                footer: true,
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $( api.columns( [2,3,4] ).footer() ).find("b").each(function(){
-                    $(this).html(formatnumber( $(this).html(), separador_miles, separador_decimales, 2 ));
+                $(this).DataTable().columns( [2,3,4] ).every(function(index){
+//                    console.log(this.data());
+                    if(index==4)
+                        var sum = this.cell(":last",4).data();
+                    else
+                        var sum = this.data().reduce( function (a,b) {
+                            return parseFloat(a) + parseFloat(b);
+                        },0 ); //OJO cambiar a 2????
+                    var bgcolor="LightGreen";
+                    if(sum<-25)
+                        bgcolor="LightCoral";
+                    $(this.footer()).attr("bgcolor",bgcolor);
+                    $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                 });
             },
             language: opciones_idioma
@@ -920,6 +1235,39 @@ function cargar_ajax_prj(elemento){
             var mensaje=$(this).find(".dataTables_empty");
             mensaje.html("Carregant...");
             tabla.ajax.url('/show_resum_fitxa_major_prj_datos/'+$(this).attr("fecha_min")+'/'+$(this).attr("fecha_max")+'/'+$(this).attr("cod")).load();
+            tabla.ajax.reload(function(){mensaje.html("No s'han trobat dades");});
+        });
+    }
+
+    // RESUM ESTAT CANON PER RESPONSABLES
+    if($(elemento).find(".table_resum_estat_canon")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+        $(elemento).find(".table_resum_estat_canon").each(function(){
+            var tabla=$(this).DataTable();
+            var mensaje=$(this).find(".dataTables_empty");
+            mensaje.html("Carregant...");
+            tabla.ajax.url('/show_resum_estat_canon_datos/'+$(this).attr("fecha_min")+'/'+$(this).attr("fecha_max")+'/'+$(this).attr("cod")).load();
+            tabla.ajax.reload(function(){mensaje.html("No s'han trobat dades");});
+        });
+    }
+
+    // LLISTA DE DESPESES
+    if($(elemento).find(".table_llista_despeses")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+        $(elemento).find(".table_llista_despeses").each(function(){
+            var tabla=$(this).DataTable();
+            var mensaje=$(this).find(".dataTables_empty");
+            mensaje.html("Carregant...");
+            tabla.ajax.url('/cont_despeses_datos/'+$(this).attr("fecha_min")+'/'+$(this).attr("fecha_max")+'/'+$(this).attr("cod")).load();
+            tabla.ajax.reload(function(){mensaje.html("No s'han trobat dades");});
+        });
+    }
+
+    // LLISTA DE INGRESSOS
+    if($(elemento).find(".table_llista_ingressos")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+        $(elemento).find(".table_llista_ingressos").each(function(){
+            var tabla=$(this).DataTable();
+            var mensaje=$(this).find(".dataTables_empty");
+            mensaje.html("Carregant...");
+            tabla.ajax.url('/cont_ingresos_datos/'+$(this).attr("fecha_min")+'/'+$(this).attr("fecha_max")+'/'+$(this).attr("cod")).load();
             tabla.ajax.reload(function(){mensaje.html("No s'han trobat dades");});
         });
     }

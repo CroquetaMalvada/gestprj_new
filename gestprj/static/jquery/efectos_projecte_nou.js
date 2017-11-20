@@ -204,6 +204,48 @@ function actualizar_conceptes_press(){
         });
 }
 
+function actualizar_usuaris_xarxa(){
+        $.ajax({
+                    url: '/llista_usuaris_xarxa_select/',
+//                    type: form.attr('method'),
+//                    data: form.serialize(),
+                    datatype:'json',
+                    success: function(result) {
+                        var html="";
+                        $(result).each(function(){
+                            html=html+"<option value='"+this.id+"'>"+this.nom+"</option>";
+                        });
+                        $(".select_id_usuari_xarxa").each(function(){
+                            $(this).html(html);
+                        });
+                        //$("#select_id_organisme").html(html);
+
+                    }
+
+        });
+}
+
+function actualizar_projectes_select(){
+        $.ajax({
+                    url: '/llista_projectes_select/',
+//                    type: form.attr('method'),
+//                    data: form.serialize(),
+                    datatype:'json',
+                    success: function(result) {
+                        var html="";
+                        $(result).each(function(){
+                            html=html+"<option value='"+this.id+"'>"+this.acronim+"</option>";
+                        });
+                        $(".select_id_projecte").each(function(){
+                            $(this).html(html);
+                        });
+                        //$("#select_id_organisme").html(html);
+
+                    }
+
+        });
+}
+
 
 ///////////////
 

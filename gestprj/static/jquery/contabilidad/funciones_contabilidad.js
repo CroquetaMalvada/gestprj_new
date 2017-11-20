@@ -98,10 +98,12 @@ $(document).ready(function(){
     $("#formulario_projectes_cont").submit(function(e){// comprueba que haya al menos un proyecto seleccionado
         var num=0;
         var proyectos=[];
+        table_projectes.search('').draw();// borramos el input de busqueda para que se incluyan los proyectos que estaban escondidos a causa del mismo
         table_projectes.rows().every(function(rowidx,tableloop,rowloop){
             if($(table_projectes.row(rowidx,0).node()).find(":checkbox").is(':checked')){
                 num=1;
                 proyectos.push($(table_projectes.row(rowidx,0).node()).find(":checkbox").val());
+
 //                alert(proyectos.push($(table_projectes.row(rowidx,0).node()).find(":checkbox").val()));
 //                return false;
             }

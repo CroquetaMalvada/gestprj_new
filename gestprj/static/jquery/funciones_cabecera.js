@@ -128,45 +128,38 @@ $(document).ready(function(){
             language: opciones_idioma,
         });
 
+    /////////////PERMISOS USUARIOS CONSULTAR PROYECTOS
+    var permisos_usuaris_consultar = $("#table_permisos_usuaris_consultar").children("table").DataTable({
+            ajax: {
+                url: '/llista_permisos_usuaris_consultar/',
+                dataSrc: 'results'
+            },
+            columns:[
+                {'data': 'url'},
+                {'data': 'id_prj_usuaris'},
+//                {'data': 'id'},
+                {'data': 'nom_xarxa'},
+                {'data': {'codi_resp':'codi_resp','codi_prj':'codi_prj'},"render": function(data){return data["codi_resp"]+data["codi_prj"]}},
+                {'data': 'acronim'},
+                {"render": function(){return '<a class="btn btn-info editar_permis_usuari_consultar" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
+                {"render": function(){return '<a class="btn btn-danger eliminar_permis_usuari_consultar" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
+            ],
+            columnDefs:[
+                {"visible":false,"targets":[0]},
+                { "width": "5%", "targets": [5,6] }
+            ],
+            scrollY:        '70vh',
+            scrollCollapse: true,
+            paging:         false,
+            autowidth:      true,
+            overflow:       "auto",
+            language: opciones_idioma,
+        });
 
     ///////////////////////////////////////////////////////
 
-//    $(document).on('click','.afegir_a_centres_participants_cabecera',function(){
-//    //        if($.inArray(organismes.row('.selected').data()["nom_organisme"],centres_participants.column(1).data()) != -1){//si ya está ese organismo en los participantes
-//    //            alert("Aquest organisme ja està participant en aquest projecte.");
-//    //        }else{
-//                 $.ajax({
-//                    url: "/gestor_centresPart/",
-//                    type: "POST",
-//                    data: {
-//                        "id_projecte":id_prj,
-//                        "id_organisme":organismes.row('.selected').data()["id_organisme"]
-//                    },
-//                    success: function(result) {
-//    //                     $("#dialogs").dialog("close");
-//                            organismes.$('tr.selected').hide("highlight",{color:"green"},function(){
-//                         });
-//
-//                    }
-//                 });
-//    //         }
-//    });
 
-
-//
-//	$("#mostrar_participants_organismes").click(function(){
-//	    mostrar_dialog("table_participants_organismes");
-//	});
-//
-//
-//    $("#mostrar_usuaris_externs").click(function(){
-//	    mostrar_dialog("table_usuaris_externs");
-//	});
-//
-//    $("#mostrar_usuaris_creaf").click(function(){
-//	    mostrar_dialog("table_usuaris_creaf");
-//	});
-
+    ///////////////////////////// FORMULARIOS:
 
     ////// ORGANISMES
     $(document).on( 'click', '.editar_organisme_cabecera', function (){
@@ -409,7 +402,76 @@ $(document).ready(function(){
         e.preventDefault(); //para no ejecutar el actual submit del form
     });
     /////////////////////////////////////
+    ////// PERMISOS USUARIS PROJECTES CONSULTAR
+    $(document).on( 'click', '.editar_permis_usuari_consultar', function (){
 
+        var form = $("#formulario_permisos_usuaris_consultar_cabecera");
+        $("#formulario_permisos_usuaris_consultar_cabecera").attr("action",permisos_usuaris_consultar.row(".selected").data()["url"]);
+	    $("#formulario_permisos_usuaris_consultar_cabecera").attr("method","PUT");
+        $.get(permisos_usuaris_consultar.row(".selected").data()["url"],function( data ){
+            form.children("[name='id_usuari_xarxa']").val(data["id_usuari_xarxa"]);
+            form.children("[name='id_projecte']").val(data["id_projecte"]);
+
+        }).done(function( data ){});
+        permisos_usuaris_consultar.ajax.reload();
+        mostrar_dialog_cabecera("editar_permisos_usuaris_consultar_cabecera");
+
+    });
+
+    $(document).on( 'click', '.eliminar_permis_usuari_consultar', function (){
+         $.confirm({
+            title: 'Confirmació',
+            content: "Segur que vols eliminar aquest element?",
+            confirmButton: 'Si',
+            cancelButton: 'No',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                $.ajax({
+                    type: "DELETE",
+                    url: permisos_usuaris_consultar.row(".selected").data()["url"],
+                    success: function(result) {
+                         permisos_usuaris_consultar.$('tr.selected').hide("highlight",{color:"green"},function(){
+                            permisos_usuaris_consultar.ajax.reload();
+                         });
+                    }
+                });
+            },
+            cancel: function(){
+            }
+        });
+
+    });
+
+    ///CREAR UNO
+    	$("#editar_permisos_usuaris_consultar_crear_cabecera").click(function(){
+	    $("#formulario_permisos_usuaris_consultar_cabecera").trigger("reset");
+	    $("#formulario_permisos_usuaris_consultar_cabecera").attr("action","/gestor_PermisosUsuarisConsultar/");
+	    $("#formulario_permisos_usuaris_consultar_cabecera").attr("method","POST");
+	    mostrar_dialog_cabecera("editar_permisos_usuaris_consultar_cabecera");
+	});
+
+   /// AJAX
+    $("#formulario_permisos_usuaris_consultar_cabecera").submit(function(e){
+        var form = $(this);
+        if(validar_form(form)){
+            $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+    //                    headers: { 'X-HTTP-Method-Override':  }, //no todos los navegadores aceptan DELETE o PUT,con esto se soluciona
+                        data: form.serialize(),
+                        success: function(result) {
+                             mostrar_dialog_cabecera("table_permisos_usuaris_consultar");
+                             permisos_usuaris_consultar.ajax.reload();
+                        }
+
+            });
+        }
+        e.preventDefault(); //para no ejecutar el actual submit del form
+    });
+
+    //////////////////////////////
 
     ////////DIALOGS CABECERA
 	$("#dialogs_cabecera").dialog({
@@ -430,6 +492,9 @@ $(document).ready(function(){
 
 	$("#dialogs_cabecera").dialog("close");
 
+    ///OJO LOS OTROS 2 ACTUALIZAR ESTAN EN EFECTOS PROJECTE NOU
+    actualizar_usuaris_xarxa();
+    actualizar_projectes_select();
 
 });
 

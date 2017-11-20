@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'gestprj',
     'rest_framework',
+    'ldap_groups'
     # 'debug_toolbar',
 )
 
