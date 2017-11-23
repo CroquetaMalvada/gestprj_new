@@ -382,9 +382,9 @@ function actualizar_canoniva(){// actualizar los inputs y los campos de la tabla
                                 ////
                             }
                             ///formatear numeros de los inputs y volver a asignarlos
-                            $("#canon_oficial_per").val(formatnumber(canon_oficial_per,separador_miles,separador_decimales,2));
+                            $("#canon_oficial_per").val(formatnumber(canon_oficial_per,separador_miles,separador_decimales,4));
                             $("#canon_creaf_eur").val(formatnumber(canon_creaf_eur,separador_miles,separador_decimales,2));
-                            $("#diferencia_per").val(formatnumber(diferencia_per,separador_miles,separador_decimales,2));
+                            $("#diferencia_per").val(formatnumber(diferencia_per,separador_miles,separador_decimales,4));
                             $("#diferencia_eur").val(formatnumber(diferencia_eur,separador_miles,separador_decimales,2));
                             $("#iva_eur").val(formatnumber(iva_eur,separador_miles,separador_decimales,2));
 

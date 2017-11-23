@@ -585,17 +585,17 @@ def cont_dades(request):
         for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
             concedit = round(concedit + float(importe.import_concedit), 2)
         # vienen en la tabla:
-        percen_iva = round(projecte.percen_iva, 2)
-        percen_canon_creaf = round(projecte.percen_canon_creaf, 2)
+        percen_iva = round(projecte.percen_iva, 4)
+        percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
         canon_oficial = round(projecte.canon_oficial, 2)
 
         # calculados a mano
         if concedit == 0:  # para evitar problemas con la division si es 0
             percen_canon_oficial = 0.00
         else:
-            percen_canon_oficial = round(((canon_oficial / concedit) * (100 * (1 + percen_iva / 100))), 2)
+            percen_canon_oficial = round(((canon_oficial / concedit) * (100 * (1 + percen_iva / 100))), 4)
         canon_creaf = round(((concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))), 2)
-        diferencia_per = round((percen_canon_oficial - percen_canon_creaf), 2)
+        diferencia_per = round((percen_canon_oficial - percen_canon_creaf), 4)
         diferencia_eur = round((canon_oficial - canon_creaf), 2)
         iva = round(((concedit * percen_iva) / (100 * (1 + percen_iva / 100))), 2)
 

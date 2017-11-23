@@ -159,8 +159,11 @@ $("#justificacions").click(function(){
         });
 	 });
 
-    actualizar_conceptes_press();
-    actualizar_organismes();
+    ///ACTUALIZAR SELECTS *OJO LOS OTROS 2 ACTUALIZAR ESTAN EN FUNCIONES CABECERA
+    if(Admin==1){
+        actualizar_conceptes_press();
+        actualizar_organismes();
+    }
 });
 
 /////ACTUALIZAR LOS SELECTS

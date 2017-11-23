@@ -342,30 +342,62 @@
 
                             <div>
                                 <h4>Cànon i IVA</h4>
-                                <br><br><br>
+                                <br><br>
                                 <div class="col-md-12">
+
                                     <div class="col-md-2">
                                         Cànon oficial
-                                        <input id="canon_oficial_per" class="max4dec" disabled/> % -
+                                        <div class="input-group">
+                                            <input id="canon_oficial_per" class="max4dec" disabled/>
+                                            <span class="input-group-addon">%</span>
+                                        </div>
+                                        <br>
+                                        <div class="input-group">
                                         {{ form.canon_oficial.errors }}
-                                        {{ form.canon_oficial }} € -
+                                        {{ form.canon_oficial }}
+                                            <span class="input-group-addon">€</span>
+                                        </div>
                                     </div>
+
                                     <div class="col-md-2">
                                         Cànon CREAF
+                                        <div class="input-group">
                                         {{ form.percen_canon_creaf.errors }}
-                                        {{ form.percen_canon_creaf }} % =
-                                        <input id="canon_creaf_eur" class="max2dec" disabled/> € =
+                                        {{ form.percen_canon_creaf }}
+                                            <span class="input-group-addon">%</span>
+                                        </div>
+                                        <br>
+                                        <div class="input-group">
+                                            <input id="canon_creaf_eur" class="max2dec" disabled/>
+                                            <span class="input-group-addon">€</span>
+                                        </div>
                                     </div>
+
                                     <div class="col-md-2">
                                         Diferència
-                                        <input id="diferencia_per" class="max4dec" disabled/> %
-                                        <input id="diferencia_eur" class="max2dec" disabled/> €
+                                        <div class="input-group">
+                                            <input id="diferencia_per" class="max4dec" disabled/>
+                                            <span class="input-group-addon">%</span>
+                                        </div>
+                                        <br>
+                                        <div class="input-group">
+                                            <input id="diferencia_eur" class="max2dec" disabled/>
+                                            <span class="input-group-addon">€</span>
+                                        </div>
                                     </div>
+
                                     <div class="col-md-2">
                                         IVA<br>
+                                        <div class="input-group">
                                         {{ form.percen_iva.errors }}
-                                        {{ form.percen_iva }} %
-                                        <input id="iva_eur" class="max2dec" disabled/> €
+                                        {{ form.percen_iva }}
+                                            <span class="input-group-addon">%</span>
+                                        </div>
+                                        <br>
+                                        <div class="input-group">
+                                            <input id="iva_eur" class="max2dec" disabled/>
+                                            <span class="input-group-addon">€</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <br><br><br><br><br><br><br><br><br><br>

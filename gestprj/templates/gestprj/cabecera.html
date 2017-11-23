@@ -11,6 +11,7 @@
 
             {% for group in user.groups.all %}
                 {% if group.name == 'Admins gestprj' %}
+            <script>Admin=1;</script>
             <li>
                 <a href="/modificar_projecte">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Nou projecte

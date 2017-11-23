@@ -1,500 +1,503 @@
+//VARIABLES GLOBALES
 var justificacions_cabecera;
+var Admin=0; // Se pone a 1 en la cabecera cuando se logina con permisos de admin,esto evita que se carguen ajax que el usuario normal no vaya a utilizar
+
 $(document).ready(function(){
     ////////// DATATABLES DE LA OPCION "EDICIO" !!!!!!!!
-
-    //////////ORGANISMES
-    var organismes_cabecera= $("#table_organismes_cabecera").children("table").DataTable({
-            ajax: {
-                url: '/llista_Organismes/',
-                dataSrc: 'results'
-            },
-            columns:[
-                {'data': 'url'},
-                {'data': 'id_organisme'},
-                {'data': 'nom_organisme'},
-                {"render": function(){return '<a class="btn btn-info editar_organisme_cabecera" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
-                {"render": function(){return '<a class="btn btn-danger eliminar_organisme_cabecera" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
-            ],
-            columnDefs:[
-                {"visible":false,"targets":[0,1]}
-            ],
-            scrollY:        '50vh',
-            scrollCollapse: true,
-            paging:         false,
-            autowidth:      true,
-            overflow:       "auto",
-            language: opciones_idioma,
-    });
-    /////////////USUARIS CREAF
-    var usuaris_creaf_cabecera = $("#table_usuaris_creaf_cabecera").children("table").DataTable({
-            ajax: {
-                url: '/llista_Usuaris_creaf/',
-                dataSrc: 'results'
-            },
-            columns:[
-                {'data': 'url'},
-                {'data': 'id_usuari'},
-                {'data': 'nom_usuari'},
-                {"render": function(){return '<a class="btn btn-info editar_usuari_creaf_cabecera" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
-                {"render": function(){return '<a class="btn btn-danger eliminar_usuari_creaf_cabecera" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
-            ],
-            columnDefs:[
-                {"visible":false,"targets":[0,1]},
-                { "width": "5%", "targets": [3,4] }
-            ],
-            scrollY:        '50vh',
-            scrollCollapse: true,
-            paging:         false,
-            autowidth:      true,
-            overflow:       "auto",
-            language: opciones_idioma,
+    if(Admin==1){
+        //////////ORGANISMES
+        var organismes_cabecera= $("#table_organismes_cabecera").children("table").DataTable({
+                ajax: {
+                    url: '/llista_Organismes/',
+                    dataSrc: 'results'
+                },
+                columns:[
+                    {'data': 'url'},
+                    {'data': 'id_organisme'},
+                    {'data': 'nom_organisme'},
+                    {"render": function(){return '<a class="btn btn-info editar_organisme_cabecera" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
+                    {"render": function(){return '<a class="btn btn-danger eliminar_organisme_cabecera" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
+                ],
+                columnDefs:[
+                    {"visible":false,"targets":[0,1]}
+                ],
+                scrollY:        '50vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
         });
-    /////////////USUARIS EXTERNS
-    var usuaris_externs_cabecera = $("#table_usuaris_externs_cabecera").children("table").DataTable({
-            ajax: {
-                url: '/llista_Usuaris_externs/',
-                dataSrc: 'results'
-            },
-            columns:[
-                {'data': 'url'},
-                {'data': 'id_usuari_extern'},
-                {'data': 'nom_usuari_extern'},
-                {'data': 'nom_organisme'},
-                {"render": function(){return '<a class="btn btn-info editar_usuari_extern_cabecera" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
-                {"render": function(){return '<a class="btn btn-danger eliminar_usuari_extern_cabecera" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
-            ],
-            columnDefs:[
-                {"visible":false,"targets":[0,1]}
-            ],
-            scrollY:        '50vh',
-            scrollCollapse: true,
-            paging:         false,
-            autowidth:      true,
-            overflow:       "auto",
-            language: opciones_idioma,
+        /////////////USUARIS CREAF
+        var usuaris_creaf_cabecera = $("#table_usuaris_creaf_cabecera").children("table").DataTable({
+                ajax: {
+                    url: '/llista_Usuaris_creaf/',
+                    dataSrc: 'results'
+                },
+                columns:[
+                    {'data': 'url'},
+                    {'data': 'id_usuari'},
+                    {'data': 'nom_usuari'},
+                    {"render": function(){return '<a class="btn btn-info editar_usuari_creaf_cabecera" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
+                    {"render": function(){return '<a class="btn btn-danger eliminar_usuari_creaf_cabecera" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
+                ],
+                columnDefs:[
+                    {"visible":false,"targets":[0,1]},
+                    { "width": "5%", "targets": [3,4] }
+                ],
+                scrollY:        '50vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
+            });
+        /////////////USUARIS EXTERNS
+        var usuaris_externs_cabecera = $("#table_usuaris_externs_cabecera").children("table").DataTable({
+                ajax: {
+                    url: '/llista_Usuaris_externs/',
+                    dataSrc: 'results'
+                },
+                columns:[
+                    {'data': 'url'},
+                    {'data': 'id_usuari_extern'},
+                    {'data': 'nom_usuari_extern'},
+                    {'data': 'nom_organisme'},
+                    {"render": function(){return '<a class="btn btn-info editar_usuari_extern_cabecera" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
+                    {"render": function(){return '<a class="btn btn-danger eliminar_usuari_extern_cabecera" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
+                ],
+                columnDefs:[
+                    {"visible":false,"targets":[0,1]}
+                ],
+                scrollY:        '50vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
+            });
+
+
+        ///////////////////////////////////////////////////////
+
+        ///////////// JUSTIFICACIONS
+        justificacions_cabecera = $("#table_justificacions_cabecera").children("table").DataTable({
+                ajax: {
+                    url:'/json_vacio/',
+                    contentType: "application/json;",
+                    dataSrc: ''
+                },
+                columns:[
+                    {'data': 'data'},
+                    {'data': 'codi'},
+                    {'data': 'nom'},
+                    {'data': 'responsable'},
+                    {'data': 'periode'},
+                    {'data': 'observacions'}
+                ],
+                columnDefs: [
+                    { type: 'de_date', targets: 0 },
+                    {"width": "10%", targets:[0,1]},
+                    {"width": "20%","className":"dt-left", targets:[2,3,4,5]}
+                ],
+                dom: 'Bfrtip',
+                buttons:[{
+                    extend: 'print',
+                    header: true,
+                    footer: true,
+                    title: function(){return $("#table_justificacions_cabecera").attr("title");},
+                    text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                    autoPrint: true
+                },{
+                    extend: 'excel',
+                    filename: function(){return $("#table_justificacions_cabecera").attr("title");},
+                    text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>'
+                },{
+                    extend: 'pdf',
+                    title: function(){return $("#table_justificacions_cabecera").attr("title");},
+                    footer: true,
+                    text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+                },{
+                    extend: 'csv',
+                    filename: function(){return $("#table_justificacions_cabecera").attr("title");},
+                    footer: true,
+                    text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+                }],
+                scrollY:        '70vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
+            });
+
+        /////////////PERMISOS USUARIOS CONSULTAR PROYECTOS
+        var permisos_usuaris_consultar = $("#table_permisos_usuaris_consultar").children("table").DataTable({
+                ajax: {
+                    url: '/llista_permisos_usuaris_consultar/',
+                    dataSrc: 'results'
+                },
+                columns:[
+                    {'data': 'url'},
+                    {'data': 'id_prj_usuaris'},
+    //                {'data': 'id'},
+                    {'data': 'nom_xarxa'},
+                    {'data': {'codi_resp':'codi_resp','codi_prj':'codi_prj'},"render": function(data){return data["codi_resp"]+data["codi_prj"]}},
+                    {'data': 'acronim'},
+                    {"render": function(){return '<a class="btn btn-info editar_permis_usuari_consultar" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
+                    {"render": function(){return '<a class="btn btn-danger eliminar_permis_usuari_consultar" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
+                ],
+                columnDefs:[
+                    {"visible":false,"targets":[0]},
+                    { "width": "5%", "targets": [5,6] }
+                ],
+                scrollY:        '70vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
+            });
+
+        ///////////////////////////////////////////////////////
+
+
+        ///////////////////////////// FORMULARIOS:
+
+        ////// ORGANISMES
+        $(document).on( 'click', '.editar_organisme_cabecera', function (){
+
+            var form = $("#formulario_editar_organismes_cabecera");
+            $("#formulario_editar_organismes_cabecera").attr("action",organismes_cabecera.row(".selected").data()["url"]);
+            $("#formulario_editar_organismes_cabecera").attr("method","PUT");
+            $.get(organismes_cabecera.row(".selected").data()["url"],function( data ){
+                form.children("[name='nom_organisme']").val(data["nom_organisme"]);
+                form.children("[name='contacte']").val(data["contacte"]);
+                form.children("[name='adreca']").val(data["adreca"]);
+                form.children("[name='cp']").val(data["cp"]);
+                form.children("[name='poblacio']").val(data["poblacio"]);
+                form.children("[name='provincia']").val(data["provincia"]);
+                form.children("[name='pais']").val(data["pais"]);
+                form.children("[name='tel1']").val(data["tel1"]);
+                form.children("[name='tel2']").val(data["tel2"]);
+                form.children("[name='fax']").val(data["fax"]);
+                form.children("[name='e_mail1']").val(data["e_mail1"]);
+                form.children("[name='e_mail2']").val(data["e_mail2"]);
+            }).done(function( data ){});
+
+            actualizar_organismes();
+            mostrar_dialog_cabecera("editar_organismes_cabecera");
+
         });
 
+        $(document).on( 'click', '.eliminar_organisme_cabecera', function (){
+             $.confirm({
+                title: 'Confirmació',
+                content: "Segur que vols eliminar aquest element?",
+                confirmButton: 'Si',
+                cancelButton: 'No',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                closeIcon: false,
+                confirm: function(){
+                    $.ajax({
+                        type: "DELETE",
+                        url: organismes_cabecera.row(".selected").data()["url"],
+                        success: function(result) {
+                             organismes_cabecera.$('tr.selected').hide("highlight",{color:"green"},function(){
+                                organismes_cabecera.ajax.reload();
+                                actualizar_organismes();
+                             });
+                        }
+                    });
+                },
+                cancel: function(){
+                }
+            });
 
-    ///////////////////////////////////////////////////////
-
-    ///////////// JUSTIFICACIONS
-    justificacions_cabecera = $("#table_justificacions_cabecera").children("table").DataTable({
-            ajax: {
-                url:'/json_vacio/',
-                contentType: "application/json;",
-                dataSrc: ''
-            },
-            columns:[
-                {'data': 'data'},
-                {'data': 'codi'},
-                {'data': 'nom'},
-                {'data': 'responsable'},
-                {'data': 'periode'},
-                {'data': 'observacions'}
-            ],
-            columnDefs: [
-                { type: 'de_date', targets: 0 },
-                {"width": "10%", targets:[0,1]},
-                {"width": "20%","className":"dt-left", targets:[2,3,4,5]}
-            ],
-            dom: 'Bfrtip',
-            buttons:[{
-                extend: 'print',
-                header: true,
-                footer: true,
-                title: function(){return $("#table_justificacions_cabecera").attr("title");},
-                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
-                autoPrint: true
-            },{
-                extend: 'excel',
-                filename: function(){return $("#table_justificacions_cabecera").attr("title");},
-                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>'
-            },{
-                extend: 'pdf',
-                title: function(){return $("#table_justificacions_cabecera").attr("title");},
-                footer: true,
-                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
-            },{
-                extend: 'csv',
-                filename: function(){return $("#table_justificacions_cabecera").attr("title");},
-                footer: true,
-                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
-            }],
-            scrollY:        '70vh',
-            scrollCollapse: true,
-            paging:         false,
-            autowidth:      true,
-            overflow:       "auto",
-            language: opciones_idioma,
         });
 
-    /////////////PERMISOS USUARIOS CONSULTAR PROYECTOS
-    var permisos_usuaris_consultar = $("#table_permisos_usuaris_consultar").children("table").DataTable({
-            ajax: {
-                url: '/llista_permisos_usuaris_consultar/',
-                dataSrc: 'results'
-            },
-            columns:[
-                {'data': 'url'},
-                {'data': 'id_prj_usuaris'},
-//                {'data': 'id'},
-                {'data': 'nom_xarxa'},
-                {'data': {'codi_resp':'codi_resp','codi_prj':'codi_prj'},"render": function(data){return data["codi_resp"]+data["codi_prj"]}},
-                {'data': 'acronim'},
-                {"render": function(){return '<a class="btn btn-info editar_permis_usuari_consultar" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
-                {"render": function(){return '<a class="btn btn-danger eliminar_permis_usuari_consultar" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
-            ],
-            columnDefs:[
-                {"visible":false,"targets":[0]},
-                { "width": "5%", "targets": [5,6] }
-            ],
-            scrollY:        '70vh',
-            scrollCollapse: true,
-            paging:         false,
-            autowidth:      true,
-            overflow:       "auto",
-            language: opciones_idioma,
+        ///CREAR UNO
+            $("#editar_organismes_crear_cabecera").click(function(){
+            $("#formulario_editar_organismes_cabecera").trigger("reset");
+            $("#formulario_editar_organismes_cabecera").attr("action","/gestor_TOrganismes/");
+            $("#formulario_editar_organismes_cabecera").attr("method","POST");
+            mostrar_dialog_cabecera("editar_organismes_cabecera");
         });
 
-    ///////////////////////////////////////////////////////
-
-
-    ///////////////////////////// FORMULARIOS:
-
-    ////// ORGANISMES
-    $(document).on( 'click', '.editar_organisme_cabecera', function (){
-
-        var form = $("#formulario_editar_organismes_cabecera");
-        $("#formulario_editar_organismes_cabecera").attr("action",organismes_cabecera.row(".selected").data()["url"]);
-	    $("#formulario_editar_organismes_cabecera").attr("method","PUT");
-        $.get(organismes_cabecera.row(".selected").data()["url"],function( data ){
-            form.children("[name='nom_organisme']").val(data["nom_organisme"]);
-            form.children("[name='contacte']").val(data["contacte"]);
-            form.children("[name='adreca']").val(data["adreca"]);
-            form.children("[name='cp']").val(data["cp"]);
-            form.children("[name='poblacio']").val(data["poblacio"]);
-            form.children("[name='provincia']").val(data["provincia"]);
-            form.children("[name='pais']").val(data["pais"]);
-            form.children("[name='tel1']").val(data["tel1"]);
-            form.children("[name='tel2']").val(data["tel2"]);
-            form.children("[name='fax']").val(data["fax"]);
-            form.children("[name='e_mail1']").val(data["e_mail1"]);
-            form.children("[name='e_mail2']").val(data["e_mail2"]);
-        }).done(function( data ){});
-
-        actualizar_organismes();
-        mostrar_dialog_cabecera("editar_organismes_cabecera");
-
-    });
-
-    $(document).on( 'click', '.eliminar_organisme_cabecera', function (){
-         $.confirm({
-            title: 'Confirmació',
-            content: "Segur que vols eliminar aquest element?",
-            confirmButton: 'Si',
-            cancelButton: 'No',
-            confirmButtonClass: 'btn-info',
-            cancelButtonClass: 'btn-danger',
-            closeIcon: false,
-            confirm: function(){
+       /// AJAX
+        $("#formulario_editar_organismes_cabecera").submit(function(e){
+            var form = $(this);
+            if(validar_form(form)){
                 $.ajax({
-                    type: "DELETE",
-                    url: organismes_cabecera.row(".selected").data()["url"],
-                    success: function(result) {
-                         organismes_cabecera.$('tr.selected').hide("highlight",{color:"green"},function(){
-                            organismes_cabecera.ajax.reload();
-                            actualizar_organismes();
-                         });
-                    }
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+        //                    headers: { 'X-HTTP-Method-Override':  }, //no todos los navegadores aceptan DELETE o PUT,con esto se soluciona
+                            data: form.serialize(),
+                            success: function(result) {
+                                 mostrar_dialog_cabecera("table_organismes_cabecera");
+                                 organismes_cabecera.ajax.reload();
+                                 actualizar_organismes();
+                            }
+
                 });
-            },
-            cancel: function(){
             }
+            e.preventDefault(); //para no ejecutar el actual submit del form
         });
 
-    });
 
-    ///CREAR UNO
-    	$("#editar_organismes_crear_cabecera").click(function(){
-	    $("#formulario_editar_organismes_cabecera").trigger("reset");
-	    $("#formulario_editar_organismes_cabecera").attr("action","/gestor_TOrganismes/");
-	    $("#formulario_editar_organismes_cabecera").attr("method","POST");
-	    mostrar_dialog_cabecera("editar_organismes_cabecera");
-	});
+        /////////////////////////////////////////////
 
-   /// AJAX
-    $("#formulario_editar_organismes_cabecera").submit(function(e){
-        var form = $(this);
-        if(validar_form(form)){
-            $.ajax({
-                        url: form.attr('action'),
-                        type: form.attr('method'),
-    //                    headers: { 'X-HTTP-Method-Override':  }, //no todos los navegadores aceptan DELETE o PUT,con esto se soluciona
-                        data: form.serialize(),
-                        success: function(result) {
-                             mostrar_dialog_cabecera("table_organismes_cabecera");
-                             organismes_cabecera.ajax.reload();
-                             actualizar_organismes();
-                        }
+        ////// USUARIS CREAF
 
-            });
-        }
-        e.preventDefault(); //para no ejecutar el actual submit del form
-    });
+        $(document).on( 'click', '.editar_usuari_creaf_cabecera', function (){
 
+            var form = $("#formulario_editar_usuari_creaf_cabecera");
+            $("#formulario_editar_usuari_creaf_cabecera").attr("action",usuaris_creaf_cabecera.row(".selected").data()["url"]);
+            $("#formulario_editar_usuari_creaf_cabecera").attr("method","PUT");
 
-    /////////////////////////////////////////////
+            $.get(usuaris_creaf_cabecera.row(".selected").data()["url"],function( data ){
+                form.children("[name='nom_usuari']").val(data["nom_usuari"]);
+                form.children("[name='adreca']").val(data["adreca"]);
+                form.children("[name='cp']").val(data["cp"]);
+                form.children("[name='poblacio']").val(data["poblacio"]);
+                form.children("[name='provincia']").val(data["provincia"]);
+                form.children("[name='pais']").val(data["pais"]);
+                form.children("[name='tel1']").val(data["tel1"]);
+                form.children("[name='tel2']").val(data["tel2"]);
+                form.children("[name='fax']").val(data["fax"]);
+                form.children("[name='e_mail1']").val(data["e_mail1"]);
+                form.children("[name='e_mail2']").val(data["e_mail2"]);
+                form.children("[name='id_organisme']").val(data["id_organisme"]);
+            }).done(function( data ){});
 
-    ////// USUARIS CREAF
+            usuaris_creaf_cabecera.ajax.reload();
+            mostrar_dialog_cabecera("editar_usuari_creaf_cabecera");
+        });
 
-    $(document).on( 'click', '.editar_usuari_creaf_cabecera', function (){
+        $(document).on( 'click', '.eliminar_usuari_creaf_cabecera', function (){
 
-        var form = $("#formulario_editar_usuari_creaf_cabecera");
-        $("#formulario_editar_usuari_creaf_cabecera").attr("action",usuaris_creaf_cabecera.row(".selected").data()["url"]);
-	    $("#formulario_editar_usuari_creaf_cabecera").attr("method","PUT");
-
-        $.get(usuaris_creaf_cabecera.row(".selected").data()["url"],function( data ){
-            form.children("[name='nom_usuari']").val(data["nom_usuari"]);
-            form.children("[name='adreca']").val(data["adreca"]);
-            form.children("[name='cp']").val(data["cp"]);
-            form.children("[name='poblacio']").val(data["poblacio"]);
-            form.children("[name='provincia']").val(data["provincia"]);
-            form.children("[name='pais']").val(data["pais"]);
-            form.children("[name='tel1']").val(data["tel1"]);
-            form.children("[name='tel2']").val(data["tel2"]);
-            form.children("[name='fax']").val(data["fax"]);
-            form.children("[name='e_mail1']").val(data["e_mail1"]);
-            form.children("[name='e_mail2']").val(data["e_mail2"]);
-            form.children("[name='id_organisme']").val(data["id_organisme"]);
-        }).done(function( data ){});
-
-        usuaris_creaf_cabecera.ajax.reload();
-        mostrar_dialog_cabecera("editar_usuari_creaf_cabecera");
-    });
-
-    $(document).on( 'click', '.eliminar_usuari_creaf_cabecera', function (){
-
-      $.confirm({
-            title: 'Confirmació',
-            content: "Segur que vols eliminar aquest element?",
-            confirmButton: 'Si',
-            cancelButton: 'No',
-            confirmButtonClass: 'btn-info',
-            cancelButtonClass: 'btn-danger',
-            closeIcon: false,
-            confirm: function(){
-            $.ajax({
-                url: usuaris_creaf_cabecera.row(".selected").data()["url"],
-                type: "DELETE",
-                success: function(result) {
-                     usuaris_creaf_cabecera.ajax.reload();
+          $.confirm({
+                title: 'Confirmació',
+                content: "Segur que vols eliminar aquest element?",
+                confirmButton: 'Si',
+                cancelButton: 'No',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                closeIcon: false,
+                confirm: function(){
+                $.ajax({
+                    url: usuaris_creaf_cabecera.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                         usuaris_creaf_cabecera.ajax.reload();
+                    }
+                 });
+                },
+                cancel: function(){
                 }
-             });
-            },
-            cancel: function(){
-            }
-        });
-    });
-
-    //// CREAR UNO
-	$("#editar_personal_creaf_crear_cabecera").click(function(){
-	    $("#formulario_editar_usuari_creaf_cabecera").trigger("reset");
-	    $("#formulario_editar_usuari_creaf_cabecera").attr("action","/gestor_UsuariCreaf/");
-	    $("#formulario_editar_usuari_creaf_cabecera").attr("method","POST");
-	    mostrar_dialog_cabecera("editar_usuari_creaf_cabecera");
-//	    $("#editar_organismes_participants").attr("method","POST")
-	});
-
-    /// AJAX
-    $("#formulario_editar_usuari_creaf_cabecera").submit(function(e){
-        var form = $(this);
-        if(validar_form(form)){
-            $.ajax({
-                        url: form.attr('action'),
-                        type: form.attr('method'),
-                        data: form.serialize(),
-                        success: function(result) {
-                             mostrar_dialog_cabecera("table_usuaris_creaf_cabecera");
-                             usuaris_creaf_cabecera.ajax.reload();
-                        }
             });
-        }
-        e.preventDefault(); //para no ejecutar el actual submit del form
-    });
-
-
-    ///////////////////////////////////////////////////
-    ///////// USUARIS EXTERNS
-
-    $(document).on( 'click', '.editar_usuari_extern_cabecera', function (){
-//        var load = loading("Carregant...");
-        var form = $("#formulario_editar_usuari_extern_cabecera");
-        $("#formulario_editar_usuari_extern_cabecera").attr("action",usuaris_externs_cabecera.row(".selected").data()["url"]);
-	    $("#formulario_editar_usuari_extern_cabecera").attr("method","PUT");
-
-        $.get(usuaris_externs_cabecera.row(".selected").data()["url"],function( data ){
-            form.children("[name='nom_usuari_extern']").val(data["nom_usuari_extern"]);
-            form.children("[name='adreca']").val(data["adreca"]);
-            form.children("[name='cp']").val(data["cp"]);
-            form.children("[name='poblacio']").val(data["poblacio"]);
-            form.children("[name='provincia']").val(data["provincia"]);
-            form.children("[name='pais']").val(data["pais"]);
-            form.children("[name='tel1']").val(data["tel1"]);
-            form.children("[name='tel2']").val(data["tel2"]);
-            form.children("[name='fax']").val(data["fax"]);
-            form.children("[name='e_mail1']").val(data["e_mail1"]);
-            form.children("[name='e_mail2']").val(data["e_mail2"]);
-            form.children("[name='id_organisme']").val(data["id_organisme"]);
-        }).done(function( data ){});
-        usuaris_externs_cabecera.ajax.reload();
-        mostrar_dialog_cabecera("editar_usuari_extern_cabecera");
-
-    });
-
-     $(document).on( 'click', '.eliminar_usuari_extern_cabecera', function (){
-
-        $.confirm({
-            title: 'Confirmació',
-            content: "Segur que vols eliminar aquest element?",
-            confirmButton: 'Si',
-            cancelButton: 'No',
-            confirmButtonClass: 'btn-info',
-            cancelButtonClass: 'btn-danger',
-            closeIcon: false,
-            confirm: function(){
-            $.ajax({
-                url: usuaris_externs_cabecera.row(".selected").data()["url"],
-                type: "DELETE",
-                success: function(result) {
-                     usuaris_externs_cabecera.ajax.reload();
-                }
-             });
-            },
-            cancel: function(){
-            }
         });
-    });
 
         //// CREAR UNO
-        $("#editar_personal_extern_crear_cabecera").click(function(){
-            $("#formulario_editar_usuari_extern_cabecera").trigger("reset");
-            $("#formulario_editar_usuari_extern_cabecera").attr("action","/gestor_UsuariExtern/");
-            $("#formulario_editar_usuari_extern_cabecera").attr("method","POST");
-            mostrar_dialog_cabecera("editar_usuari_extern_cabecera");
+        $("#editar_personal_creaf_crear_cabecera").click(function(){
+            $("#formulario_editar_usuari_creaf_cabecera").trigger("reset");
+            $("#formulario_editar_usuari_creaf_cabecera").attr("action","/gestor_UsuariCreaf/");
+            $("#formulario_editar_usuari_creaf_cabecera").attr("method","POST");
+            mostrar_dialog_cabecera("editar_usuari_creaf_cabecera");
     //	    $("#editar_organismes_participants").attr("method","POST")
         });
 
         /// AJAX
-        $("#formulario_editar_usuari_extern_cabecera").submit(function(e){
-        var form = $(this);
-        if(validar_form(form)){
-            $.ajax({
-                        url: form.attr('action'),
-                        type: form.attr('method'),
-                        data: form.serialize(),
-                        success: function(result) {
-                             mostrar_dialog_cabecera("table_usuaris_externs_cabecera");
-                             usuaris_externs_cabecera.ajax.reload();
-                        }
-
-            });
-        }
-        e.preventDefault(); //para no ejecutar el actual submit del form
-    });
-    /////////////////////////////////////
-    ////// PERMISOS USUARIS PROJECTES CONSULTAR
-    $(document).on( 'click', '.editar_permis_usuari_consultar', function (){
-
-        var form = $("#formulario_permisos_usuaris_consultar_cabecera");
-        $("#formulario_permisos_usuaris_consultar_cabecera").attr("action",permisos_usuaris_consultar.row(".selected").data()["url"]);
-	    $("#formulario_permisos_usuaris_consultar_cabecera").attr("method","PUT");
-        $.get(permisos_usuaris_consultar.row(".selected").data()["url"],function( data ){
-            form.children("[name='id_usuari_xarxa']").val(data["id_usuari_xarxa"]);
-            form.children("[name='id_projecte']").val(data["id_projecte"]);
-
-        }).done(function( data ){});
-        permisos_usuaris_consultar.ajax.reload();
-        mostrar_dialog_cabecera("editar_permisos_usuaris_consultar_cabecera");
-
-    });
-
-    $(document).on( 'click', '.eliminar_permis_usuari_consultar', function (){
-         $.confirm({
-            title: 'Confirmació',
-            content: "Segur que vols eliminar aquest element?",
-            confirmButton: 'Si',
-            cancelButton: 'No',
-            confirmButtonClass: 'btn-info',
-            cancelButtonClass: 'btn-danger',
-            closeIcon: false,
-            confirm: function(){
+        $("#formulario_editar_usuari_creaf_cabecera").submit(function(e){
+            var form = $(this);
+            if(validar_form(form)){
                 $.ajax({
-                    type: "DELETE",
-                    url: permisos_usuaris_consultar.row(".selected").data()["url"],
-                    success: function(result) {
-                         permisos_usuaris_consultar.$('tr.selected').hide("highlight",{color:"green"},function(){
-                            permisos_usuaris_consultar.ajax.reload();
-                         });
-                    }
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: form.serialize(),
+                            success: function(result) {
+                                 mostrar_dialog_cabecera("table_usuaris_creaf_cabecera");
+                                 usuaris_creaf_cabecera.ajax.reload();
+                            }
                 });
+            }
+            e.preventDefault(); //para no ejecutar el actual submit del form
+        });
+
+
+        ///////////////////////////////////////////////////
+        ///////// USUARIS EXTERNS
+
+        $(document).on( 'click', '.editar_usuari_extern_cabecera', function (){
+    //        var load = loading("Carregant...");
+            var form = $("#formulario_editar_usuari_extern_cabecera");
+            $("#formulario_editar_usuari_extern_cabecera").attr("action",usuaris_externs_cabecera.row(".selected").data()["url"]);
+            $("#formulario_editar_usuari_extern_cabecera").attr("method","PUT");
+
+            $.get(usuaris_externs_cabecera.row(".selected").data()["url"],function( data ){
+                form.children("[name='nom_usuari_extern']").val(data["nom_usuari_extern"]);
+                form.children("[name='adreca']").val(data["adreca"]);
+                form.children("[name='cp']").val(data["cp"]);
+                form.children("[name='poblacio']").val(data["poblacio"]);
+                form.children("[name='provincia']").val(data["provincia"]);
+                form.children("[name='pais']").val(data["pais"]);
+                form.children("[name='tel1']").val(data["tel1"]);
+                form.children("[name='tel2']").val(data["tel2"]);
+                form.children("[name='fax']").val(data["fax"]);
+                form.children("[name='e_mail1']").val(data["e_mail1"]);
+                form.children("[name='e_mail2']").val(data["e_mail2"]);
+                form.children("[name='id_organisme']").val(data["id_organisme"]);
+            }).done(function( data ){});
+            usuaris_externs_cabecera.ajax.reload();
+            mostrar_dialog_cabecera("editar_usuari_extern_cabecera");
+
+        });
+
+         $(document).on( 'click', '.eliminar_usuari_extern_cabecera', function (){
+
+            $.confirm({
+                title: 'Confirmació',
+                content: "Segur que vols eliminar aquest element?",
+                confirmButton: 'Si',
+                cancelButton: 'No',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                closeIcon: false,
+                confirm: function(){
+                $.ajax({
+                    url: usuaris_externs_cabecera.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                         usuaris_externs_cabecera.ajax.reload();
+                    }
+                 });
+                },
+                cancel: function(){
+                }
+            });
+        });
+
+            //// CREAR UNO
+            $("#editar_personal_extern_crear_cabecera").click(function(){
+                $("#formulario_editar_usuari_extern_cabecera").trigger("reset");
+                $("#formulario_editar_usuari_extern_cabecera").attr("action","/gestor_UsuariExtern/");
+                $("#formulario_editar_usuari_extern_cabecera").attr("method","POST");
+                mostrar_dialog_cabecera("editar_usuari_extern_cabecera");
+        //	    $("#editar_organismes_participants").attr("method","POST")
+            });
+
+            /// AJAX
+            $("#formulario_editar_usuari_extern_cabecera").submit(function(e){
+            var form = $(this);
+            if(validar_form(form)){
+                $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: form.serialize(),
+                            success: function(result) {
+                                 mostrar_dialog_cabecera("table_usuaris_externs_cabecera");
+                                 usuaris_externs_cabecera.ajax.reload();
+                            }
+
+                });
+            }
+            e.preventDefault(); //para no ejecutar el actual submit del form
+        });
+        /////////////////////////////////////
+        ////// PERMISOS USUARIS PROJECTES CONSULTAR
+        $(document).on( 'click', '.editar_permis_usuari_consultar', function (){
+
+            var form = $("#formulario_permisos_usuaris_consultar_cabecera");
+            $("#formulario_permisos_usuaris_consultar_cabecera").attr("action",permisos_usuaris_consultar.row(".selected").data()["url"]);
+            $("#formulario_permisos_usuaris_consultar_cabecera").attr("method","PUT");
+            $.get(permisos_usuaris_consultar.row(".selected").data()["url"],function( data ){
+                form.children("[name='id_usuari_xarxa']").val(data["id_usuari_xarxa"]);
+                form.children("[name='id_projecte']").val(data["id_projecte"]);
+            }).done(function( data ){});
+            permisos_usuaris_consultar.ajax.reload();
+            mostrar_dialog_cabecera("editar_permisos_usuaris_consultar_cabecera");
+
+        });
+
+        $(document).on( 'click', '.eliminar_permis_usuari_consultar', function (){
+             $.confirm({
+                title: 'Confirmació',
+                content: "Segur que vols eliminar aquest element?",
+                confirmButton: 'Si',
+                cancelButton: 'No',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                closeIcon: false,
+                confirm: function(){
+                    $.ajax({
+                        type: "DELETE",
+                        url: permisos_usuaris_consultar.row(".selected").data()["url"],
+                        success: function(result) {
+                             permisos_usuaris_consultar.$('tr.selected').hide("highlight",{color:"green"},function(){
+                                permisos_usuaris_consultar.ajax.reload();
+                             });
+                        }
+                    });
+                },
+                cancel: function(){
+                }
+            });
+
+        });
+
+        ///CREAR UNO
+            $("#editar_permisos_usuaris_consultar_crear_cabecera").click(function(){
+            $("#formulario_permisos_usuaris_consultar_cabecera").trigger("reset");
+            $("#formulario_permisos_usuaris_consultar_cabecera").attr("action","/gestor_PermisosUsuarisConsultar/");
+            $("#formulario_permisos_usuaris_consultar_cabecera").attr("method","POST");
+            mostrar_dialog_cabecera("editar_permisos_usuaris_consultar_cabecera");
+        });
+
+       /// AJAX
+        $("#formulario_permisos_usuaris_consultar_cabecera").submit(function(e){
+            var form = $(this);
+            if(validar_form(form)){
+                $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+        //                    headers: { 'X-HTTP-Method-Override':  }, //no todos los navegadores aceptan DELETE o PUT,con esto se soluciona
+                            data: form.serialize(),
+                            success: function(result) {
+                                 mostrar_dialog_cabecera("table_permisos_usuaris_consultar");
+                                 permisos_usuaris_consultar.ajax.reload();
+                            }
+
+                });
+            }
+            e.preventDefault(); //para no ejecutar el actual submit del form
+        });
+
+        //////////////////////////////
+
+        ////////DIALOGS CABECERA
+        $("#dialogs_cabecera").dialog({
+            resizable:true,
+            modal:true,
+            width:"1000px",
+            autoOpen:false,
+            show: {
+                effect: "fade",
+                duration: 500
             },
-            cancel: function(){
+            hide: {
+                effect: "fade",
+                duration: 500
             }
         });
 
-    });
 
-    ///CREAR UNO
-    	$("#editar_permisos_usuaris_consultar_crear_cabecera").click(function(){
-	    $("#formulario_permisos_usuaris_consultar_cabecera").trigger("reset");
-	    $("#formulario_permisos_usuaris_consultar_cabecera").attr("action","/gestor_PermisosUsuarisConsultar/");
-	    $("#formulario_permisos_usuaris_consultar_cabecera").attr("method","POST");
-	    mostrar_dialog_cabecera("editar_permisos_usuaris_consultar_cabecera");
-	});
+        $("#dialogs_cabecera").dialog("close");
 
-   /// AJAX
-    $("#formulario_permisos_usuaris_consultar_cabecera").submit(function(e){
-        var form = $(this);
-        if(validar_form(form)){
-            $.ajax({
-                        url: form.attr('action'),
-                        type: form.attr('method'),
-    //                    headers: { 'X-HTTP-Method-Override':  }, //no todos los navegadores aceptan DELETE o PUT,con esto se soluciona
-                        data: form.serialize(),
-                        success: function(result) {
-                             mostrar_dialog_cabecera("table_permisos_usuaris_consultar");
-                             permisos_usuaris_consultar.ajax.reload();
-                        }
-
-            });
-        }
-        e.preventDefault(); //para no ejecutar el actual submit del form
-    });
-
-    //////////////////////////////
-
-    ////////DIALOGS CABECERA
-	$("#dialogs_cabecera").dialog({
-        resizable:true,
-        modal:true,
-        width:"1000px",
-        autoOpen:false,
-        show: {
-            effect: "fade",
-            duration: 500
-        },
-        hide: {
-            effect: "fade",
-            duration: 500
-        }
-	});
-
-
-	$("#dialogs_cabecera").dialog("close");
-
-    ///OJO LOS OTROS 2 ACTUALIZAR ESTAN EN EFECTOS PROJECTE NOU
-    actualizar_usuaris_xarxa();
-    actualizar_projectes_select();
+        ///ACTUALIZAR SELECTS *OJO LOS OTROS 2 ACTUALIZAR ESTAN EN EFECTOS PROJECTE NOU
+            actualizar_usuaris_xarxa();
+            actualizar_projectes_select();
+    }
 
 });
 
@@ -537,4 +540,9 @@ function dialog_justificacions_cabecera(){
 
             }
     });
+}
+
+function mostrar_permisos_usuaris_consultar(){
+
+    mostrar_dialog_cabecera("table_permisos_usuaris_consultar");
 }

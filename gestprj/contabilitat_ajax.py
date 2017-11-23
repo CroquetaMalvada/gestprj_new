@@ -261,7 +261,8 @@ def AjaxListEstatPresDatos(request,datos):
             data_min = datos.split("_")[1]
             data_max = datos.split("_")[2]
             codigo_entero = datos.split("_")[3]
-
+            data_min = datetime.strptime(data_min, "%d-%m-%Y")
+            data_max = datetime.strptime(data_max, "%d-%m-%Y")
             ### para obtener el gastat
             gastat = 0
             for compte in Desglossaments.objects.filter(id_partida=id_partida).values('compte'):
@@ -292,7 +293,7 @@ def AjaxListEstatPresDatos(request,datos):
                         gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
 
             saldo = pressupostat - float(gastat)  # pasamos datos a float ya que los decimal no los pilla bien el json
-            partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': data_min, 'fecha_max': data_max})
+            partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': str(data_min), 'fecha_max': str(data_max)})
         resultado = json.dumps(partidas)
         return resultado
 
@@ -492,7 +493,7 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
         # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
 
         if concedit == 0:  # para evitar problemas con la division si es 0
-            percen_canon_oficial = 0.00
+            percen_canon_oficial = 0.0000
         else:
             percen_canon_oficial = ((projecte.canon_oficial / concedit) * (100 * (1 + projecte.percen_iva / 100)))
 
@@ -541,8 +542,7 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
 
         # Calculamos algunos campos a partir de lo obtenido de contabilidad
         ingressos = round(ingressosH - ingressosD, 2)
-        despeses = round(despesesD - despesesH,
-                         2)  # OJO! que los que en los que estan tancats las despesas suelen coincir con el net_disponible,pero siempre es despesesD-H
+        despeses = round(despesesD - despesesH, 2)  # OJO! que los que en los que estan tancats las despesas suelen coincir con el net_disponible,pero siempre es despesesD-H
         canon_aplicat = round(canonD - canonH, 2)
         disponible_caixa = round(ingressos - despeses - canon_aplicat, 2)
         disponible_real = round(concedit - iva - canon_total - despeses,
@@ -811,7 +811,7 @@ def AjaxListResumEstatCanonDatos(request,fecha_min,fecha_max,codigo):
         canon_creaf = round(canon_creaf, 2)
         percen_2 = round(percen_2, 2)
         canon_oficial = round(canon_oficial, 2)
-        percen_canon_oficial = round(percen_canon_oficial, 2)
+        percen_canon_oficial = round(percen_canon_oficial, 4)
         dif_canon = round(dif_canon, 2)
         ingressos = round(ingressos, 2)
         percen_3 = round(percen_3, 2)
