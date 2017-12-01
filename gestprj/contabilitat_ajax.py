@@ -631,7 +631,7 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
 
         resultado.append({"codigo_entero": codigo_entero, "compte": prjfet["Cuenta"], "descripcio": prjfet["Titulo"],
                           "despesa": prjfet["TotalDebe"], "ingres": prjfet["TotalHaber"], "saldo": total_disponible,
-                          "fecha_min": fecha_min, "fecha_max": fecha_max})
+                          "fecha_min": str(fecha_min), "fecha_max": str(fecha_max)})
 
     resultado = json.dumps(resultado)
     return resultado
