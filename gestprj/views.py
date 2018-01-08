@@ -157,6 +157,11 @@ def ListUsuarisXarxaSelect(request):  # AJAX
     resultado = contabilitat_ajax.AjaxListUsuarisXarxaSelect()
     return HttpResponse(resultado, content_type='application/json;')
 
+# USUARIS EXTERNS ######################
+def ListUsuarisExternsSelect(request):  # AJAX
+    resultado = contabilitat_ajax.AjaxListUsuarisExternsSelect()
+    return HttpResponse(resultado, content_type='application/json;')
+
 
 # CENTRES PARTICIPANTS #################
 class CentresParticipantsViewSet(viewsets.ModelViewSet):  # todos los centros participantes
@@ -1304,4 +1309,34 @@ def cont_comptes_no_assignats(request):
 @login_required(login_url='/menu/')
 def ListJustificacionsCabecera(request,fecha_min,fecha_max): # AJAX PARA LAS JUSTIFICACIONES DE LA CABECERA
     resultado=contabilitat_ajax.AjaxListJustificacionsCabecera(request,fecha_min,fecha_max)
+    return HttpResponse(resultado, content_type='application/json;')
+
+@login_required(login_url='/menu/')
+def ListProjectesResponsableCabecera(request): # AJAX PARA LOS PROYECTOS POR RESPONSABLES DE LA CABECERA
+
+    #pillamos los proyectos abiertos(se ve que en el gestor antiguo es lo que hace)
+    projectes = Projectes.objects.filter(id_estat_prj__id_estat_prj=1).values("id_projecte","id_resp__codi_resp","codi_prj","acronim") #los proyectos totales
+    resultado=[]
+    investigadores = {}  # diccionario
+
+    for projecte in projectes:
+        if int(projecte["id_resp__codi_resp"]) not in investigadores:
+            investigadores[int(projecte["id_resp__codi_resp"])]=int(projecte["id_resp__codi_resp"])
+
+    for inv in investigadores:
+        proyectos = [] # los proyectos de ese investigador
+        nom_investigador=Responsables.objects.get(codi_resp=inv).id_usuari.nom_usuari
+        id_investigador = str(Responsables.objects.get(codi_resp=inv).id_usuari.id_usuari)
+        for projecte in projectes:
+            if inv==projecte["id_resp__codi_resp"]:
+                codi=str(projecte["id_resp__codi_resp"])+"-"+str(projecte["codi_prj"])
+                nom=projecte["acronim"]
+                entitats=""
+                for entitat in Receptors.objects.filter(id_projecte=projecte["id_projecte"]).values("id_organisme__nom_organisme"):
+                    entitas=entitats+entitat["id_organisme__nom_organisme"]+" - "
+                proyectos.append({"codi":codi,"nom":nom,"entitats":entitats})
+
+        resultado.append({"id":id_investigador,"nom_responsable":nom_investigador,"projectes":proyectos})
+
+    resultado = json.dumps(resultado)
     return HttpResponse(resultado, content_type='application/json;')

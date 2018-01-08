@@ -62,6 +62,7 @@ urlpatterns = patterns('',
     url('^llista_organismes_select/', views.ListOrganismesSelect),# para los select con el nombre de los organismos
     url('^llista_projectes_select/', views.ListProjectesSelect),# para el select con los proyectos
     url('^llista_usuaris_xarxa_select/', views.ListUsuarisXarxaSelect),# para el select con los usuarios de red
+    url('^llista_usuaris_externs_select/', views.ListUsuarisExternsSelect),# para el select con los usuarios en coordinat per altres
 
     url('^llista_Organismes/', views.ListTOrganismes.as_view()),# para la datatable de organismes cabecera
     url('^llista_Usuaris_creaf/', views.ListUsuarisCreaf.as_view()),# para la datatable de personal creaf cabecera
@@ -69,6 +70,7 @@ urlpatterns = patterns('',
     url('^llista_permisos_usuaris_consultar/', views.ListPermisosUsuarisConsultar.as_view()),# para la datatable de permisos usuaris cabecera
     url('^llista_ConceptesPres/', views.ListConceptesPress),# para los select con el nombre de las partidas
     url('^llista_justificacions_cabecera/(?P<fecha_min>.+)/(?P<fecha_max>.+)/$', views.ListJustificacionsCabecera),# justificaciones en edicio en la cabecera
+    url('^llista_projectes_responsable_consultar/', views.ListProjectesResponsableCabecera),# para la cabecera
 
     url('^show_Personal_creaf/(?P<id_projecte>.+)/$', views.ListPersonalCreafNoProjecte.as_view()),# personal itnerno que no este en el proyecto
     url('^show_Personal_creaf_prj/(?P<id_projecte>.+)/$', views.ListPersonalCreafProjecte.as_view()),# personal interno de un proyecto

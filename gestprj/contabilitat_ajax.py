@@ -79,6 +79,16 @@ def AjaxListUsuarisXarxaSelect():
     resultado = json.dumps(resultado)
     return resultado
 
+def AjaxListUsuarisExternsSelect():
+    usuarisExterns = TUsuarisExterns.objects.all().values("id_usuari_extern","nom_usuari_extern","id_organisme__nom_organisme").order_by("nom_usuari_extern") # .values_list("nom_xarxa",flat=True) # .order_by("nom_xarxa")
+
+    resultado=[]
+    for usuari in usuarisExterns:
+            resultado.append({'id': str(usuari["id_usuari_extern"]), 'nom': usuari["nom_usuari_extern"],'organisme':usuari["id_organisme__nom_organisme"]})
+
+
+    resultado = json.dumps(resultado)
+    return resultado
 
 def AjaxListResponsablesCont(request):
     if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los responsables
@@ -156,11 +166,11 @@ def AjaxListProjectesCont(request):
                 projectes=list(Projectes.objects.filter(id_projecte=permiso.id_projecte.id_projecte).values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp'))
                 llista_projectes.append(projectes[0])
 
-        # Comprobar si el investigador esta colaborando en otros proyectos
-        if responsable is not None:
-            for proyecto in PersonalCreaf.objects.filter(id_usuari=responsable.id_usuari).values('id_projecte'):
-                prj=list(Projectes.objects.filter(id_projecte=proyecto["id_projecte"]).values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp'))
-                llista_projectes.append(prj[0])
+        # Comprobar si el investigador esta colaborando en otros proyectos *Ojo esto esta comentado porque de momento todos los permisos se asignan manualmente
+        # if responsable is not None:
+        #     for proyecto in PersonalCreaf.objects.filter(id_usuari=responsable.id_usuari).values('id_projecte'):
+        #         prj=list(Projectes.objects.filter(id_projecte=proyecto["id_projecte"]).values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp'))
+        #         llista_projectes.append(prj[0])
 
         for projecte in llista_projectes:
             codi = ""

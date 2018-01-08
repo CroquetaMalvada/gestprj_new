@@ -159,10 +159,16 @@ $("#justificacions").click(function(){
         });
 	 });
 
+
+    $("#select_id_usuari_extern").change(function(e){
+        $("#id_id_usuari_extern").val($("#select_id_usuari_extern").val());
+    })
+
     ///ACTUALIZAR SELECTS *OJO LOS OTROS 2 ACTUALIZAR ESTAN EN FUNCIONES CABECERA
     if(Admin==1){
         actualizar_conceptes_press();
         actualizar_organismes();
+        actualizar_usuaris_externs();
     }
 });
 
@@ -223,6 +229,28 @@ function actualizar_usuaris_xarxa(){
                         });
                         //$("#select_id_organisme").html(html);
 
+                    }
+
+        });
+}
+
+function actualizar_usuaris_externs(){
+        $.ajax({
+                    url: '/llista_usuaris_externs_select/',
+//                    type: form.attr('method'),
+//                    data: form.serialize(),
+                    datatype:'json',
+                    success: function(result) {
+                        var html="<option value=''>--------</option>";
+                        $(result).each(function(){
+                            html=html+"<option value='"+this.id+"'>"+this.nom+" --- "+this.organisme+"</option>";
+                        });
+
+                        $("#select_id_usuari_extern").html(html);
+                        //seleccionamos la opcion que se carga
+                        $('#select_id_usuari_extern option[value="'+$("#id_id_usuari_extern").val()+'"]').attr('selected', 'selected');
+
+                        //$("#select_id_organisme").html(html);
                     }
 
         });

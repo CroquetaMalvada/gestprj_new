@@ -369,7 +369,8 @@ $(document).ready(function(){
                     url: usuaris_externs_cabecera.row(".selected").data()["url"],
                     type: "DELETE",
                     success: function(result) {
-                         usuaris_externs_cabecera.ajax.reload();
+                        actualizar_usuaris_externs();
+                        usuaris_externs_cabecera.ajax.reload();
                     }
                  });
                 },
@@ -398,6 +399,7 @@ $(document).ready(function(){
                             success: function(result) {
                                  mostrar_dialog_cabecera("table_usuaris_externs_cabecera");
                                  usuaris_externs_cabecera.ajax.reload();
+                                 actualizar_usuaris_externs();
                             }
 
                 });
@@ -540,6 +542,42 @@ function dialog_justificacions_cabecera(){
 
             }
     });
+}
+
+function dialog_projectes_per_responsable_cabecera(){
+    $.ajax({
+                url: '/llista_projectes_responsable_consultar/',
+    //                    type: form.attr('method'),
+    //                    data: form.serialize(),
+                datatype:'json',
+                success: function(result) {
+                    var html="";
+                    var titulo="<h2>PROJECTES PER RESPONSABLE ( "+$.datepicker.formatDate('dd/mm/yy', new Date())+" )</h2>";
+//                    html=html+'<a onclick="imprimir_projectes_resp_cabecera();" class="glyphicon glyphicon-print" aria-hidden="true">Imprimir</a>'
+                    $(result).each(function(){
+                        html=html+"<h3>"+this.id+" - "+this.nom_responsable+"</h3><table class='table'><tr><th>Codi</th><th>Nom</th><th>Entitat Finançadora</th></tr>";
+                        $(this.projectes).each(function(){
+                            html=html+"<tr><td>"+this.codi+"</td><td>"+this.nom+"</td><td>"+this.entitats+"</td></tr>"
+                        });
+                        html=html+"</table><br>"
+                    });
+
+                 return $.confirm({
+                    title:titulo,
+                    content:html,
+                    cancelButton: 'Tancar',
+                    confirmButton: false,
+                    columnClass: 'xlarge',
+                    closeIcon: true
+                 });
+
+                }
+
+    });
+}
+
+function imprimir_projectes_resp_cabecera(){
+    window.print();
 }
 
 function mostrar_permisos_usuaris_consultar(){
