@@ -1332,8 +1332,8 @@ def ListProjectesResponsableCabecera(request): # AJAX PARA LOS PROYECTOS POR RES
                 codi=str(projecte["id_resp__codi_resp"])+"-"+str(projecte["codi_prj"])
                 nom=projecte["acronim"]
                 entitats=""
-                for entitat in Receptors.objects.filter(id_projecte=projecte["id_projecte"]).values("id_organisme__nom_organisme"):
-                    entitas=entitats+entitat["id_organisme__nom_organisme"]+" - "
+                for entitat in Financadors.objects.filter(id_projecte=projecte["id_projecte"]).values("id_organisme__nom_organisme"):
+                    entitats=entitats+entitat["id_organisme__nom_organisme"]+" - "
                 proyectos.append({"codi":codi,"nom":nom,"entitats":entitats})
 
         resultado.append({"id":id_investigador,"nom_responsable":nom_investigador,"projectes":proyectos})
