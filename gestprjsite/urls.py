@@ -21,6 +21,8 @@ router.register(r'gestor_PersonalCreaf',views.GestPersonalCreaf)# gestionar y mo
 router.register(r'gestor_UsuariExtern',views.GestTUsuarisExterns)# gestionar y mostrar los usuarios externos
 router.register(r'gestor_PersonalExtern',views.GestPersonalExtern)# gestionar y mostrartodo el personal externo
 
+router.register(r'gestor_Responsables',views.GestResponsables)# gestionar y mostrar los responsables
+
 router.register(r'gestor_JustificPersonal',views.GestJustificPersonal)# gestionar justificaciones de personal creaf
 
 router.register(r'gestor_OrganismesFin',views.GestOrganismesFin)# gestionar organismos financiadores
@@ -61,12 +63,15 @@ urlpatterns = patterns('',
     # AJAX selects:
     url('^llista_organismes_select/', views.ListOrganismesSelect),# para los select con el nombre de los organismos
     url('^llista_projectes_select/', views.ListProjectesSelect),# para el select con los proyectos
+    url('^llista_usuaris_creaf_select/', views.ListUsuarisCreafSelect),# para el select con los usuarios
     url('^llista_usuaris_xarxa_select/', views.ListUsuarisXarxaSelect),# para el select con los usuarios de red
     url('^llista_usuaris_externs_select/', views.ListUsuarisExternsSelect),# para el select con los usuarios en coordinat per altres
+    url('^llista_responsables_select/', views.ListResponsablesSelect),# para el select con los usuarios de red
 
     url('^llista_Organismes/', views.ListTOrganismes.as_view()),# para la datatable de organismes cabecera
     url('^llista_Usuaris_creaf/', views.ListUsuarisCreaf.as_view()),# para la datatable de personal creaf cabecera
     url('^llista_Usuaris_externs/', views.ListUsuarisExterns.as_view()),# para la datatable de personal extern cabecera
+    url('^llista_Responsables/', views.ListResponsables.as_view()),# para la datatable de responsables cabecera
     url('^llista_permisos_usuaris_consultar/', views.ListPermisosUsuarisConsultar.as_view()),# para la datatable de permisos usuaris cabecera
     url('^llista_ConceptesPres/', views.ListConceptesPress),# para los select con el nombre de las partidas
     url('^llista_justificacions_cabecera/(?P<fecha_min>.+)/(?P<fecha_max>.+)/$', views.ListJustificacionsCabecera),# justificaciones en edicio en la cabecera

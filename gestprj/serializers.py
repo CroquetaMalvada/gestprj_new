@@ -1,4 +1,4 @@
-from gestprj.models import CentresParticipants, TOrganismes, Projectes, TUsuarisExterns, PersonalExtern, TUsuarisCreaf, PersonalCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, PrjUsuaris
+from gestprj.models import CentresParticipants, TOrganismes, Projectes, TUsuarisExterns, PersonalExtern, TUsuarisCreaf, PersonalCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, PrjUsuaris, Responsables
 from rest_framework import serializers
 from gestprj import pk
 
@@ -90,6 +90,21 @@ class GestTUsuarisExternsSerializer(serializers.ModelSerializer): # datos necesa
     class Meta:
         model = TUsuarisExterns
         fields = ('url','nom_usuari_extern','adreca','cp','poblacio','provincia','pais','tel1','tel2','fax','e_mail1','e_mail2', 'id_organisme')
+
+# RESPONSABLES ####################
+class ResponsablesSerializer(serializers.ModelSerializer): # info a obtener/mostrar
+    nom = serializers.CharField(source='id_usuari.nom_usuari', read_only=True)
+
+    class Meta:
+        model = Responsables
+        fields = ('url','id_resp','codi_resp','id_usuari','nom')
+
+class GestResponsablesSerializer(serializers.ModelSerializer): # datos necesarios para crear/editar
+
+    class Meta:
+        model = Responsables
+        fields = ('url', 'codi_resp', 'id_usuari')
+
 
 # JUSTIFICACIONS PERSONAL ##################
 

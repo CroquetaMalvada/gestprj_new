@@ -16,14 +16,14 @@ $(document).ready(function(){
                 var mensaje=$(this).find(".dataTables_empty");
                 mensaje.html("Carregant...");
             }
-            load = loading("Carregant...");
+//            load = loading("Carregant...");
         },
         ajaxStop: function(){
             if($(this).find(".dataTables_empty")){
                 var mensaje=$(this).find(".dataTables_empty");
                 mensaje.html("No s'han trobat dades");
             }
-        load.close();
+//        load.close();
         }
     });
 

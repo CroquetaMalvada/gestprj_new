@@ -22,7 +22,7 @@ from gestprj.serializers import GestCentresParticipantsSerializer, ProjectesSeri
     GestOrganismesFinSerializer, GestOrganismesRecSerializer, GestJustifInternesSerializer, GestRenovacionsSerializer, \
     GestConceptesPressSerializer, GestPressupostSerializer, GestPeriodicitatPresSerializer, \
     GestPeriodicitatPartidaSerializer, GestDesglossamentSerializer, GestJustificacionsProjecteSerializer, \
-    GestAuditoriesSerializer, GestPrjUsuarisSerializer
+    GestAuditoriesSerializer, GestPrjUsuarisSerializer, ResponsablesSerializer, GestResponsablesSerializer
 from gestprj import pk,contabilitat_ajax #,consultes_cont
 from django.db import transaction
 from datetime import datetime
@@ -80,6 +80,21 @@ def list_projectes(request): # poner ajax para funciones_datatables,pero no es n
         else:
             llista_projectes = None
 
+    for projecte in llista_projectes:
+        ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
+        cod_projecte=str(projecte.codi_prj)
+        cod_responsable=str(projecte.id_resp.codi_resp)
+        if len(cod_responsable) < 2:
+            cod_responsable = "0" + str(cod_responsable)
+        if len(cod_projecte) < 3:
+            if len(cod_projecte) < 2:
+                cod_projecte = "00" + str(cod_projecte)
+            else:
+                cod_projecte = "0" + str(cod_projecte)
+
+        codigo_entero = cod_responsable + cod_projecte
+        projecte.codigo_entero=codigo_entero #creamos codigo_entero dentro el objeto
+        ######
     context = {'llista_projectes': llista_projectes, 'titulo': "LLISTA DE PROJECTES"}
     return render(request, 'gestprj/llista_projectes.html', context)
 
@@ -151,6 +166,10 @@ def ListProjectesSelect(request):  # AJAX
     resultado = contabilitat_ajax.AjaxListProjectesSelect()
     return HttpResponse(resultado, content_type='application/json;')
 
+# USUARIS CREAF ######################
+def ListUsuarisCreafSelect(request):  # AJAX
+    resultado = contabilitat_ajax.AjaxListUsuarisCreafSelect()
+    return HttpResponse(resultado, content_type='application/json;')
 
 # USUARIS XARXA ######################
 def ListUsuarisXarxaSelect(request):  # AJAX
@@ -162,6 +181,10 @@ def ListUsuarisExternsSelect(request):  # AJAX
     resultado = contabilitat_ajax.AjaxListUsuarisExternsSelect()
     return HttpResponse(resultado, content_type='application/json;')
 
+# RESPONSABLES ######################
+def ListResponsablesSelect(request):  # AJAX
+    resultado = contabilitat_ajax.AjaxListResponsablesSelect()
+    return HttpResponse(resultado, content_type='application/json;')
 
 # CENTRES PARTICIPANTS #################
 class CentresParticipantsViewSet(viewsets.ModelViewSet):  # todos los centros participantes
@@ -247,8 +270,7 @@ class GestTUsuarisCreaf(viewsets.ModelViewSet):
 
 
 # PERSONAL EXTERN #################
-class ListPersonalExternProjecte(
-    generics.ListAPIView):  # muestra los usuarios externos que participan en un proyecto junto con su organizacion
+class ListPersonalExternProjecte(generics.ListAPIView):  # muestra los usuarios externos que participan en un proyecto junto con su organizacion
     serializer_class = PersonalExtern_i_organitzacioSerializer
 
     def get_queryset(self):
@@ -280,6 +302,17 @@ class ListUsuarisExterns(generics.ListAPIView):  # todos los organismos(usamos s
 class GestTUsuarisExterns(viewsets.ModelViewSet):  # todos los usuarios externos
     queryset = TUsuarisExterns.objects.all()
     serializer_class = GestTUsuarisExternsSerializer
+
+# RESPOSNABLESS #################
+class ListResponsables(generics.ListAPIView):  # todos los responsables(usamos serializer ya que no es el  select y necesitaremos la url del serializer)
+    serializer_class = ResponsablesSerializer
+
+    def get_queryset(self):
+        return Responsables.objects.all().order_by('codi_resp')
+
+class GestResponsables(viewsets.ModelViewSet):
+    queryset = Responsables.objects.all()
+    serializer_class = GestResponsablesSerializer
 
 
 # PROJECTES #################
@@ -1057,6 +1090,8 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
 
     context = {'llista_dades': llista_dades,'data_max':projectes["data_max"],'titulo': "RESUM ESTAT PROJECTES"}
     return render(request, 'gestprj/cont_resum_estat_prj.html', context)
+
+# ESTAT PROJECTE PER RESPONSABLE ###########
 
 @login_required(login_url='/menu/')
 def cont_estat_prj_resp(request):

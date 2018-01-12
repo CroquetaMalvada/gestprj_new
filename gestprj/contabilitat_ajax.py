@@ -60,6 +60,16 @@ def AjaxListOrganismesSelect():
     return resultado
 
 
+def AjaxListUsuarisCreafSelect():
+    usuarisCreaf = TUsuarisCreaf.objects.all().values("id_usuari","nom_usuari").order_by("nom_usuari") # .values_list("nom_xarxa",flat=True) # .order_by("nom_xarxa")
+
+    resultado=[]
+    for usuari in usuarisCreaf:
+            resultado.append({'id': str(usuari["id_usuari"]), 'nom': usuari["nom_usuari"]})
+
+    resultado = json.dumps(resultado)
+    return resultado
+
 def AjaxListUsuarisXarxaSelect():
     usuarisCreaf = ADGroup("cn=CREAFEOUSERS,cn=Users,dc=creaf,dc=uab,dc=es").get_member_info()
     usuarisXarxa = TUsuarisXarxa.objects.all().values("id_usuari_xarxa","nom_xarxa").order_by("nom_xarxa") # .values_list("nom_xarxa",flat=True) # .order_by("nom_xarxa")
@@ -85,6 +95,17 @@ def AjaxListUsuarisExternsSelect():
     resultado=[]
     for usuari in usuarisExterns:
             resultado.append({'id': str(usuari["id_usuari_extern"]), 'nom': usuari["nom_usuari_extern"],'organisme':usuari["id_organisme__nom_organisme"]})
+
+
+    resultado = json.dumps(resultado)
+    return resultado
+
+def AjaxListResponsablesSelect():
+    responsables = Responsables.objects.all().values("id_resp","codi_resp","id_usuari__nom_usuari").order_by("codi_resp") # .values_list("nom_xarxa",flat=True) # .order_by("nom_xarxa")
+
+    resultado=[]
+    for responsable in responsables:
+            resultado.append({'id': str(responsable["id_resp"]), 'nom': responsable["id_usuari__nom_usuari"],'codi':str(responsable["codi_resp"])})
 
 
     resultado = json.dumps(resultado)
@@ -524,9 +545,9 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
 
         cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
                        "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA NOT LIKE '79%' AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '2%') AND CUENTAS.CUENTA NOT LIKE '6296'+(?) AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?))) AS despeses,"
+                       "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '2%') AND CUENTAS.CUENTA NOT LIKE '6296%' AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?))) AS despeses,"
                        "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '79%' OR CUENTAS.CUENTA LIKE '6296%') AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?))) AS canon",
-                       [codigo_entero, fecha_max, codigo_entero, codigo_entero, fecha_max, codigo_entero, fecha_max])
+                       [codigo_entero, fecha_max, codigo_entero, fecha_max, codigo_entero, fecha_max])
 
         projectfetch = dictfetchall(cursor)  # un cursor.description tambien sirve
 

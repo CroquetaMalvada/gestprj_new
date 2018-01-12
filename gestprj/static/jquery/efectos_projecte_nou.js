@@ -160,6 +160,10 @@ $("#justificacions").click(function(){
 	 });
 
 
+    $("#select_id_responsable").change(function(e){
+        $("#id_id_resp").val($("#select_id_responsable").val());
+    })
+
     $("#select_id_usuari_extern").change(function(e){
         $("#id_id_usuari_extern").val($("#select_id_usuari_extern").val());
     })
@@ -213,6 +217,27 @@ function actualizar_conceptes_press(){
         });
 }
 
+function actualizar_usuaris_creaf_select(){
+        $.ajax({
+                    url: '/llista_usuaris_creaf_select/',
+//                    type: form.attr('method'),
+//                    data: form.serialize(),
+                    datatype:'json',
+                    success: function(result) {
+                        var html="";
+                        $(result).each(function(){
+                            html=html+"<option value='"+this.id+"'>"+this.nom+"</option>";
+                        });
+                        $(".select_id_usuari_creaf").each(function(){
+                            $(this).html(html);
+                        });
+                        //$("#select_id_organisme").html(html);
+
+                    }
+
+        });
+}
+
 function actualizar_usuaris_xarxa(){
         $.ajax({
                     url: '/llista_usuaris_xarxa_select/',
@@ -256,6 +281,31 @@ function actualizar_usuaris_externs(){
         });
 }
 
+function actualizar_responsables_select(){
+        $.ajax({
+                    url: '/llista_responsables_select/',
+//                    type: form.attr('method'),
+//                    data: form.serialize(),
+                    datatype:'json',
+                    success: function(result) {
+                        var html="<option value=''>--------</option>";
+                        $(result).each(function(){
+                            html=html+"<option value='"+this.id+"'>"+this.codi+" - "+this.nom+"</option>";
+                        });
+
+                        $(".select_id_responsable").each(function(){
+                            $(this).html(html);
+                        });
+
+                        $("#select_id_responsable").html(html);
+                        //seleccionamos la opcion que se carga
+                        $('#select_id_responsable option[value="'+$("#id_id_resp").val()+'"]').attr('selected', 'selected');
+
+                        //$("#select_id_organisme").html(html);
+                    }
+
+        });
+}
 function actualizar_projectes_select(){
         $.ajax({
                     url: '/llista_projectes_select/',

@@ -59,6 +59,7 @@
                     <li class="dropdown-header">  Usuaris:</li>
                     <li><a href="#" onclick='mostrar_dialog_cabecera("table_usuaris_creaf_cabecera");'>Usuaris CREAF</a></li>
                     <li><a href="#" onclick='mostrar_dialog_cabecera("table_usuaris_externs_cabecera");'>Usuaris extern</a></li>
+                    <li><a href="#" onclick='mostrar_dialog_cabecera("table_responsables_cabecera");'>Responsables</a></li>
                 </ul>
             </li>
 
@@ -271,6 +272,50 @@
 
             <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
                     onclick='mostrar_dialog_cabecera("table_usuaris_externs_cabecera");'>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+            </button>
+        </form>
+    </div>
+    <!---->
+<!--RESPONSABLES-->
+    <div id="table_responsables_cabecera" class="dialogcabecera" title="Responsables">
+        <table class="table table-striped table-bordered datatable">
+            <a class="btn btn-success" id="editar_responsables_crear_cabecera" title="Afegir"
+               href="#">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear nou Responsable
+            </a>
+            <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>Codi</th>
+                <th>Nom</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        </a>
+    </div>
+    <!---->
+
+    <div id="editar_responsables_cabecera" class="dialogcabecera" title="Editar Responsables">
+        <form id="formulario_editar_responsables_cabecera" action="/gestor_Responsables/"
+              method="POST">
+            {% csrf_token %}
+
+            Codi<input type="text" name="codi_resp"><br>
+            Usuari: <select class='select_id_usuari_creaf' name="id_usuari" style="max-width:300px;"></select>
+
+
+            <button class="btn btn-success" type="submit" title="Guardar" href="#">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+            </button>
+
+            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
+                    onclick='mostrar_dialog_cabecera("table_responsables_cabecera");'>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
             </button>
         </form>

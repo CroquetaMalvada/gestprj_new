@@ -45,6 +45,7 @@ class ProjectesForm(forms.ModelForm):  # hereda de la clase predefinida forms.Mo
           'es_coordinat',
         ]
         widgets = {
+            'id_resp': forms.HiddenInput(),
             'es_coordinat': forms.HiddenInput(),
             'es_docum_web': forms.HiddenInput(),
             'id_usuari_extern': forms.HiddenInput(),

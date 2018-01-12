@@ -76,7 +76,30 @@ $(document).ready(function(){
                 overflow:       "auto",
                 language: opciones_idioma,
             });
-
+        /////////////RESPONSABLES
+        var responsables_cabecera = $("#table_responsables_cabecera").children("table").DataTable({
+                ajax: {
+                    url: '/llista_Responsables/',
+                    dataSrc: 'results'
+                },
+                columns:[
+                    {'data': 'url'},
+                    {'data': 'id_resp'},
+                    {'data': 'codi_resp'},
+                    {'data': 'nom'},
+                    {"render": function(){return '<a class="btn btn-info editar_responsable_cabecera" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
+                    {"render": function(){return '<a class="btn btn-danger eliminar_responsable_cabecera" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
+                ],
+                columnDefs:[
+                    {"visible":false,"targets":[0,1]}
+                ],
+                scrollY:        '50vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
+            });
 
         ///////////////////////////////////////////////////////
 
@@ -407,6 +430,76 @@ $(document).ready(function(){
             e.preventDefault(); //para no ejecutar el actual submit del form
         });
         /////////////////////////////////////
+        ///////// RESPONSABLES
+
+        $(document).on( 'click', '.editar_responsable_cabecera', function (){
+    //        var load = loading("Carregant...");
+            var form = $("#formulario_editar_responsables_cabecera");
+            $("#formulario_editar_responsables_cabecera").attr("action",responsables_cabecera.row(".selected").data()["url"]);
+            $("#formulario_editar_responsables_cabecera").attr("method","PUT");
+
+            $.get(responsables_cabecera.row(".selected").data()["url"],function( data ){
+                form.children("[name='codi_resp']").val(data["codi_resp"]);
+                form.children("[name='id_usuari']").val(data["id_usuari"]);
+            }).done(function( data ){});
+            responsables_cabecera.ajax.reload();
+            mostrar_dialog_cabecera("editar_responsables_cabecera");
+
+        });
+
+         $(document).on( 'click', '.eliminar_responsable_cabecera', function (){
+
+            $.confirm({
+                title: 'Confirmació',
+                content: "Segur que vols eliminar aquest element?",
+                confirmButton: 'Si',
+                cancelButton: 'No',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                closeIcon: false,
+                confirm: function(){
+                $.ajax({
+                    url: responsables_cabecera.row(".selected").data()["url"],
+                    type: "DELETE",
+                    success: function(result) {
+                        actualizar_responsables_select();
+                        responsables_cabecera.ajax.reload();
+                    }
+                 });
+                },
+                cancel: function(){
+                }
+            });
+        });
+
+            //// CREAR UNO
+            $("#editar_responsables_crear_cabecera").click(function(){
+                $("#formulario_editar_responsables_cabecera").trigger("reset");
+                $("#formulario_editar_responsables_cabecera").attr("action","/gestor_Responsables/");
+                $("#formulario_editar_responsables_cabecera").attr("method","POST");
+                mostrar_dialog_cabecera("editar_responsables_cabecera");
+        //	    $("#editar_organismes_participants").attr("method","POST")
+            });
+
+            /// AJAX
+            $("#formulario_editar_responsables_cabecera").submit(function(e){
+            var form = $(this);
+            if(validar_form(form)){
+                $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: form.serialize(),
+                            success: function(result) {
+                                 mostrar_dialog_cabecera("table_responsables_cabecera");
+                                 responsables_cabecera.ajax.reload();
+                                 actualizar_responsables_select();
+                            }
+
+                });
+            }
+            e.preventDefault(); //para no ejecutar el actual submit del form
+        });
+        /////////////////////////////////////
         ////// PERMISOS USUARIS PROJECTES CONSULTAR
         $(document).on( 'click', '.editar_permis_usuari_consultar', function (){
 
@@ -496,9 +589,11 @@ $(document).ready(function(){
 
         $("#dialogs_cabecera").dialog("close");
 
-        ///ACTUALIZAR SELECTS *OJO LOS OTROS 2 ACTUALIZAR ESTAN EN EFECTOS PROJECTE NOU
-            actualizar_usuaris_xarxa();
-            actualizar_projectes_select();
+        ///ACTUALIZAR SELECTS *LAS FUNCIONES ESTAN EN EFECTOS PROJECTE NOU Y TAMBIEN LAS OTRAS 2 LLAMADAS A LAS MISMAS
+        actualizar_usuaris_xarxa();
+        actualizar_projectes_select();
+        actualizar_responsables_select();
+        actualizar_usuaris_creaf_select();
     }
 
 });

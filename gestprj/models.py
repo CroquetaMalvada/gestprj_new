@@ -189,9 +189,10 @@ class PersonalExtern(models.Model):
 
 
 class Responsables(models.Model):
-    id_resp = models.DecimalField(db_column='ID_RESP', max_digits=10, decimal_places=0, blank=True, primary_key=True)  # Field name made lowercase.
+    id_resp = models.AutoField(db_column='ID_RESP', primary_key=True)  # Field name made lowercase.
     codi_resp = models.DecimalField(db_column='CODI_RESP', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
-    id_usuari = models.ForeignKey(TUsuarisCreaf,db_column='ID_USUARI')  # Field name made lowercase.
+    # FOREIGN KEYS
+    id_usuari = models.ForeignKey(TUsuarisCreaf,related_name="usuari_de_responsable",db_column='ID_USUARI')  # Field name made lowercase.
 
     class Meta:
         managed = False
