@@ -452,7 +452,15 @@ def DespesesCompte(id_partida,codigo_entero,data_min,data_max):
                         cont["Observaciones"] = "Sense observacions."
 
                     resultado.append(cont)
+
+        # Cerramos el cursor
+        cursor.close()
+
         return resultado
+
+    # Cerramos el cursor
+    cursor.close()
+
     return [] # devolvemos esta ya que si no encontraba ninguna cuenta en el for no se hacia un return
 
 
@@ -540,6 +548,9 @@ def ContDespeses(projectes):#Seguiment Despeses Projectes
 
             resultado.append({"dades_prj":projecte,"despeses":projectfetch,"concedit":concedit,"iva_percen":float(projecte.percen_iva),"iva":iva,"canon_percen":float(projecte.percen_canon_creaf),"canon":canon,"net_disponible":net_disponible,"total_despeses":total_despeses,"total_disponible":total_disponible,'data_min':projectes["data_min"],'data_max':projectes["data_max"],"codi_resp":cod_responsable,"codi_prj":cod_projecte})
 
+        # Cerramos el cursor
+        cursor.close()
+
         return resultado
 
 
@@ -607,6 +618,8 @@ def ContIngresos(projectes):#Seguiment Ingressos Projectes
             total_pendiente = saldo_pendiente
 
             resultado.append({"dades_prj":projecte,"ingresos":projectfetch,"concedit":concedit,"iva_percen":float(projecte.percen_iva),"iva":iva,"net_disponible":net_disponible,"total_pendiente":total_pendiente,"total_ingresos":total_ingresos,'data_min':projectes["data_min"],'data_max':projectes["data_max"],"codi_resp":cod_responsable,"codi_prj":cod_projecte})
+        # Cerramos el cursor
+        cursor.close()
 
         return resultado
 
@@ -699,6 +712,9 @@ def FitxaMajorProjectes(projectes):#Fitxa Major Projectes (Ingressos i Despeses)
             total_haber = round(total_haber,2)
             #####
             resultado.append({"dades_prj":projecte,"despeses":projectfetch,"concedit":concedit,"iva_percen":round(float(projecte.percen_iva),2),"iva":iva,"canon_percen":round(float(projecte.percen_canon_creaf),2),"canon":canon,"net_disponible":net_disponible,"total_caja":total_caja,"total_debe":total_debe,"total_haber":total_haber,'data_min':projectes["data_min"],'data_max':projectes["data_max"],"codi_resp":cod_responsable,"codi_prj":cod_projecte})
+
+        # Cerramos el cursor
+        cursor.close()
 
         return resultado
 
@@ -876,6 +892,9 @@ def EstatProjectesResp(projectes):#Estat Projectes per Responsable
             datos_inv = []
 
 
+        # Cerramos el cursor
+        cursor.close()
+
         return resultado
 
 def ResumFitxaMajorProjectes(projectes):#Resum Fitxa Major Projectes per Comptes
@@ -970,6 +989,9 @@ def ResumFitxaMajorProjectes(projectes):#Resum Fitxa Major Projectes per Comptes
             #####
             resultado.append({"dades_prj":projecte,"despeses":projectfetch,"comptes":comptes,"concedit":concedit,"iva_percen":round(float(projecte.percen_iva),2),"iva":iva,"canon_percen":round(float(projecte.percen_canon_creaf),2),"canon":canon,"net_disponible":net_disponible,"total_disponible":total_disponible,"total_debe":total_debe,"total_haber":total_haber,'data_min':projectes["data_min"],'data_max':projectes["data_max"],"codi_resp":cod_responsable,"codi_prj":cod_projecte})
 
+        # Cerramos el cursor
+        cursor.close()
+
         return resultado
 
 #OJO que este esta relacionado con resum fitxa projecte
@@ -997,6 +1019,10 @@ def MovimentsCompte(compte,fecha_min,fecha_max):
 
             saldo = round((saldo-float(result["Debe"]))+float(result["Haber"]),2)
             result["Saldo"]=saldo
+
+        # Cerramos el cursor
+        cursor.close()
+
         return fetch
 
 def ResumEstatProjectes(projectes):#Resum Estat Projectes
@@ -1201,6 +1227,10 @@ def ResumEstatProjectes(projectes):#Resum Estat Projectes
 
         #anadimos finalmente solo los totales
         # totals.append({"total_concedit":total_concedit,"total_iva":total_iva,"total_canon_total":total_canon_total,"total_ingressos":total_ingressos,"total_pendent":total_pendent,"total_despeses":total_despeses,"total_canon_aplicat":total_canon_aplicat,"total_disponible_caixa":total_disponible_caixa,"total_disponible_real":total_disponible_real,"data_max":projectes["data_max"]})
+
+        # Cerramos el cursor
+        cursor.close()
+
         return resultado
 
 
@@ -1432,6 +1462,8 @@ def ResumEstatCanon(projectes):#Resum Estat Canon Projectes per Responsable
         totals = []
         datos_inv = []
 
+    # Cerramos el cursor
+    cursor.close()
 
     return resultado
 
@@ -1494,4 +1526,6 @@ def ComptesNoAssignats(projectes):#Comptes NO assignats a cap projecte
 
         resultado.append({"comptes":projectfetch,'data_min':projectes["data_min"],'data_max':projectes["data_max"],"total_carrec":total_carrec,"total_ingressos":total_ingressos,"total_saldo":total_saldo})
 
+        # Cerramos el cursor
+        cursor.close()
         return resultado

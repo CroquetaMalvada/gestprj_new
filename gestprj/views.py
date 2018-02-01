@@ -1088,6 +1088,9 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
 
     llista_dades = resultado
 
+    # Cerramos el cursor
+    cursor.close()
+
     context = {'llista_dades': llista_dades,'data_max':projectes["data_max"],'titulo': "RESUM ESTAT PROJECTES"}
     return render(request, 'gestprj/cont_resum_estat_prj.html', context)
 
@@ -1337,6 +1340,10 @@ def cont_comptes_no_assignats(request):
 
 
     llista_dades = resultado
+
+    # Cerramos el cursor
+    cursor.close()
+
 
     context = {'llista_dades': llista_dades, 'titulo': "COMPTES NO ASSIGNATS A CAP PROJECTE"}
     return render(request, 'gestprj/cont_comptes_no_assignats.html', context)
