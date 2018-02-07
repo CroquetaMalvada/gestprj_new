@@ -112,7 +112,7 @@ def AjaxListResponsablesSelect():
     return resultado
 
 def AjaxListResponsablesCont(request):
-    if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los responsables
+    if request.user.groups.filter(name="Admins gestprj").exists() or request.user.groups.filter(name="Mods gestprj").exists():#si el usuario es un admin,muetra todos los responsables
         llista_responsables = Responsables.objects.all().values('id_usuari__nom_usuari','id_resp')
         resultado = []
         for responsable in llista_responsables:
@@ -134,7 +134,7 @@ def AjaxListResponsablesCont(request):
             return [{}]
 
 def AjaxListProjectesCont(request):
-    if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
+    if request.user.groups.filter(name="Admins gestprj").exists() or request.user.groups.filter(name="Mods gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
         llista_projectes = Projectes.objects.select_related('id_resp').select_related('id_estat_prj').all().values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp')
         # prefetch_related("id_resp__id_estat_prj")
         resultado = []

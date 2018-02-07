@@ -41,7 +41,7 @@ def es_admin(user):
     return user.groups.filter(name="Admins gestprj").exists()
 
 def es_usuario_valido(user):
-    if user.groups.filter(name="Admins gestprj").exists() or user.groups.filter(name="Investigadors Principals").exists():
+    if user.groups.filter(name="Admins gestprj").exists() or user.groups.filter(name="Mods gestprj").exists() or user.groups.filter(name="Investigadors Principals").exists():
         return True
     else:
         return False
@@ -70,7 +70,7 @@ def index(request):
 def list_projectes(request): # poner ajax para funciones_datatables,pero no es nada urgente
     # llista_projectes = TUsuarisXarxa.objects.all()
     # usuarixarxa = usuari_xarxa_a_user(request)
-    if request.user.groups.filter(name="Admins gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
+    if request.user.groups.filter(name="Admins gestprj").exists() or request.user.groups.filter(name="Mods gestprj").exists():#si el usuario es un admin,muetra todos los proyectos
         llista_projectes = Projectes.objects.select_related('id_estat_prj').all()
     else:#sino solo muestra SUS proyectos
         responsable = usuari_a_responsable(request)
@@ -145,7 +145,7 @@ def login_view(request):
         # print username, password
         user = authenticate(username=username, password=password)
         if user is not None:#si el usuario es del creaf
-            if (user.groups.filter(name="Admins gestprj").exists() or user.groups.filter(name="Investigadors Principals").exists()):# y ademas forma parte de alguno de los grupos necesarios
+            if (user.groups.filter(name="Admins gestprj").exists() or user.groups.filter(name="Mods gestprj").exists() or user.groups.filter(name="Investigadors Principals").exists()):# y ademas forma parte de alguno de los grupos necesarios
                 login(request, user)
                 return HttpResponseRedirect('/llista_projectes/', {'tipo': username})
             else:
