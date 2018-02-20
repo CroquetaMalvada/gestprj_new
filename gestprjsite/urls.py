@@ -106,6 +106,12 @@ urlpatterns = patterns('',
 
     url('^show_Auditories/(?P<id_projecte>.+)/$', views.ListAuditories.as_view()),
 
+    #JSON
+    url(r'^show_compromes/(?P<id_projecte>.+)/$', views.ListCompromes, name="compromes"),
+    url(r'^show_compromes_partida/(?P<id_partida>.+)/(?P<id_projecte>.+)/$', views.ListCompromesPartida, name="compromes_partida"),
+
+    # url('^show_compromes_compte/(?P<id_compte>.+)/$', views.ListCompromesCompte.as_view()),
+
 
     url(r'^llista_projectes/', views.list_projectes, name='llista_projectes'),
     # url(r'^projecte_nou/(?P<id>.+)/$', views.new_project, name='projecte_nou'),

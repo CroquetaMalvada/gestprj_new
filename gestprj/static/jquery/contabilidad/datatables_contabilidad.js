@@ -456,8 +456,11 @@ $(document).ready(function(){
                         var sum = this.data().reduce( function (a,b) {
                             return parseFloat(a) + parseFloat(b);
                         },0 ); //OJO cambiar a 2????
-                    else
+                    else{
                         var sum = this.cell(":last",6).data();
+                        if(!sum)
+                            sum="0.00";
+                    }
                     var bgcolor="LightGreen";
                     if(sum<-25)
                         bgcolor="LightCoral";
@@ -540,9 +543,11 @@ $(document).ready(function(){
                 var api = this.api();
                 $(this).DataTable().columns( [4,5] ).every(function(index){
 //                    console.log(this.data());
-                    if(index==5)
+                    if(index==5){
                         var sum = this.cell(":last",5).data();
-                    else
+                        if(!sum)
+                            sum="0.00";
+                    }else
                         var sum = this.data().reduce( function (a,b) {
                             return parseFloat(a) + parseFloat(b);
                         },0 ); //OJO cambiar a 2????
@@ -881,9 +886,11 @@ $(document).ready(function(){
                 var api = this.api();
                 $(this).DataTable().columns( [2,3,5] ).every(function(index){
 //                    console.log(this.data());
-                    if(index==5)
+                    if(index==5){
                         var sum = this.cell(":last",5).data();
-                    else
+                        if(!sum)
+                            sum="0.00";
+                    }else
                         var sum = this.data().reduce( function (a,b) {
                             return parseFloat(a) + parseFloat(b);
                         },0 ); //OJO cambiar a 2????
@@ -1172,9 +1179,11 @@ $(document).ready(function(){
                 var api = this.api();
                 $(this).DataTable().columns( [2,3,4] ).every(function(index){
 //                    console.log(this.data());
-                    if(index==4)
+                    if(index==4){
                         var sum = this.cell(":last",4).data();
-                    else
+                        if(!sum)
+                            sum="0.00";
+                    }else
                         var sum = this.data().reduce( function (a,b) {
                             return parseFloat(a) + parseFloat(b);
                         },0 ); //OJO cambiar a 2????

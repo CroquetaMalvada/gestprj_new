@@ -278,6 +278,8 @@ def AjaxListEstatPresDatos(request,datos):
         for partida in tipos_partida:
             partidas.append(tipos_partida[partida])
         resultado = json.dumps(partidas)
+        # Cerramos el cursor
+        cursor.close()
         return resultado
             # codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
 
@@ -326,6 +328,8 @@ def AjaxListEstatPresDatos(request,datos):
             saldo = pressupostat - float(gastat)  # pasamos datos a float ya que los decimal no los pilla bien el json
             partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': str(data_min), 'fecha_max': str(data_max)})
         resultado = json.dumps(partidas)
+        # Cerramos el cursor
+        cursor.close()
         return resultado
 
     return []
@@ -418,6 +422,8 @@ def AjaxListDespesesDatos(request,fecha_min,fecha_max,codigo):
              "descripcio": prjfet["Descripcion"], "despesa": prjfet["Debe"],
              "saldo_disponible": prjfet["saldo_disponible"]})
     resultado = json.dumps(resultado)
+    # Cerramos el cursor
+    cursor.close()
     return resultado
 
 def AjaxListIngresosDatos(request,fecha_min,fecha_max,codigo):
@@ -476,6 +482,7 @@ def AjaxListIngresosDatos(request,fecha_min,fecha_max,codigo):
 
         if saldo_pendiente < 0.1 and saldo_pendiente > -0.1:  # esto sirve para evitar el floating point arithmetic y que muestre 0 en lugar de un numero largisimo
             saldo_pendiente = 0
+
         prjfet["saldo_pendiente"] = saldo_pendiente
 
         #####
@@ -486,6 +493,8 @@ def AjaxListIngresosDatos(request,fecha_min,fecha_max,codigo):
                           "descripcio": prjfet["Descripcion"], "ingres": prjfet["Haber"], "saldo": saldo_pendiente})
 
     resultado = json.dumps(resultado)
+    # Cerramos el cursor
+    cursor.close()
     return resultado
 
 def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
@@ -513,12 +522,27 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
         #####
 
         ##### Cuentas:
+        # CANON I IVA
         concedit = 0
         for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
-            concedit = concedit + importe.import_concedit
+            concedit = round(concedit + float(importe.import_concedit), 2)
+        # vienen en la tabla:
+        # vienen en la tabla:
 
-        iva = concedit - (concedit / (1 + projecte.percen_iva / 100))
-        canon = (concedit * projecte.percen_canon_creaf) / (100 * (1 + projecte.percen_iva / 100))
+        percen_iva = round(0.0, 4)
+        if projecte.percen_iva:
+            percen_iva = round(projecte.percen_iva, 4)
+
+        percen_canon_creaf = round(0.0, 4)
+        if projecte.percen_canon_creaf:
+            percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+
+        canon_oficial = round(0.0, 4)
+        if projecte.canon_oficial:
+            canon_oficial = round(projecte.canon_oficial, 2)
+
+        iva = concedit - (concedit / (1 + percen_iva / 100))
+        canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
         net_disponible = concedit - iva - canon
 
         # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
@@ -526,12 +550,12 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
         if concedit == 0:  # para evitar problemas con la division si es 0
             percen_canon_oficial = 0.0000
         else:
-            percen_canon_oficial = ((projecte.canon_oficial / concedit) * (100 * (1 + projecte.percen_iva / 100)))
+            percen_canon_oficial = ((canon_oficial / concedit) * (100 * (1 + percen_iva / 100)))
 
-        if percen_canon_oficial > projecte.percen_canon_creaf:
+        if percen_canon_oficial > percen_canon_creaf:
             canon_max = percen_canon_oficial
         else:
-            canon_max = projecte.percen_canon_creaf
+            canon_max = percen_canon_creaf
 
         canon_total = round((concedit - iva) * (canon_max / 100))
         concedit = round(concedit, 2)
@@ -585,6 +609,8 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
              "ingressos": ingressos, "pendent": pendent, "despeses": despeses, "canon_aplicat": canon_aplicat,
              "disponible_real": disponible_real})
     resultado = json.dumps(resultado)
+    # Cerramos el cursor
+    cursor.close()
     return resultado
 
 def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
@@ -665,6 +691,8 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
                           "fecha_min": str(fecha_min), "fecha_max": str(fecha_max)})
 
     resultado = json.dumps(resultado)
+    # Cerramos el cursor
+    cursor.close()
     return resultado
 
 def AjaxListMovimentsCompte(request,compte,data_min,data_max):
@@ -729,6 +757,8 @@ def AjaxListFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
                           "Observaciones": prjfet["Observaciones"], "despesa": prjfet["Debe"],
                           "ingres": prjfet["Haber"]})
     resultado = json.dumps(resultado)
+    # Cerramos el cursor
+    cursor.close()
     return resultado
 
 def AjaxListResumEstatCanonDatos(request,fecha_min,fecha_max,codigo):
@@ -796,26 +826,62 @@ def AjaxListResumEstatCanonDatos(request,fecha_min,fecha_max,codigo):
 
         ###### CUENTAS
 
-        ingressos = ingressosH - ingressosD
-        canon_aplicat = canonD - canonH
+        # ingressos = ingressosH - ingressosD
+        # canon_aplicat = canonD - canonH
+        # concedit = 0
+        # for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
+        #     concedit = concedit + importe.import_concedit
+        #
+        # percen_iva = projecte.percen_iva
+        # canon_oficial = projecte.canon_oficial
+        #
+        # # Aqui han de ser decimal para usar /:
+        #
+        # percen_iva = 0.0
+        # if projecte.percen_iva:
+        #     percen_iva = projecte.percen_iva
+        #
+        # percen_canon_creaf = 0.0
+        # if projecte.percen_canon_creaf:
+        #     percen_canon_creaf = projecte.percen_canon_creaf
+        #
+        # canon_oficial = 0.0
+        # if projecte.canon_oficial:
+        #     canon_oficial = projecte.canon_oficial
+
+        # CANON I IVA
         concedit = 0
         for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
-            concedit = concedit + importe.import_concedit
-        percen_iva = projecte.percen_iva
-        canon_oficial = projecte.canon_oficial
+            concedit = round(concedit + float(importe.import_concedit), 2)
+        # vienen en la tabla:
+        # vienen en la tabla:
+
+        percen_iva = round(0.0, 4)
+        if projecte.percen_iva:
+            percen_iva = round(projecte.percen_iva, 4)
+
+        percen_canon_creaf = round(0.0, 4)
+        if projecte.percen_canon_creaf:
+            percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+
+        canon_oficial = round(0.0, 4)
+        if projecte.canon_oficial:
+            canon_oficial = round(projecte.canon_oficial, 2)
+
         if concedit == 0:  # para evitar problemas con la division si es 0
-            percen_canon_oficial = 0.00
+            percen_canon_oficial = 0.0
         else:
-            percen_canon_oficial = ((canon_oficial / concedit) * (100 * (1 + projecte.percen_iva / 100)))
+            percen_canon_oficial = ((canon_oficial / concedit) * (100 * (1 + percen_iva / 100)))
+
         # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
-        if percen_canon_oficial > projecte.percen_canon_creaf:
+        if percen_canon_oficial > percen_canon_creaf:
             canon_max = percen_canon_oficial
         else:
-            canon_max = projecte.percen_canon_creaf
+            canon_max = percen_canon_creaf
 
         iva = ((concedit * percen_iva) / (100 * (1 + percen_iva / 100)))
         base_canon = concedit  # Ojo que no es correct,o esto son los ingresos
-        canon_creaf = (concedit * projecte.percen_canon_creaf) / (100 * (1 + projecte.percen_iva / 100))
+        canon_creaf = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
         canon_total = (concedit - iva) * (canon_max / 100)
         # diferencia_per = (percen_canon_oficial-percen_canon_creaf)
         dif_canon = abs(
@@ -870,6 +936,8 @@ def AjaxListResumEstatCanonDatos(request,fecha_min,fecha_max,codigo):
         })
 
     resultado = json.dumps(proyectos)
+    # Cerramos el cursor
+    cursor.close()
     return resultado
 
 def AjaxListJustificacionsCabecera(request,fecha_min,fecha_max):

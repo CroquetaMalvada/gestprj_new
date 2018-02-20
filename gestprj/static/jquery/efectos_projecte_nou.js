@@ -68,6 +68,7 @@ $("#contenedor_personal").hide();
 $("#contenedor_finançament").hide();
 $("#contenedor_pressupost").hide();
 $("#contenedor_justificacions").hide();
+$("#contenedor_compromes").hide();
 $("#general").addClass("active");
 
 $("#general").click(function(){
@@ -92,6 +93,11 @@ $("#pressupost").click(function(){
 
 $("#justificacions").click(function(){
     mostrar_menu("#contenedor_justificacions");
+    $(this).addClass("active");
+});
+
+$("#compromes").click(function(){
+    mostrar_menu("#contenedor_compromes");
     $(this).addClass("active");
 });
 
@@ -349,6 +355,7 @@ $("#personal").removeClass("active");
 $("#finançament").removeClass("active");
 $("#pressupost").removeClass("active");
 $("#justificacions").removeClass("active");
+$("#compromes").removeClass("active");
 }
 
 

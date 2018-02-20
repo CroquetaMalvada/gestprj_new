@@ -25,7 +25,8 @@ from gestprj.serializers import GestCentresParticipantsSerializer, ProjectesSeri
     GestAuditoriesSerializer, GestPrjUsuarisSerializer, ResponsablesSerializer, GestResponsablesSerializer
 from gestprj import pk,contabilitat_ajax #,consultes_cont
 from django.db import transaction
-from datetime import datetime
+from datetime import datetime, timedelta
+from calendar import monthrange
 from decimal import *
 import json
 
@@ -145,7 +146,7 @@ def login_view(request):
         # print username, password
         user = authenticate(username=username, password=password)
         if user is not None:#si el usuario es del creaf
-            if (user.groups.filter(name="Admins gestprj").exists() or user.groups.filter(name="Mods gestprj").exists() or user.groups.filter(name="Investigadors Principals").exists()):# y ademas forma parte de alguno de los grupos necesarios
+            if (user.groups.filter(name="Admins gestprj").exists() or request.user.groups.filter(name="Mods gestprj").exists() or user.groups.filter(name="Investigadors Principals").exists()):# y ademas forma parte de alguno de los grupos necesarios
                 login(request, user)
                 return HttpResponseRedirect('/llista_projectes/', {'tipo': username})
             else:
@@ -541,6 +542,191 @@ class GestAuditories(viewsets.ModelViewSet):
     serializer_class = GestAuditoriesSerializer
 
 
+# JSON DE COMPROMES
+def ListCompromes(request,id_projecte):
+    resultado=[]
+    id_prj=id_projecte
+    datos_prj=Projectes.objects.filter(id_projecte=id_prj).values("data_inici_prj","data_fi_prj","id_resp__codi_resp","codi_prj").first()
+    cursor = connections['contabilitat'].cursor()
+    partidas = []
+    # if PeriodicitatPres.objects.filter(id_projecte=id_prj):  # Si hay periodos(el __lte es menor que o igual)
+    #     # OJO!!! poner ", data_inicial__mte=fecha_min, data_final__lte=fecha_max"?
+    #     for periode in PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']).values('data_inicial',
+    #                                                                                                'data_final',
+    #                                                                                                'id_periodicitat'):
+    #         data_min_periode = datetime.strptime(str(periode['data_inicial']), "%Y-%m-%d")
+    #         data_max_periode = datetime.strptime(str(periode['data_final']), "%Y-%m-%d")
+    #         id_periodicitat = periode['id_periodicitat']
+    #         periodes.append(
+    #             {"id_periode": id_periodicitat, "num_periode": num_periodes, "data_min": str(data_min_periode),
+    #              "data_max": str(data_max_periode)})
+    #         num_periodes += 1
+    for partida in Pressupost.objects.filter(id_projecte=id_prj).values('id_partida','id_concepte_pres__desc_concepte','import_field'):  # partidas de proyecto
+        id_partida = partida['id_partida']
+        desc_partida = partida['id_concepte_pres__desc_concepte']
+        pressupostat = float(partida['import_field'])
+        data_min =datos_prj["data_inici_prj"].date() # obtener solo la fecha sin horas ni nada de eso
+        data_max = datos_prj["data_fi_prj"].date() # .replace(tzinfo=None)
+        cod_responsable = str(datos_prj["id_resp__codi_resp"])
+        cod_projecte = str(datos_prj["codi_prj"])
+        ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
+        if len(cod_responsable) < 2:
+            cod_responsable = "0" + str(cod_responsable)
+        if len(cod_projecte) < 3:
+            if len(cod_projecte) < 2:
+                cod_projecte = "00" + str(cod_projecte)
+            else:
+                cod_projecte = "0" + str(cod_projecte)
+        #####
+        codigo_entero = cod_responsable + cod_projecte
+        #####
+        # data_min = datetime.strptime(str(data_min), "%Y-%m-%d").date() #Ojo este es str F time
+        # data_max = datetime.strptime(str(data_max), "%Y-%m-%d").date()
+
+        ### para obtener el gastat
+        gastat = 0
+        comprometido= 0
+        for compte in Desglossaments.objects.filter(id_partida=id_partida).values('compte'):
+            cod_compte = str(compte['compte'])
+            if cod_compte is None:
+                cod_compte = "0000"
+            # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
+            # if primer_digito =='6' or primer_digito =='2' :
+            if len(cod_compte) < 4:
+                if len(cod_compte) < 3:
+                    if len(cod_compte) < 2:
+                        cod_compte = cod_compte + "%%%"
+                    else:
+                        cod_compte = cod_compte + "%%"
+                else:
+                    cod_compte = cod_compte + "%"
+
+            coste_mes=0
+            # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
+            # OJO UTILIZAR FECHAS?
+            cursor.execute(
+                "SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",
+                [codigo_entero, str(data_max), str(data_min), cod_compte])  # AND ( FECHA<'2017-01-01 00:00:00.000' )
+            cuentacont = dictfetchall(cursor)
+            if cuentacont:
+                for cont in cuentacont:
+                    if cont["DEBE"] is None:
+                        cont["DEBE"] = 0
+                    if cont["HABER"] is None:
+                        cont["HABER"] = 0
+                    gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
+                    coste_mes=(Decimal(cont["DEBE"] - cont["HABER"]))
+            ### Comprometido
+            # duracion_total=data_max-data_min
+
+            duracion_total=obtener_meses(data_min,data_max)
+            fecha_pendiente=duracion_total-(obtener_meses(data_min,datetime.now().date()))
+            comprometido=comprometido+(fecha_pendiente*coste_mes)
+            ###
+        libre=pressupostat-float(gastat-comprometido)
+        saldo = pressupostat - float(gastat)  # pasamos datos a float ya que los decimal no los pilla bien el json
+        partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),
+                         'compromes':float(comprometido),'lliure':libre,'id_partida': str(id_partida), 'codigo_entero': codigo_entero,
+                         'fecha_min': str(data_min), 'fecha_max': str(data_max)})
+    resultado = json.dumps(partidas)
+    return HttpResponse(resultado, content_type='application/json;')
+
+def ListCompromesPartida(request,id_partida,id_projecte): # el del dialog
+    if int(id_partida) != 0:
+        resultado=[]
+        # id_prj=id_projecte
+        datos_prj=Projectes.objects.filter(id_projecte=id_projecte).values("data_inici_prj","data_fi_prj","id_resp__codi_resp","codi_prj").first()
+        cursor = connections['contabilitat'].cursor()
+        # partidas = []
+
+        #for partida in Pressupost.objects.filter(id_partida=id_partida).values('id_partida','id_concepte_pres__desc_concepte','import_field'):  # partidas de proyecto
+        id_partida = id_partida
+        # desc_partida = partida['id_concepte_pres__desc_concepte']
+        pressupostat = float(getattr(Pressupost.objects.get(id_partida=id_partida),'import_field')) # float(partida['import_field'])
+        data_min =datos_prj["data_inici_prj"].date() # obtener solo la fecha sin horas ni nada de eso
+        data_max = datos_prj["data_fi_prj"].date() # .replace(tzinfo=None)
+        cod_responsable = str(datos_prj["id_resp__codi_resp"])
+        cod_projecte = str(datos_prj["codi_prj"])
+        ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
+        if len(cod_responsable) < 2:
+            cod_responsable = "0" + str(cod_responsable)
+        if len(cod_projecte) < 3:
+            if len(cod_projecte) < 2:
+                cod_projecte = "00" + str(cod_projecte)
+            else:
+                cod_projecte = "0" + str(cod_projecte)
+        #####
+        codigo_entero = cod_responsable + cod_projecte
+        #####
+        # data_min = datetime.strptime(str(data_min), "%Y-%m-%d").date() #Ojo este es str F time
+        # data_max = datetime.strptime(str(data_max), "%Y-%m-%d").date()
+
+        ### para obtener el gastat
+        gastat = 0
+        comprometido= 0
+        for compte in Desglossaments.objects.filter(id_partida=id_partida).values('compte'):
+            cod_compte = str(compte['compte'])
+            if cod_compte is None:
+                cod_compte = "0000"
+            # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
+            # if primer_digito =='6' or primer_digito =='2' :
+            if len(cod_compte) < 4:
+                if len(cod_compte) < 3:
+                    if len(cod_compte) < 2:
+                        cod_compte = cod_compte + "%%%"
+                    else:
+                        cod_compte = cod_compte + "%%"
+                else:
+                    cod_compte = cod_compte + "%"
+
+            coste_mes=0
+            # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
+            # OJO UTILIZAR FECHAS?
+            cursor.execute(
+                "SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",
+                [codigo_entero, str(data_max), str(data_min), cod_compte])  # AND ( FECHA<'2017-01-01 00:00:00.000' )
+            cuentacont = dictfetchall(cursor)
+            if cuentacont:
+                for cont in cuentacont:
+                    if cont["DEBE"] is None:
+                        cont["DEBE"] = 0
+                    if cont["HABER"] is None:
+                        cont["HABER"] = 0
+                    gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
+                    coste_mes=(Decimal(cont["DEBE"] - cont["HABER"]))
+            ### Comprometido
+            # duracion_total=data_max-data_min
+
+            duracion_total=obtener_meses(data_min,data_max)
+            fecha_pendiente=duracion_total-(obtener_meses(data_min,datetime.now().date()))
+            comprometido=fecha_pendiente*coste_mes
+            ###
+            libre=pressupostat-float(gastat-comprometido)
+
+            resultado.append({"cuenta": str(compte['compte'])+codigo_entero, "coste_mes": float(coste_mes), "data_inici": str(data_min), "data_final": str(data_max),
+                             'duracio_total':duracion_total,'duracio_pendent':fecha_pendiente,'compromes': float(comprometido)})
+        resultado = json.dumps(resultado)
+        return HttpResponse(resultado, content_type='application/json;')
+    else:
+        return HttpResponse([{}], content_type='application/json;')
+
+
+
+def obtener_meses(fecha1,fecha2): # obtener la diferencia en meses de 2 fechas
+    #Ojo redondear hacia rriba si hay pocos dias de diferencia?
+    delta = 0
+    while True:
+        mdays = monthrange(fecha1.year, fecha1.month)[1]
+        fecha1 += timedelta(days=mdays)
+        if fecha1 <= fecha2:
+            delta += 1
+        else:
+            break
+    return delta
+
+# JSON DECOMPROMES DE COMPTE
+
+
 # PERMISOS DE USUARIOS PARA CONSULTAR OTROS PROYECTOS#################
 class ListPermisosUsuarisConsultar(generics.ListAPIView):  # usamos serializer ya que no es el  select y necesitaremos la url del serializer)
     serializer_class = GestPrjUsuarisSerializer
@@ -623,9 +809,18 @@ def cont_dades(request):
         for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
             concedit = round(concedit + float(importe.import_concedit), 2)
         # vienen en la tabla:
-        percen_iva = round(projecte.percen_iva, 4)
-        percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
-        canon_oficial = round(projecte.canon_oficial, 2)
+
+        percen_iva = round(0.0, 4)
+        if projecte.percen_iva:
+            percen_iva = round(projecte.percen_iva, 4)
+
+        percen_canon_creaf = round(0.0, 4)
+        if projecte.percen_canon_creaf:
+            percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+
+        canon_oficial = round(0.0, 4)
+        if projecte.canon_oficial:
+            canon_oficial = round(projecte.canon_oficial, 2)
 
         # calculados a mano
         if concedit == 0:  # para evitar problemas con la division si es 0
@@ -738,14 +933,27 @@ def cont_estat_pres(request):
             cod_responsable = projecte_chk.split("-")[0]
             id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
             cod_projecte = projecte_chk.split("-")[1]
-            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'percen_iva', 'percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
+            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'canon_oficial' ,'percen_iva', 'percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
             projecte=projecte[0]# Ojo aunque devuelva solo un proyecto sigue siendo una lista con diccionario
             ##### Cuentas:
             concedit = 0
             for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
-                concedit = concedit + importe['import_concedit']
-            iva = concedit - (concedit / (1 + projecte['percen_iva'] / 100))
-            canon = (concedit * projecte['percen_canon_creaf']) / (100 * (1 + projecte['percen_iva'] / 100))
+                concedit = round(concedit + float(importe['import_concedit']))
+
+            percen_iva = round(0.0, 4)
+            if projecte['percen_iva']:
+                percen_iva = round(projecte['percen_iva'], 4)
+
+            percen_canon_creaf = round(0.0, 4)
+            if projecte['percen_canon_creaf']:
+                percen_canon_creaf = round(projecte['percen_canon_creaf'], 4)
+
+            canon_oficial = round(0.0, 4)
+            if projecte['canon_oficial']:
+                canon_oficial = round(projecte['canon_oficial'], 2)
+
+            iva = concedit - (concedit / (1 + percen_iva / 100))
+            canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
             net_disponible = concedit - iva - canon
 
             concedit = round(concedit, 2)
@@ -813,14 +1021,27 @@ def cont_despeses(request):
             cod_responsable = projecte_chk.split("-")[0]
             id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
             cod_projecte = projecte_chk.split("-")[1]
-            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'percen_iva', 'percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
+            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'canon_oficial','percen_iva', 'percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
             projecte=projecte[0]# Ojo aunque devuelva solo un proyecto sigue siendo una lista con diccionario
             ##### Cuentas:
             concedit = 0
             for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
-                concedit = concedit + importe['import_concedit']
-            iva = concedit - (concedit / (1 + projecte['percen_iva'] / 100))
-            canon = (concedit * projecte['percen_canon_creaf']) / (100 * (1 + projecte['percen_iva'] / 100))
+                concedit = round(concedit + float(importe['import_concedit']))
+
+            percen_iva = round(0.0, 4)
+            if projecte['percen_iva']:
+                percen_iva = round(projecte['percen_iva'], 4)
+
+            percen_canon_creaf = round(0.0, 4)
+            if projecte['percen_canon_creaf']:
+                percen_canon_creaf = round(projecte['percen_canon_creaf'], 4)
+
+            canon_oficial = round(0.0, 4)
+            if projecte['canon_oficial']:
+                canon_oficial = round(projecte['canon_oficial'], 2)
+
+            iva = concedit - (concedit / (1 + percen_iva / 100))
+            canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
             net_disponible = concedit - iva - canon
 
             concedit = round(concedit, 2)
@@ -879,14 +1100,28 @@ def cont_ingresos(request):
             cod_responsable = projecte_chk.split("-")[0]
             id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
             cod_projecte = projecte_chk.split("-")[1]
-            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte','percen_iva','percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
+            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte','percen_iva', 'canon_oficial','percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
             projecte = projecte[0]  # Ojo aunque devuelva solo un proyecto sigue siendo una lista con diccionario
             ##### Cuentas:
             concedit = 0
+            concedit = 0
             for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
-                concedit = concedit + importe['import_concedit']
-            iva = concedit - (concedit / (1 + projecte['percen_iva'] / 100))
-            # canon = (concedit * projecte['percen_canon_creaf']) / (100 * (1 + projecte['percen_iva'] / 100))
+                concedit = round(concedit + float(importe['import_concedit']))
+
+            percen_iva = round(0.0, 4)
+            if projecte['percen_iva']:
+                percen_iva = round(projecte['percen_iva'], 4)
+
+            percen_canon_creaf = round(0.0, 4)
+            if projecte['percen_canon_creaf']:
+                percen_canon_creaf = round(projecte['percen_canon_creaf'], 4)
+
+            canon_oficial = round(0.0, 4)
+            if projecte['canon_oficial']:
+                canon_oficial = round(projecte['canon_oficial'], 2)
+
+            iva = concedit - (concedit / (1 + percen_iva / 100))
+            # canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
             net_disponible = concedit - iva # OJO que este no usa el CANON
 
             concedit = round(concedit, 2)
@@ -982,13 +1217,25 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                 #####
 
                 ##### Cuentas:
+
+                # CANON I IVA
                 concedit = 0
                 for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
-                    concedit = concedit + importe.import_concedit
+                    concedit = round(concedit + float(importe.import_concedit), 2)
+                # vienen en la tabla:
+                # vienen en la tabla:
 
-                iva = concedit - (concedit / (1 + projecte.percen_iva / 100))
-                canon = (concedit * projecte.percen_canon_creaf) / (100 * (1 + projecte.percen_iva / 100))
-                net_disponible = concedit - iva - canon
+                percen_iva = round(0.0, 4)
+                if projecte.percen_iva:
+                    percen_iva = round(projecte.percen_iva, 4)
+
+                percen_canon_creaf = round(0.0, 4)
+                if projecte.percen_canon_creaf:
+                    percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+
+                canon_oficial = round(0.0, 4)
+                if projecte.canon_oficial:
+                    canon_oficial = round(projecte.canon_oficial, 2)
 
                 # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
 
@@ -996,12 +1243,16 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                     percen_canon_oficial = 0.00
                 else:
                     percen_canon_oficial = (
-                    (projecte.canon_oficial / concedit) * (100 * (1 + projecte.percen_iva / 100)))
+                    (canon_oficial / concedit) * (100 * (1 + percen_iva / 100)))
 
                 if percen_canon_oficial > projecte.percen_canon_creaf:
                     canon_max = percen_canon_oficial
                 else:
-                    canon_max = projecte.percen_canon_creaf
+                    canon_max = percen_canon_creaf
+
+                iva = concedit - (concedit / (1 + percen_iva / 100))
+                canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+                net_disponible = concedit - iva - canon
 
                 canon_total = round((concedit - iva) * (canon_max / 100))
                 concedit = round(concedit, 2)
@@ -1148,14 +1399,27 @@ def cont_resum_fitxa_major_prj(request): #RESUM PER PARTIDES
             cod_responsable = projecte_chk.split("-")[0]
             id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
             cod_projecte = projecte_chk.split("-")[1]
-            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'percen_iva', 'percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
+            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'percen_iva', 'canon_oficial', 'percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
             projecte=projecte[0]# Ojo aunque devuelva solo un proyecto sigue siendo una lista con diccionario
             ##### Cuentas:
             concedit = 0
             for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
-                concedit = concedit + importe['import_concedit']
-            iva = concedit - (concedit / (1 + projecte['percen_iva'] / 100))
-            canon = (concedit * projecte['percen_canon_creaf']) / (100 * (1 + projecte['percen_iva'] / 100))
+                concedit = round(concedit + float(importe['import_concedit']))
+
+            percen_iva = round(0.0, 4)
+            if projecte['percen_iva']:
+                percen_iva = round(projecte['percen_iva'], 4)
+
+            percen_canon_creaf = round(0.0, 4)
+            if projecte['percen_canon_creaf']:
+                percen_canon_creaf = round(projecte['percen_canon_creaf'], 4)
+
+            canon_oficial = round(0.0, 4)
+            if projecte['canon_oficial']:
+                canon_oficial = round(projecte['canon_oficial'], 2)
+
+            iva = concedit - (concedit / (1 + percen_iva / 100))
+            canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
             net_disponible = concedit - iva - canon
 
             concedit = round(concedit, 2)
@@ -1205,14 +1469,27 @@ def cont_fitxa_major_prj(request): # INGRESSOS I DESPESES (FITXA MAJOR PRJ)
             cod_responsable = projecte_chk.split("-")[0]
             id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
             cod_projecte = projecte_chk.split("-")[1]
-            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'percen_iva', 'percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
+            projecte = Projectes.objects.filter(codi_prj=cod_projecte, id_resp=id_resp).values('id_projecte', 'percen_iva', 'canon_oficial','percen_canon_creaf','acronim','id_resp__id_usuari__nom_usuari')  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
             projecte=projecte[0]# Ojo aunque devuelva solo un proyecto sigue siendo una lista con diccionario
             ##### Cuentas:
             concedit = 0
             for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
-                concedit = concedit + importe['import_concedit']
-            iva = concedit - (concedit / (1 + projecte['percen_iva'] / 100))
-            canon = (concedit * projecte['percen_canon_creaf']) / (100 * (1 + projecte['percen_iva'] / 100))
+                concedit = round(concedit + float(importe['import_concedit']))
+
+            percen_iva = round(0.0, 4)
+            if projecte['percen_iva']:
+                percen_iva = round(projecte['percen_iva'], 4)
+
+            percen_canon_creaf = round(0.0, 4)
+            if projecte['percen_canon_creaf']:
+                percen_canon_creaf = round(projecte['percen_canon_creaf'], 4)
+
+            canon_oficial = round(0.0, 4)
+            if projecte['canon_oficial']:
+                canon_oficial = round(projecte['canon_oficial'], 2)
+
+            iva = concedit - (concedit / (1 + percen_iva / 100))
+            canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
             net_disponible = concedit - iva - canon
 
             concedit = round(concedit, 2)

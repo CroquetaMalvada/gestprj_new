@@ -67,7 +67,7 @@
                             {{ form.codi_oficial }}
                             <br>
                             {{ form.acronim.errors }}
-                            <h4>Acrónim:</h4>
+                            <h4>Acrònim:</h4>
                             {{ form.acronim }}
 
                             <hr>
@@ -494,212 +494,261 @@
                         <br><hr>
                         </div>
 
-                    <div id="contenedor_pressupost" class="col-md-10 col-md-offset-1">
+                        <div id="contenedor_pressupost" class="col-md-10 col-md-offset-1">
 
-                        <div class=" ">
-                            <h1>Pressupost</h1>
-                            <br><br><br>
-                            <h4>Pressupost</h4>
-                            <table id="table_pressupost" class="table table-striped table-bordered datatable">
-                                <a class="btn btn-success" id="afegir_pressupost" title="Afegir"
-                                   href="#">
-                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir pressupost
-                                </a>
-                                <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th>Partida</th>
-                                    <th>Import</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tfoot>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <td><b>Total: </b></td>
-                                    <td><b></b></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                </tfoot>
-                                <tbody>
-                                </tbody>
+                            <div class=" ">
+                                <h1>Pressupost</h1>
+                                <br><br><br>
+                                <h4>Pressupost</h4>
+                                <table id="table_pressupost" class="table table-striped table-bordered datatable">
+                                    <a class="btn btn-success" id="afegir_pressupost" title="Afegir"
+                                       href="#">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir pressupost
+                                    </a>
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Partida</th>
+                                        <th>Import</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <td><b>Total: </b></td>
+                                        <td><b></b></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    </tfoot>
+                                    <tbody>
+                                    </tbody>
 
-                            </table>
-                            <!--<br><b>Total(€)</b><input id="total_import_pressupost" class="max2dec" disabled/>-->
+                                </table>
+                                <!--<br><b>Total(€)</b><input id="total_import_pressupost" class="max2dec" disabled/>-->
+                                <br><br><br><br><br><br>
+                                <hr>
+                                <h4>Periodicitat pressupost</h4>
+                                <table id="table_periodicitat_pressupost"
+                                       class="table table-striped table-bordered datatable">
+                                    <a class="btn btn-success" id="afegir_periodicitat_pressupost" title="Afegir"
+                                       href="#">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
+                                        periodicitat pressupost
+                                    </a>
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Etiqueta</th>
+                                        <th>Data inici</th>
+                                        <th>Data final</th>
+                                        <th>Import</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <td><b>Total: </b></td>
+                                        <td><b id="total_import_periodicitat_pressupost"></b></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                                <!--<br><b>Total(€)</b><input id="total_periodicitat_pressupost" class="max2dec" disabled/>-->
+                            </div>
                             <br><br><br><br><br><br>
                             <hr>
-                            <h4>Periodicitat pressupost</h4>
-                            <table id="table_periodicitat_pressupost"
-                                   class="table table-striped table-bordered datatable">
-                                <a class="btn btn-success" id="afegir_periodicitat_pressupost" title="Afegir"
-                                   href="#">
-                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
-                                    periodicitat pressupost
-                                </a>
-                                <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>Etiqueta</th>
-                                    <th>Data inici</th>
-                                    <th>Data final</th>
-                                    <th>Import</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                                <tfoot>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <td><b>Total: </b></td>
-                                    <td><b id="total_import_periodicitat_pressupost"></b></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                </tfoot>
-                            </table>
-                            <!--<br><b>Total(€)</b><input id="total_periodicitat_pressupost" class="max2dec" disabled/>-->
-                        </div>
-                        <br><br><br><br><br><br>
-                        <hr>
-                        <div>
-                            <h4>Periodicitat partida de <b id="nombre_partida"></b></h4>
-                            <table id="table_periodicitat_partida" class="table table-striped table-bordered datatable">
-                                <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th>Data inici</th>
-                                    <th>Data final</th>
-                                    <th>Import</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                                <tfoot>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <td><b>Total: </b></td>
-                                    <td><b id="total_import_periodicitat_partida"></b></td>
-                                    <td></td>
-                                </tr>
-                                </tfoot>
-                            </table>
-                            <!--<br><b>Total(€)</b><input id="total_periodicitat_partida" class="max2dec" disabled/>-->
+                            <div>
+                                <h4>Periodicitat partida de <b id="nombre_partida"></b></h4>
+                                <table id="table_periodicitat_partida" class="table table-striped table-bordered datatable">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Data inici</th>
+                                        <th>Data final</th>
+                                        <th>Import</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <td><b>Total: </b></td>
+                                        <td><b id="total_import_periodicitat_partida"></b></td>
+                                        <td></td>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                                <!--<br><b>Total(€)</b><input id="total_periodicitat_partida" class="max2dec" disabled/>-->
 
 
-                            <br><br><br><br><br><br>
-                            <!--<input type="checkbox"/><b>Desglossament contable</b>-->
-                            <hr>
-                            <h4>Desglossament contable</h4>
-                            <table id="table_desglossament" class="table table-striped table-bordered datatable">
-                                <a class="btn btn-success" id="afegir_desglossament" title="Afegir"
-                                   href="#">
-                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
-                                    desglossament
-                                </a>
-                                <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>Num.Compte</th>
-                                    <th>Clau</th>
-                                    <th>Import</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                                <tfoot>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <td><b>Total: </b></td>
-                                    <td><b></b></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    <br><hr>
-                    </div>
-
-                    <div id="contenedor_justificacions" class="col-md-10 col-md-offset-1">
-
-                        <div>
-                            <h1>Justificacions</h1>
-                            <br><br><br>
-                            <h4>Justificacions del projecte</h4>
-                            <table id="table_justificacions_projecte"
-                                   class="table table-striped table-bordered datatable">
-                                <a class="btn btn-success" id="afegir_justificacio_projecte" title="Afegir"
-                                   href="#">
-                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
-                                    justificació projecte
-                                </a>
-                                <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>Data justificació</th>
-                                    <th>Data inici</th>
-                                    <th>Data final</th>
-                                    <th>Observacions</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+                                <br><br><br><br><br><br>
+                                <!--<input type="checkbox"/><b>Desglossament contable</b>-->
+                                <hr>
+                                <h4>Desglossament contable</h4>
+                                <table id="table_desglossament" class="table table-striped table-bordered datatable">
+                                    <a class="btn btn-success" id="afegir_desglossament" title="Afegir"
+                                       href="#">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
+                                        desglossament
+                                    </a>
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Num.Compte</th>
+                                        <th>Clau</th>
+                                        <th>Import</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <td><b>Total: </b></td>
+                                        <td><b></b></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        <br><hr>
                         </div>
 
-                        <div>
-                            <hr>
-                            <br><br><br><br><br><br><br>
-                            <h4>Auditories</h4>
-                            <table id="table_auditories" class="table table-striped table-bordered datatable">
-                                <a class="btn btn-success" id="afegir_auditoria" title="Afegir"
-                                   href="#">
-                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir auditoria
-                                </a>
-                                <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>Data auditoria</th>
-                                    <th>Data inici</th>
-                                    <th>Data final</th>
-                                    <th>Observacions</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+                        <div id="contenedor_justificacions" class="col-md-10 col-md-offset-1">
+
+                            <div>
+                                <h1>Justificacions</h1>
+                                <br><br><br>
+                                <h4>Justificacions del projecte</h4>
+                                <table id="table_justificacions_projecte"
+                                       class="table table-striped table-bordered datatable">
+                                    <a class="btn btn-success" id="afegir_justificacio_projecte" title="Afegir"
+                                       href="#">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir
+                                        justificació projecte
+                                    </a>
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Data justificació</th>
+                                        <th>Data inici</th>
+                                        <th>Data final</th>
+                                        <th>Observacions</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div>
+                                <hr>
+                                <br><br><br><br><br><br><br>
+                                <h4>Auditories</h4>
+                                <table id="table_auditories" class="table table-striped table-bordered datatable">
+                                    <a class="btn btn-success" id="afegir_auditoria" title="Afegir"
+                                       href="#">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Afegir auditoria
+                                    </a>
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Data auditoria</th>
+                                        <th>Data inici</th>
+                                        <th>Data final</th>
+                                        <th>Observacions</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <br><hr>
                         </div>
-                    <br><hr>
-                    </div>
+                        <div id="contenedor_compromes" class="col-md-10 col-md-offset-1">
+                            <div>
+                                <h1>Compromés del projecte</h1>
+                                <br><br><br>
+                                <table id="table_compromes" class="table table-striped table-bordered datatable">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Partida</th>
+                                        <th>Pressupost</th>
+                                        <th>Gastat</th>
+                                        <th>Compromés</th>
+                                        <th>Lliure</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!--<tr>-->
+                                            <!--<td>CI</td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                        <!--</tr>-->
+                                        <!--<tr>-->
+                                            <!--<td>Varios</td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                        <!--</tr>-->
+                                        <!--<tr>-->
+                                            <!--<td>Personal</td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                        <!--</tr>-->
+                                        <!--<tr>-->
+                                            <!--<td><b>Totals</b></td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                            <!--<td></td>-->
+                                        <!--</tr>-->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
             </form>
 
@@ -723,6 +772,7 @@
                     <button type="button" class="btn btn-primary btn-lg" id="finançament">Finançament</button>
                     <button type="button" class="btn btn-primary btn-lg" id="pressupost">Pressupost</button>
                     <button type="button" class="btn btn-primary btn-lg" id="justificacions">Justificacions</button>
+                    <button type="button" class="btn btn-primary btn-lg" id="compromes">Compromés</button>
                 </row><br><br>
                 <row>
                     <button type="button" class="btn btn-primary btn-lg btn-success" id="boton_guardar">
@@ -736,6 +786,7 @@
                     <button type="button" class="btn btn-primary btn-lg disabled" title="Has de guardar el projecte per accedir a aquesta opciò.">Finançament</button>
                     <button type="button" class="btn btn-primary btn-lg disabled" title="Has de guardar el projecte per accedir a aquesta opciò.">Pressupost</button>
                     <button type="button" class="btn btn-primary btn-lg disabled" title="Has de guardar el projecte per accedir a aquesta opciò.">Justificacions</button>
+                    <button type="button" class="btn btn-primary btn-lg disabled" title="Has de guardar el projecte per accedir a aquesta opciò.">Compromés</button>
                 </row><br><br>
                 <row>
                     <button type="button" class="btn btn-primary btn-lg btn-success" id="boton_guardar">
@@ -1306,6 +1357,25 @@
             </button>
         </form>
     </div>
+    <!--COMPROMETIDO-->
+    <div id="compromes_partida" class="dialogcont" title="Compromés del compte">
+        <table id="table_compromes_partida" class="table table-striped table-bordered datatable">
+            <thead>
+            <tr>
+                <th>Compte</th>
+                <th>Cost/mes</th>
+                <th>Data inici</th>
+                <th>Data final</th>
+                <th>Duració TOTAL</th>
+                <th>Duració pendent</th>
+                <th>Compromés</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
 
 </div>
 

@@ -1,6 +1,7 @@
 var id_prj = null;
 var id_current_perso_creaf=0;
 var id_current_partida=0;
+var id_current_partida_compromes=0;
 var separador_miles='.';
 var separador_decimales=',';
 
@@ -31,6 +32,9 @@ var desglossament = null;
 
 var justificacions_projecte = null;
 var auditories = null;
+var compromes = null;
+var compromes_partida = null;
+
 var separador_decimales = ',';
 var separador_miles = '.';
 
@@ -161,6 +165,10 @@ function refrescaTabla(tabla){
         justificacions_projecte.ajax.reload();
     else if(tabla==17)
         auditories.ajax.reload();
+    else if(tabla==21){
+        compromes_partida.ajax.url('/show_compromes_partida/'+id_current_partida+'/'+id_prj);
+        compromes_partida.ajax.reload();
+    }
 
 }
 
@@ -747,6 +755,71 @@ function crear_datatable(tipo){
                         {"visible":false,"targets":[0,1]},
                         { "width": "5%", "targets": [6,7] }
                     ],
+//                    fnDrawCallback:function(){// OJO es sensible a mayusculas y minusculas
+//                        var total = $(this).DataTable().column( 5 ).data().sum();
+//                        $("#total_periodicitat_partida").val(total);
+//                    },
+                    scrollY:        '50vh',
+                    scrollCollapse: true,
+                    paging:         false,
+                    autowidth:      true,
+                    overflow:       "auto",
+                    language: opciones_idioma,
+        });
+    }else if(tipo==20){ //////////COMPROMÉS
+        return $("#table_compromes").DataTable({
+                    ajax: {
+                        url: '/show_compromes/'+id_prj,
+                        contentType: "application/json;",
+                        dataSrc: ''
+                    },
+                    columns:[
+                        {'data': 'id_partida'},
+                        {'data': 'desc_partida'},
+                        {'data': 'pressupostat'},
+                        {'data': 'gastat'},
+                        {'data': 'compromes'},
+                        {'data': 'lliure'},
+                        {"render": function(){return '<a class="btn btn-success observar_compromes" title="Detalls" href="#"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>';}}
+                    ],
+                    columnDefs:[
+                        {"visible":false,"targets":[0]},
+                        { "width": "5%", "targets": [6] }
+                    ],
+//                    columnDefs:[
+//                        { "width": "5%", "targets": [6,7] }
+//                    ],
+//                    fnDrawCallback:function(){// OJO es sensible a mayusculas y minusculas
+//                        var total = $(this).DataTable().column( 5 ).data().sum();
+//                        $("#total_periodicitat_partida").val(total);
+//                    },
+                    scrollY:        '50vh',
+                    scrollCollapse: true,
+                    paging:         false,
+                    autowidth:      true,
+                    overflow:       "auto",
+                    language: opciones_idioma,
+        });
+    }else if(tipo==21){ //////////COMPROMÉS *este es el del dialog
+        return $("#table_compromes_partida").DataTable({
+                    ajax: {
+                        url: '/show_compromes_partida/0/0',
+                        contentType: "application/json;",
+                        dataSrc: ''
+                    },
+                    columns:[
+                        {'data': 'cuenta'},
+                        {'data': 'coste_mes'},
+                        {'data': 'data_inici'},
+                        {'data': 'data_final'},
+                        {'data': 'duracio_total'},
+                        {'data': 'duracio_pendent'},
+                        {'data': 'compromes'}
+                    ],
+//                    columnDefs:[
+//                        {"visible":false,"targets":[0]},
+//                        { "width": "5%", "targets": [6] }
+//                    ],
 //                    fnDrawCallback:function(){// OJO es sensible a mayusculas y minusculas
 //                        var total = $(this).DataTable().column( 5 ).data().sum();
 //                        $("#total_periodicitat_partida").val(total);

@@ -53,9 +53,19 @@ def ContDades(projectes):#Fitxa Dades Projectes
             for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
                 concedit = round(concedit + float(importe.import_concedit),2)
             #vienen en la tabla:
-            percen_iva = round(projecte.percen_iva,2)
-            percen_canon_creaf = round(projecte.percen_canon_creaf,2)
-            canon_oficial = round(projecte.canon_oficial,2)
+            # vienen en la tabla:
+
+            percen_iva = round(0.0, 4)
+            if projecte.percen_iva:
+                percen_iva = round(projecte.percen_iva, 4)
+
+            percen_canon_creaf = round(0.0, 4)
+            if projecte.percen_canon_creaf:
+                percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+
+            canon_oficial = round(0.0, 4)
+            if projecte.canon_oficial:
+                canon_oficial = round(projecte.canon_oficial, 2)
 
             # calculados a mano
             if concedit == 0: # para evitar problemas con la division si es 0
