@@ -146,7 +146,7 @@ def login_view(request):
         # print username, password
         user = authenticate(username=username, password=password)
         if user is not None:#si el usuario es del creaf
-            if (user.groups.filter(name="Admins gestprj").exists() or request.user.groups.filter(name="Mods gestprj").exists() or user.groups.filter(name="Investigadors Principals").exists()):# y ademas forma parte de alguno de los grupos necesarios
+            if (user.groups.filter(name="Admins gestprj").exists() or user.groups.filter(name="Mods gestprj").exists() or user.groups.filter(name="Investigadors Principals").exists()):# y ademas forma parte de alguno de los grupos necesarios
                 login(request, user)
                 return HttpResponseRedirect('/llista_projectes/', {'tipo': username})
             else:
