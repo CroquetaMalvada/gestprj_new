@@ -910,7 +910,7 @@
             <tr>
                 <th></th>
                 <th>Data inici</th>
-                <th>Data fil</th>
+                <th>Data fi</th>
                 <th>Tipus feina</th>
                 <th>Hores treballades</th>
                 <th>Cost x hora</th>
@@ -1358,8 +1358,8 @@
         </form>
     </div>
     <!--COMPROMETIDO-->
-    <div id="compromes_partida" class="dialogcont" title="Compromés del compte">
-        <table id="table_compromes_partida" class="table table-striped table-bordered datatable">
+    <div id="compromes_personal" class="dialogcont" title="Compromés del personal">
+        <table id="table_compromes_personal" class="table table-striped table-bordered datatable">
             <thead>
             <tr>
                 <th>Compte</th>
@@ -1367,14 +1367,84 @@
                 <th>Data inici</th>
                 <th>Data final</th>
                 <th>Duració TOTAL</th>
+                <th>Data calcul</th>
                 <th>Duració pendent</th>
                 <th>Compromés</th>
             </tr>
             </thead>
             <tbody>
+                <tr>
+                    <td>Salario</td>
+                    <td><input class="compromes_personal_cost"/></td>
+                    <td><input class="compromes_personal_data_ini"/></td>
+                    <td><input class="compromes_personal_data_fi"/></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Sego.Social</td>
+                    <td><input class="compromes_personal_cost"/></td>
+                    <td><input class="compromes_personal_data_ini"/></td>
+                    <td><input class="compromes_personal_data_fi"/></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Indemnización</td>
+                    <td><input class="compromes_personal_cost"/></td>
+                    <td><input class="compromes_personal_data_ini"/></td>
+                    <td><input class="compromes_personal_data_fi"/></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
             </tbody>
-        </table>
+        </table><br>
+        <button class="btn btn-success" type="submit" title="Guardar" href="#">
+            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
+        </button>
+
+        <button class="btn btn-danger" title="Cancel·lar" href="#" type="button" onclick='cerrar_dialog();'>
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
+        </button>
     </div>
+    <!--<div id="editar_compromes_parsonal" class="dialogcont" title="Compromés del personal">-->
+        <!--<form id="formulario_compromes_personal" action="/gestor_Compromes_Pesonal/" method="POST">-->
+            <!--{% csrf_token %}-->
+            <!--Cost/mes<input id="etiqueta" name="etiqueta"/><br>-->
+            <!--Data inici<input id="data_periodicitat_pressupost_inici" name="data_inicial"/><br>-->
+            <!--Data final<input id="data_periodicitat_pressupost_fi" name="data_final"/><br>-->
+            <!--<br>-->
+            <!--<button class="btn btn-success" type="submit" title="Guardar" href="#">-->
+                <!--<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar-->
+            <!--</button>-->
+
+            <!--<button class="btn btn-danger" title="Cancel·lar" href="#" type="button"-->
+                    <!--onclick='cerrar_dialog();'>-->
+                <!--<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar-->
+            <!--</button>-->
+        <!--</form>-->
+        <!--<table id="table_compromes_partida" class="table table-striped table-bordered datatable">-->
+            <!--<thead>-->
+            <!--<tr>-->
+                <!--<th>Compte</th>-->
+                <!--<th>Cost/mes</th>-->
+                <!--<th>Data inici</th>-->
+                <!--<th>Data final</th>-->
+                <!--<th>Duració TOTAL</th>-->
+                <!--<th>Duració pendent</th>-->
+                <!--<th>Compromés</th>-->
+            <!--</tr>-->
+            <!--</thead>-->
+            <!--<tbody>-->
+            <!--</tbody>-->
+        <!--</table>-->
+    <!--</div>-->
 
 
 </div>
