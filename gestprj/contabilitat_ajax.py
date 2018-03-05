@@ -23,7 +23,7 @@ from gestprj.serializers import GestCentresParticipantsSerializer, ProjectesSeri
     GestConceptesPressSerializer, GestPressupostSerializer, GestPeriodicitatPresSerializer, \
     GestPeriodicitatPartidaSerializer, GestDesglossamentSerializer, GestJustificacionsProjecteSerializer, \
     GestAuditoriesSerializer
-from gestprj import pk,consultes_cont
+# from gestprj import pk,consultes_cont
 from django.db import transaction
 from datetime import datetime
 from decimal import *
@@ -229,6 +229,8 @@ def AjaxListEstatPresDatos(request,datos):
         id_periode = datos.split("_")[0]
         data_min_periode = datos.split("_")[1]
         data_max_periode = datos.split("_")[2]
+        data_min_periode = datetime.strptime(data_min_periode, "%d-%m-%Y")
+        data_max_periode = datetime.strptime(data_max_periode, "%d-%m-%Y")
         codigo_entero = datos.split("_")[3]
         tipos_partida = {}
         for partidaperio in PeriodicitatPartida.objects.filter(id_periodicitat=id_periode).values('id_partida','id_partida__id_partida','id_partida__id_concepte_pres__desc_concepte','import_field'):  # partida de x periodo
@@ -236,7 +238,7 @@ def AjaxListEstatPresDatos(request,datos):
             desc_partida = partidaperio['id_partida__id_concepte_pres__desc_concepte']
             pressupostat = float(partidaperio['import_field'])
             if desc_partida not in tipos_partida:
-                tipos_partida[desc_partida] = {"desc_partida": desc_partida, "pressupostat": float(0), "gastat": float(0),"saldo": float(0), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': data_min_periode, 'fecha_max': data_max_periode}
+                tipos_partida[desc_partida] = {"desc_partida": desc_partida, "pressupostat": float(0), "gastat": float(0),"saldo": float(0), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': datos.split("_")[1], 'fecha_max': datos.split("_")[2]}
             ### para obtener el gastat
             gastat = 0
             cuenta = 0
@@ -260,7 +262,7 @@ def AjaxListEstatPresDatos(request,datos):
 
                 # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
                 # OJO UTILIZAR FECHAS?
-                cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE(  CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N'  AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA NOT LIKE 6296+(?) ) ) ",[codigo_entero, data_max_periode, data_min_periode, cod_compte, codigo_entero])
+                cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE(  CENTROCOSTE2='   '+%s AND ( CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) AND TIPAPU='N'  AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE %s+'%%' AND CUENTA NOT LIKE 6296+%s ) ) ",(codigo_entero, data_max_periode, data_min_periode, cod_compte, codigo_entero))
                 cuentacont = dictfetchall(cursor)
                 if cuentacont:
                     for cont in cuentacont:
@@ -315,7 +317,8 @@ def AjaxListEstatPresDatos(request,datos):
 
                 # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
                 # OJO UTILIZAR FECHAS?
-                cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",[codigo_entero, data_max, data_min, cod_compte])  # AND ( FECHA<'2017-01-01 00:00:00.000' )
+                cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+%s AND ( CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE %s+'%%' ) ",(codigo_entero, data_max, data_min, cod_compte))  # AND ( FECHA<'2017-01-01 00:00:00.000' )
+                #cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",[codigo_entero, data_max, data_min, cod_compte])  # AND ( FECHA<'2017-01-01 00:00:00.000' )
                 cuentacont = dictfetchall(cursor)
                 if cuentacont:
                     for cont in cuentacont:
@@ -326,7 +329,7 @@ def AjaxListEstatPresDatos(request,datos):
                         gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
 
             saldo = pressupostat - float(gastat)  # pasamos datos a float ya que los decimal no los pilla bien el json
-            partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': str(data_min), 'fecha_max': str(data_max)})
+            partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': datos.split("_")[1], 'fecha_max': datos.split("_")[2]})
         resultado = json.dumps(partidas)
         # Cerramos el cursor
         cursor.close()
@@ -335,14 +338,63 @@ def AjaxListEstatPresDatos(request,datos):
     return []
 
 
-def AjaxListDespesesCompte(request,id_partida,cod,data_min,data_max):
+def AjaxListDespesesCompte(request,id_partida,codigo_entero,data_min,data_max):
     if int(id_partida) != 0:
-        fetch = consultes_cont.DespesesCompte(id_partida,cod,data_min,data_max)
-        # resultado = json.dumps(fetch, ensure_ascii=False)
-        resultado = json.dumps(fetch)
-        return resultado
+        if id_partida is None:
+            return None
+        else:
+            # fetch = consultes_cont.DespesesCompte(id_partida,cod,data_min,data_max)
+            # resultado = json.dumps(fetch, ensure_ascii=False)
+            cursor = connections['contabilitat'].cursor()
+            resultado = []
+            data_min = datetime.strptime(data_min, "%d-%m-%Y")
+            data_max = datetime.strptime(data_max, "%d-%m-%Y")
+            for compte in Desglossaments.objects.filter(id_partida=id_partida):
+                cod_compte = str(compte.compte)
+                if cod_compte is None:
+                    cod_compte = "0000"
+                # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
+                # if primer_digito =='6' or primer_digito =='2' :
+                if len(cod_compte) < 4:
+                    if len(cod_compte) < 3:
+                        if len(cod_compte) < 2:
+                            cod_compte = cod_compte + "%%%"
+                        else:
+                            cod_compte = cod_compte + "%%"
+                    else:
+                        cod_compte = cod_compte + "%"
+
+                codigo_final = cod_compte + codigo_entero  # en realidad seria de 9 digitos pero como en la consulta ponemos un 6 o un delante es de 8
+                cursor.execute("SELECT CENTROCOSTE,CENTROCOSTE2,NUMAPUNTE,CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE) AS Debe, CONVERT(varchar,HABER) AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+%s  AND TIPAPU='N' AND ( CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s )  AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE %s+'%%' AND CUENTA  NOT LIKE 6296+%s ) ",(codigo_entero, data_max, data_min, cod_compte, codigo_entero))
+                cuentacont = dictfetchall(cursor)  # Se puede usar un Sum(Debe) Sum(HAber) para ahorrarnos el bucle,pero de momento lo prefiero asi para comprobar los gastos uno a uno
+                if cuentacont:
+                    for cont in cuentacont:
+                        if cont["Debe"] is None:
+                            cont["Debe"] = 0
+                        if cont["Haber"] is None:
+                            cont["Haber"] = 0
+                        cont["Debe"] = float(cont["Debe"]) - float(cont["Haber"])
+                        # OJO CENTROCOSTE3 SIEMPRE ES NULO,PERO NO DESCARTAR QUE EN UN FUTUR PUEDA TENER ALGUN VALOR,NUMAPUNTE ES MUY IMPROTANTE PESE A NO SER UNA FK!!!
+                        cursor.execute("SELECT OBSERVACIONES FROM CABEFACC WHERE CENTROCOSTE=%s AND CENTROCOSTE2=%s AND NUMAPUNTE=%s",(cont["CENTROCOSTE"], cont["CENTROCOSTE2"], cont["NUMAPUNTE"]))
+                        # if prjfet["NUMAPUNTE"] == 201605605.00:
+                        observacion = cursor.fetchall()
+                        cont["NUMAPUNTE"] = ""
+                        if observacion:
+                            if observacion[0][0] is None:
+                                cont["Observaciones"] = "Sense observacions."
+                            else:
+                                cont["Observaciones"] = observacion[0][0]
+                        else:
+                            cont["Observaciones"] = "Sense observacions."
+
+                        resultado.append(cont)
+            cursor.close()
+            resultado = json.dumps(resultado)
+            return resultado
     else:
         return [{}]
+
+
 
 def AjaxListDespesesDatos(request,fecha_min,fecha_max,codigo):
 
@@ -384,7 +436,8 @@ def AjaxListDespesesDatos(request,fecha_min,fecha_max,codigo):
     #####
 
     # 105 en el convert equivale al dd-mm-yyyy
-    cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(VARCHAR,TEXTO) as Clau, CONVERT(NVARCHAR(200),DESCAPU) AS Documento,CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%') AND CUENTAS.CUENTA  NOT LIKE  '6296'+(?) AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero, codigo_entero, fecha_max, fecha_min])
+    cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(VARCHAR,TEXTO) as Clau, CONVERT(NVARCHAR(200),DESCAPU) AS Documento,CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '2%%' OR CUENTAS.CUENTA LIKE '6%%') AND CUENTAS.CUENTA NOT LIKE '6296'+%s AND TIPAPU='N' AND (CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s )) ORDER BY cast(FECHA as date)",(codigo_entero, codigo_entero, fecha_max, fecha_min))
+    #cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(VARCHAR,TEXTO) as Clau, CONVERT(NVARCHAR(200),DESCAPU) AS Documento,CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%') AND CUENTAS.CUENTA  NOT LIKE  '6296'+(?) AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",[codigo_entero, codigo_entero, fecha_max, fecha_min])
     # SELECT CONVERT(varchar, FECHA,105) AS Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) )  AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' AND CUENTA  NOT LIKE 6296+(?) ) ",[codigo_entero,data_max_periode,data_min_periode, cod_compte, codigo_entero])
     # cursor.execute(
     #     "SELECT TOP 100 PERCENT CONVERT(VARCHAR,Fecha,105)as Data, Asiento, Documento, Cuenta, Opc1, Opc3, Descripcion, Opc2, Debe, Haber FROM  Apuntes WHERE ((Diario='0' OR Diario='1' OR Diario='4') AND (((Cuenta LIKE '2%'+(?)) OR (Cuenta LIKE '6%'+(?))) AND (Cuenta  NOT LIKE  '6296'+(?))) AND ((Fecha >= CONVERT(date,(?),105)) AND (Fecha<=CONVERT(date,(?),105)))) ORDER BY cast(Fecha as date)",
@@ -465,8 +518,8 @@ def AjaxListIngresosDatos(request,fecha_min,fecha_max,codigo):
 
     # 105 en el convert equivale al dd-mm-yyyy
     cursor.execute(
-        "SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA  NOT LIKE  '79%' AND CUENTAS.CUENTA  NOT LIKE  '6296'+(?) AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",
-        [codigo_entero, codigo_entero, fecha_max, fecha_min])
+        "SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND CUENTAS.CUENTA LIKE '7%%' AND CUENTAS.CUENTA  NOT LIKE  '79%%' AND CUENTAS.CUENTA  NOT LIKE  '6296'+%s AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) ORDER BY cast(FECHA as date)",
+        (codigo_entero, codigo_entero, fecha_max, fecha_min))
     # cursor.execute("SELECT TOP 100 PERCENT CONVERT(VARCHAR,Fecha,105)as Data, Asiento, Cuenta, Descripcion, Debe, Haber FROM  Apuntes WHERE ((Diario='0' OR Diario='1' OR Diario='4') AND (Cuenta LIKE '7%'+(?)) AND (Cuenta  NOT LIKE  '6296'+(?)) AND ((Fecha >= CONVERT(date,(?),105)) AND (Fecha<=CONVERT(date,(?),105)))) ORDER BY cast(Fecha as date)",[codigo_entero, codigo_entero, fecha_min, fecha_max])
     projectfetch = dictfetchall(cursor)  # un cursor.description tambien sirve
 
@@ -568,10 +621,10 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
         ### consulta SQL
 
         cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA NOT LIKE '79%' AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '2%') AND CUENTAS.CUENTA NOT LIKE '6296%' AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?))) AS despeses,"
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '79%' OR CUENTAS.CUENTA LIKE '6296%') AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=(?))) AS canon",
-                       [codigo_entero, fecha_max, codigo_entero, fecha_max, codigo_entero, fecha_max])
+                       "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND CUENTAS.CUENTA LIKE '7%%' AND CUENTAS.CUENTA NOT LIKE '79%%' AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=%s)) AS ingressos,"
+                       "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '6%%' OR CUENTAS.CUENTA LIKE '2%%') AND CUENTAS.CUENTA NOT LIKE '6296%%' AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=%s)) AS despeses,"
+                       "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '79%%' OR CUENTAS.CUENTA LIKE '6296%%') AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=%s)) AS canon",
+                       (codigo_entero, fecha_max, codigo_entero, fecha_max, codigo_entero, fecha_max))
 
         projectfetch = dictfetchall(cursor)  # un cursor.description tambien sirve
 
@@ -648,8 +701,8 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
 
     # obtener las cuentas de x proyecto
     cursor.execute(
-        "SELECT CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(varchar(200),CUENTAS.DESCCUE) AS Titulo, CONVERT(varchar,Sum(DEBE))AS TotalDebe, CONVERT(varchar,Sum(HABER))AS TotalHaber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE ( CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%' OR CUENTAS.CUENTA LIKE '7%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) GROUP BY CUENTAS.CUENTA,CUENTAS.DESCCUE ORDER BY CUENTAS.CUENTA",
-        [codigo_entero, fecha_max, fecha_min])
+        "SELECT CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(varchar(200),CUENTAS.DESCCUE) AS Titulo, CONVERT(varchar,Sum(DEBE))AS TotalDebe, CONVERT(varchar,Sum(HABER))AS TotalHaber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE ( CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '2%%' OR CUENTAS.CUENTA LIKE '6%%' OR CUENTAS.CUENTA LIKE '7%%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) GROUP BY CUENTAS.CUENTA,CUENTAS.DESCCUE ORDER BY CUENTAS.CUENTA",
+        (codigo_entero, fecha_max, fecha_min))
     # cursor.execute("SELECT TOP 100 PERCENT Apuntes.Cuenta, Plan_cuentas.Titulo, Sum(Apuntes.Debe) AS TotalDebe, Sum(Apuntes.Haber) AS TotalHaber FROM Plan_cuentas LEFT JOIN Apuntes ON (Plan_cuentas.Cuenta = Apuntes.Cuenta) WHERE ( (Plan_cuentas.Nivel=0) AND (((Apuntes.Cuenta) LIKE '2%'+(?))OR((Apuntes.Cuenta) LIKE '6%'+(?) )OR((Apuntes.Cuenta) LIKE '7%'+(?))) AND ((Apuntes.Diario)='0' OR (Apuntes.Diario)='4' OR (Apuntes.Diario)='1') AND ((Apuntes.Fecha)>=CONVERT(date, (?),105) AND (Apuntes.Fecha)<=CONVERT(date, (?),105))) GROUP BY Apuntes.Cuenta, Plan_cuentas.Titulo ORDER BY Apuntes.Cuenta",[codigo_entero,codigo_entero,codigo_entero,fecha_min,fecha_max])
     projectfetch = dictfetchall(cursor)  # un cursor.description tambien sirve
 
@@ -664,8 +717,8 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
             prjfet["TotalHaber"] = 0
         # por cada cuenta,guardar los detalles/movimientos de la misma
         cursor.execute(
-            "SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CUENTAS.CUENTA=(?) AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",
-            [prjfet["Cuenta"], fecha_max, fecha_min])
+            "SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CUENTAS.CUENTA=%s AND CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) ORDER BY cast(FECHA as date)",
+            (prjfet["Cuenta"], fecha_max, fecha_min))
         # cursor.execute("SELECT TOP 100 PERCENT Fecha, Asiento, Cuenta, Descripcion, Debe, Haber FROM Apuntes WHERE (Cuenta=(?) AND (Diario='0' OR Diario='4' OR Diario='1') AND ((Apuntes.Fecha)>=CONVERT(date, (?),105) AND (Apuntes.Fecha)<=CONVERT(date, (?),105))) ORDER BY cast(Fecha as date)",[prjfet["Cuenta"],fecha_min,fecha_max])
         comptes[prjfet["Cuenta"]] = dictfetchall(cursor)
 
@@ -695,13 +748,44 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
     cursor.close()
     return resultado
 
-def AjaxListMovimentsCompte(request,compte,data_min,data_max):
+def AjaxListMovimentsCompte(request,compte,fecha_min,fecha_max):
+    # if compte != "0":
+    #     fetch = consultes_cont.MovimentsCompte(compte,data_min,data_max)
+    #     resultado = json.dumps(fetch)
+    #     return resultado
+    # else:
+    #     return [{}]
     if compte != "0":
-        fetch = consultes_cont.MovimentsCompte(compte,data_min,data_max)
+        if compte is None:
+            return None
+        else:
+            cuenta = compte.split("-")[0]
+            codigo_entero = compte.split("-")[1]
+            # fecha_min = data_min
+            # fecha_max = data_max
+            # fecha_min = datetime.strptime(data_min, "%d-%m-%Y")
+            # fecha_max = datetime.strptime(data_max, "%d-%m-%Y")
+            cursor = connections['contabilitat'].cursor()
+            # he modificado el primer resultado y ultimo resultado(que eran simplemente "Fecha"),el primero para que devuelva un "Fecha" como string en lugar de en partes,y el ultimo para relizar los calculos del saldo(ya que se deben hacer de mas antiguos a nuevos)
+            cursor.execute("SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CUENTAS.CUENTA LIKE %s+'%%' AND CENTROCOSTE2='   '+%s AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) ORDER BY cast(FECHA as date)",(cuenta, codigo_entero, fecha_max, fecha_min))
+            # cursor.execute("SELECT TOP 100 PERCENT CONVERT(varchar, Fecha,105) AS Fecha, Asiento, Cuenta, Descripcion, Debe, Haber FROM Apuntes WHERE (Cuenta=(?) AND (Diario='0' OR Diario='4' OR Diario='1') AND ((Apuntes.Fecha)>=CONVERT(date, (?),105) AND (Apuntes.Fecha)<=CONVERT(date, (?),105))) ORDER BY cast(Fecha as date)",[compte,fecha_min,fecha_max])
+            fetch = dictfetchall(cursor)
+            saldo = 0
+            for result in fetch:
+                if result['Debe'] is None:
+                    result['Debe'] = 0
+                if result['Haber'] is None:
+                    result['Haber'] = 0
+
+                saldo = round((saldo - float(result["Debe"])) + float(result["Haber"]), 2)
+                result["Saldo"] = saldo
+
+        cursor.close()
         resultado = json.dumps(fetch)
         return resultado
     else:
         return [{}]
+
 
 def AjaxListFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
     fecha_min = datetime.strptime(fecha_min, "%d-%m-%Y")
@@ -729,8 +813,8 @@ def AjaxListFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
 
     ##### OJO que para ir restando el saldo hay que devolver los resultados ordenados por la fecha,para ello he tenido que modificar el ORDER BY
     cursor.execute(
-        "SELECT CENTROCOSTE,CENTROCOSTE2,NUMAPUNTE,CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),CUENTAS.DESCCUE) AS Desc_cuenta,CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '7%' OR CUENTAS.CUENTA LIKE '2%' OR CUENTAS.CUENTA LIKE '6%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) ORDER BY cast(FECHA as date)",
-        [codigo_entero, fecha_max, fecha_min])
+        "SELECT CENTROCOSTE,CENTROCOSTE2,NUMAPUNTE,CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),CUENTAS.DESCCUE) AS Desc_cuenta,CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '7%%' OR CUENTAS.CUENTA LIKE '2%%' OR CUENTAS.CUENTA LIKE '6%%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) ORDER BY cast(FECHA as date)",
+        (codigo_entero, fecha_max, fecha_min))
     projectfetch = dictfetchall(cursor)  # un cursor.description tambien sirve
 
     for prjfet in projectfetch:
@@ -741,8 +825,8 @@ def AjaxListFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
 
         # OJO CENTROCOSTE3 SIEMPRE ES NULO,PERO NO DESCARTAR QUE EN UN FUTUR PUEDA TENER ALGUN VALOR,NUMAPUNTE ES MUY IMPROTANTE PESE A NO SER UNA FK!!!
         cursor.execute(
-            "SELECT OBSERVACIONES FROM CABEFACC WHERE CENTROCOSTE=(?) AND CENTROCOSTE2=(?) AND NUMAPUNTE=(?)",
-            [prjfet["CENTROCOSTE"], prjfet["CENTROCOSTE2"], prjfet["NUMAPUNTE"]])
+            "SELECT OBSERVACIONES FROM CABEFACC WHERE CENTROCOSTE=%s AND CENTROCOSTE2=%s AND NUMAPUNTE=%s",
+            (prjfet["CENTROCOSTE"], prjfet["CENTROCOSTE2"], prjfet["NUMAPUNTE"]))
 
         observacion = cursor.fetchall()
         if observacion:
@@ -805,9 +889,9 @@ def AjaxListResumEstatCanonDatos(request,fecha_min,fecha_max,codigo):
 
         ### consulta SQL
         cursor.execute("SELECT ingressosD, ingressosH, canonD, canonH FROM "
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND CUENTAS.CUENTA LIKE '7%' AND CUENTAS.CUENTA NOT LIKE '79%' AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS ingressos,"
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+(?) AND (CUENTAS.CUENTA LIKE '79%' OR CUENTAS.CUENTA LIKE '6296%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=(?))) AS canon",
-                       [codigo_entero, fecha_max, codigo_entero, fecha_max])
+                       "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND CUENTAS.CUENTA LIKE '7%%' AND CUENTAS.CUENTA NOT LIKE '79%%' AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=%s)) AS ingressos,"
+                       "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '79%%' OR CUENTAS.CUENTA LIKE '6296%%') AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=%s)) AS canon",
+                       (codigo_entero, fecha_max, codigo_entero, fecha_max))
         projectfetch = dictfetchall(cursor)  # un cursor.description tambien sirve
 
         if projectfetch[0]["ingressosD"] is None:
