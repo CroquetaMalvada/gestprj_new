@@ -7,13 +7,13 @@ from gestprj.models import CentresParticipants
 from gestprj.models import TCategoriaPrj
 from django.forms.extras.widgets import SelectDateWidget
 
-
-class UsuariXarxaForm(forms.ModelForm):
-    id_usuari_xarxa = forms.DecimalField()
-    nom_xarxa = forms.CharField()
-
-    class Meta:
-        model = TUsuarisXarxa
+#
+# class UsuariXarxaForm(forms.ModelForm):
+#     id_usuari_xarxa = forms.DecimalField()
+#     nom_xarxa = forms.CharField()
+#
+#     class Meta:
+#         model = TUsuarisXarxa
 
 class ProjectesForm(forms.ModelForm):  # hereda de la clase predefinida forms.ModelForm
     class Meta:

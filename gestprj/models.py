@@ -459,7 +459,6 @@ class Desglossaments(models.Model):
         db_table = 'DESGLOSSAMENTS'
 
 
-
 class JustificProjecte(models.Model):
     id_justificacio_prj = models.AutoField(db_column='ID_JUSTIFICACIO_PRJ', primary_key=True)  # Field name made lowercase.
     # id_justificacio_prj = models.DecimalField(db_column='ID_JUSTIFICACIO_PRJ', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
@@ -495,13 +494,19 @@ class AuditoriesProjecte(models.Model):
 
 class CompromesPersonal(models.Model):
     id_compromes = models.AutoField(db_column='ID_COMPROMES', primary_key=True)  # Field name made lowercase.
-    compte = models.DecimalField(db_column='COMPTE', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
+    id_projecte = models.DecimalField(db_column='ID_PROJECTE', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
+    compte = models.CharField(db_column='COMPTE',  max_length=15, blank=True, null=True)  # Field name made lowercase.
+    descripcio = models.CharField(db_column='DESC', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    cost = models.DecimalField(db_column='COST', max_digits=17, decimal_places=2, blank=True, null=True)  # Field name made lowercase. Field renamed because it was a Python reserved word.
     data_inici = models.DateField(db_column='DATA_INICI', blank=True, null=True)  # Field name made lowercase.
     data_fi = models.DateField(db_column='DATA_fI', blank=True, null=True)  # Field name made lowercase.
-    cost = models.DecimalField(db_column='COST', max_digits=17, decimal_places=2, blank=True,null=True)  # Field name made lowercase. Field renamed because it was a Python reserved word.
+
+    #FOREIGN KEYS
+    # id_projecte = models.DecimalField(db_column='ID_PROJECTE', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
+    # id_projecte = models.ForeignKey(Projectes,related_name="projecte_de_compromes_personal",db_column='ID_PROJECTE')
 
     class Meta:
-        managed = False
+        managed = True # !!!
         db_table = 'COMPROMES_PERSONAL'
 
 

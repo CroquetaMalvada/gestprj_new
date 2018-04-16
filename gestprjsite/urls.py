@@ -44,6 +44,8 @@ router.register(r'gestor_Desglossament',views.GestDesglossament)
 router.register(r'gestor_JustificacionsProjecte',views.GestJustificacionsProjecte)
 router.register(r'gestor_Auditories',views.GestAuditories)
 
+router.register(r'gestor_CompromesPersonal',views.GestComprometidoPersonal)
+
 router.register(r'gestor_PermisosUsuarisConsultar',views.GestPrjUsuaris)
 
 router.register(r'projectes_rest',views.ProjectesViewSet)
@@ -108,6 +110,7 @@ urlpatterns = patterns('',
 
     #JSON
     url(r'^show_compromes/(?P<id_projecte>.+)/$', views.ListCompromes, name="compromes"),
+    url(r'^show_compromes_personal/(?P<id_projecte>.+)/$', views.ListCompromesPersonal.as_view(), name="compromesPersonal"),
     url(r'^show_compromes_partida/(?P<id_partida>.+)/(?P<id_projecte>.+)/$', views.ListCompromesPartida, name="compromes_partida"),
 
     # url('^show_compromes_compte/(?P<id_compte>.+)/$', views.ListCompromesCompte.as_view()),

@@ -912,7 +912,7 @@ $(document).ready(function(){
             paging:         false,
             autowidth:      true,
             columnDefs: [
-                { type: 'num-fmt', targets: [0,1,2,3,4,5,6,7,8,9,10] }
+                { type: 'num-fmt', targets: [0,1,2,3,4,5,6,7,8,9,10,11] }
             ],
             columns: [
 //                null,
@@ -927,7 +927,8 @@ $(document).ready(function(){
                 { data:'despeses', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'canon_aplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'disponible_caixa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'disponible_real', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+                { data:'disponible_real', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
             dom: 'Bfrtip',
             buttons:[{
@@ -944,7 +945,7 @@ $(document).ready(function(){
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
                     format: {
                         body: function(data, row, column, node) {
-                            if(column==2 || column==3 || column==4 || column==5 || column==6 || column==7 || column==8 || column==9 || column==10 )
+                            if(column==2 || column==3 || column==4 || column==5 || column==6 || column==7 || column==8 || column==9 || column==10 || column==11)
                                 data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             return data;
                         }
@@ -978,6 +979,9 @@ $(document).ready(function(){
                     $('row c[r^="K"]', sheet).each(function () {
                           $(this).attr('s', 64);
                     });
+                    $('row c[r^="L"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
                 }
             },{
                 extend: 'pdf',
@@ -992,7 +996,7 @@ $(document).ready(function(){
             }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $(this).DataTable().columns( [2,3,4,5,6,7,8,9,10] ).every(function(){
+                $(this).DataTable().columns( [2,3,4,5,6,7,8,9,10,11] ).every(function(){
 //                    console.log(this.data());
                     var sum = this.data().reduce( function (a,b) {
                         return parseFloat(a) + parseFloat(b);

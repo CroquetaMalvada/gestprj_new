@@ -4,9 +4,9 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.db import connections
 from django.core import serializers
-from gestprj.models import Projectes, TCategoriaPrj, TOrganismes, CentresParticipants, PersonalExtern, TUsuarisExterns, PersonalCreaf, TUsuarisCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, Responsables, PrjUsuaris
+from gestprj.models import * #Projectes, TCategoriaPrj, TOrganismes, CentresParticipants, PersonalExtern, TUsuarisExterns, PersonalCreaf, TUsuarisCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, Responsables, PrjUsuaris
 from django.db.models import Q
-from gestprj.forms import UsuariXarxaForm
+#from gestprj.forms import UsuariXarxaForm
 from gestprj.forms import ProjectesForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
@@ -15,14 +15,15 @@ from gestprj.utils import usuari_a_responsable,id_resp_a_codi_responsable
 from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework.response import Response
-from gestprj.serializers import GestCentresParticipantsSerializer, ProjectesSerializer, \
-    GestTOrganismesSerializer, PersonalExtern_i_organitzacioSerializer, \
-    TUsuarisExternsSerializer, GestTUsuarisExternsSerializer, PersonalExternSerializer, PersonalCreafSerializer, \
-    GestTUsuarisCreafSerializer, GestJustificPersonalSerializer, \
-    GestOrganismesFinSerializer, GestOrganismesRecSerializer, GestJustifInternesSerializer, GestRenovacionsSerializer, \
-    GestConceptesPressSerializer, GestPressupostSerializer, GestPeriodicitatPresSerializer, \
-    GestPeriodicitatPartidaSerializer, GestDesglossamentSerializer, GestJustificacionsProjecteSerializer, \
-    GestAuditoriesSerializer, GestPrjUsuarisSerializer, ResponsablesSerializer, GestResponsablesSerializer
+from gestprj.serializers import *
+# GestCentresParticipantsSerializer, ProjectesSerializer, \
+#     GestTOrganismesSerializer, PersonalExtern_i_organitzacioSerializer, \
+#     TUsuarisExternsSerializer, GestTUsuarisExternsSerializer, PersonalExternSerializer, PersonalCreafSerializer, \
+#     GestTUsuarisCreafSerializer, GestJustificPersonalSerializer, \
+#     GestOrganismesFinSerializer, GestOrganismesRecSerializer, GestJustifInternesSerializer, GestRenovacionsSerializer, \
+#     GestConceptesPressSerializer, GestPressupostSerializer, GestPeriodicitatPresSerializer, \
+#     GestPeriodicitatPartidaSerializer, GestDesglossamentSerializer, GestJustificacionsProjecteSerializer, \
+#     GestAuditoriesSerializer, GestPrjUsuarisSerializer, ResponsablesSerializer, GestResponsablesSerializer
 from gestprj import pk,contabilitat_ajax #,consultes_cont
 from django.db import transaction
 from datetime import datetime, timedelta
@@ -541,6 +542,23 @@ class GestAuditories(viewsets.ModelViewSet):
     queryset = AuditoriesProjecte.objects.all()
     serializer_class = GestAuditoriesSerializer
 
+# COMPROMETIDO PERSONAL
+class ListCompromesPersonal(generics.ListCreateAPIView):
+    serializer_class = GestComprometidoPersonalSerializer
+
+    def get_queryset(self):
+        if self.kwargs['id_projecte'] is None:
+            return CompromesPersonal.objects.all()
+        else:
+            _id_projecte = self.kwargs['id_projecte']
+            return CompromesPersonal.objects.filter(id_projecte=_id_projecte)
+
+
+
+class GestComprometidoPersonal(viewsets.ModelViewSet):
+    queryset = CompromesPersonal.objects.all()
+    serializer_class = GestComprometidoPersonalSerializer
+
 
 # JSON DE COMPROMES
 def ListCompromes(request,id_projecte):
@@ -973,6 +991,24 @@ def cont_estat_pres(request):
                     periodes.append({"id_periode":id_periodicitat,"num_periode":num_periodes,"data_min":str(data_min_periode),"data_max":str(data_max_periode)})
                     num_periodes += 1
 
+            # Obtener el comprometido#
+            compromes = 0
+            try:
+                for comp in CompromesPersonal.objects.filter(id_projecte=projecte.id_projecte).values("cost", "data_inici", "data_fi"):
+                    fecha_actual = datetime.today().date()
+
+                    coste = comp["cost"]
+                    fecha_ini = comp["data_inici"]
+                    fecha_fin = comp["data_fi"]
+                    dif = fecha_fin - fecha_ini
+                    duracion_total = dif.days
+                    fecha_calculo = fecha_actual  # Ojo cambiar por formula buena(fecha redondeada a mes anterior?)
+                    dif = fecha_fin - fecha_calculo
+                    duracion_pendiente = dif.days
+                    compromes = compromes + (duracion_pendiente * (coste / 30))
+            except:
+                compromes = 0
+            #
 
             projecte["codi_resp"]=cod_responsable
             projecte["codi_prj"]=cod_projecte
@@ -983,6 +1019,8 @@ def cont_estat_pres(request):
             projecte["periodes"]=periodes
             projecte["data_min"]=str(fecha_min)
             projecte["data_max"]=str(fecha_max)
+
+            projecte["compromes"] = compromes
 
 
             resultado.append(projecte)
@@ -1199,11 +1237,9 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
 
             if (inv == int(cod_responsable)):
                 ##### Para extraer el objeto proyecto y el codigo:
-                id_resp = Responsables.objects.get(
-                    codi_resp=cod_responsable).id_resp  # OJO! el cod_resp 12 equivale al pinol pero tambien al usuaro del abel de prueva
+                id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp  # OJO! el cod_resp 12 equivale al pinol pero tambien al usuaro del abel de prueva
                 cod_projecte = projecte_chk.split("-")[1]
-                projecte = Projectes.objects.get(codi_prj=cod_projecte,
-                                                 id_resp=id_resp)  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
+                projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp)  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
                 ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
 
                 if len(cod_responsable) < 2:
@@ -1301,6 +1337,25 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                 pendent = round(abs(concedit - iva - ingressos), 2)
                 #
 
+                # Obtener el comprometido#
+                compromes = 0
+                try:
+                    for comp in CompromesPersonal.objects.filter(id_projecte=projecte.id_projecte).values("cost", "data_inici", "data_fi"):
+                        fecha_actual = datetime.today().date()
+
+                        coste = comp["cost"]
+                        fecha_ini = comp["data_inici"]
+                        fecha_fin = comp["data_fi"]
+                        dif = fecha_fin - fecha_ini
+                        duracion_total = dif.days
+                        fecha_calculo = fecha_actual  # Ojo cambiar por formula buena(fecha redondeada a mes anterior?)
+                        dif = fecha_fin - fecha_calculo
+                        duracion_pendiente = dif.days
+                        compromes = compromes + (duracion_pendiente * (coste / 30))
+                except:
+                    compromes = 0
+                #
+
 
                 if nuevo_inv == 1:
                     nuevo_inv = 0
@@ -1329,10 +1384,9 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                     proyectos[0][0]["disponible_caixa"] = proyectos[0][0]["disponible_caixa"] + disponible_caixa
                     proyectos[0][0]["disponible_real"] = proyectos[0][0]["disponible_real"] + disponible_real
 
-                proyectos[0][0][
-                    "cod_responsable"] = cod_responsable  # este y el de abajo so correctos pero se superponen una y otra vez por cada proyecto,a ver si se puede mejorar
-                proyectos[0][0]["nom_responsable"] = Responsables.objects.get(
-                    codi_resp=cod_responsable).id_usuari.nom_usuari
+                proyectos[0][0]["cod_responsable"] = cod_responsable  # este y el de abajo so correctos pero se superponen una y otra vez por cada proyecto,a ver si se puede mejorar
+                proyectos[0][0]["nom_responsable"] = Responsables.objects.get(codi_resp=cod_responsable).id_usuari.nom_usuari
+                proyectos[0][0]["compromes"] = compromes
 
         resultado.append(proyectos)
 

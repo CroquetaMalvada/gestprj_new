@@ -6,7 +6,7 @@ from django.db import connections
 from django.core import serializers
 from gestprj.models import Projectes, TCategoriaPrj, TOrganismes, CentresParticipants, PersonalExtern, TUsuarisExterns, PersonalCreaf, TUsuarisCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, Responsables, TUsuarisXarxa, PrjUsuaris,User
 from django.db.models import Q
-from gestprj.forms import UsuariXarxaForm
+#from gestprj.forms import UsuariXarxaForm
 from gestprj.forms import ProjectesForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required

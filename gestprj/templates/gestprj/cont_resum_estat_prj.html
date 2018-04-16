@@ -1,8 +1,6 @@
 {% extends "gestprj/base.html" %}
 
 {% block contenido %}
-<!--<h1 align="center">Resum Estat Projectes</h1><br><br>-->
-<!--*Comprobar porque hay datos que no cuadran(quizás porque aún no se han importado los antiguos)-->
 <br>
 <h3 align="center">Fins a : <b>{{ data_max }}</b></h3>
     <div class="col-md-12 col-md-offset-0" style="background:white;height:90vh;overflow:scroll;">
@@ -20,6 +18,7 @@
                         <th>Cànon Aplicat</th>
                         <th>Disponible Caixa</th>
                         <th>Disponible Real</th>
+                        <th>Compromés</th>
                     </tr>
                     </thead>
                     <tfoot>
@@ -35,27 +34,7 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <!--{% if totals.0.total_disponible_real > 0 %}-->
-                                <!--<td><b>{{ totals.0.total_concedit}}</b></td>-->
-                                <!--<td><b>{{ totals.0.total_iva}}</b></td>-->
-                                <!--<td><b>{{ totals.0.total_canon_total}}</b></td>-->
-                                <!--<td><b>{{ totals.0.total_ingressos}}</b></td>-->
-                                <!--<td><b>{{ totals.0.total_pendent}}</b></td>-->
-                                <!--<td><b>{{ totals.0.total_despeses}}</b></td>-->
-                                <!--<td><b>{{ totals.0.total_canon_aplicat}}</b></td>-->
-                                <!--<td><b>{{ totals.0.total_disponible_caixa}}</b></td>-->
-                                <!--<td><b>{{ totals.0.total_disponible_real}}</b></td>-->
-                                <!--{% else %}-->
-                                <!--<td bgcolor="LightCoral"><b>{{ totals.0.total_concedit}}</b></td>-->
-                                <!--<td bgcolor="LightCoral"><b>{{ totals.0.total_iva}}</b></td>-->
-                                <!--<td bgcolor="LightCoral"><b>{{ totals.0.total_canon_total}}</b></td>-->
-                                <!--<td bgcolor="LightCoral"><b>{{ totals.0.total_ingressos}}</b></td>-->
-                                <!--<td bgcolor="LightCoral"><b>{{ totals.0.total_pendent}}</b></td>-->
-                                <!--<td bgcolor="LightCoral"><b>{{ totals.0.total_despeses}}</b></td>-->
-                                <!--<td bgcolor="LightCoral"><b>{{ totals.0.total_canon_aplicat}}</b></td>-->
-                                <!--<td bgcolor="LightCoral"><b>{{ totals.0.total_disponible_caixa}}</b></td>-->
-                                <!--<td bgcolor="LightCoral"><b>{{ totals.0.total_disponible_real}}</b></td>-->
-                                <!--{% endif %}-->
+                                <td></td>
                             </tr>
                     </tfoot>
                     <tbody>
@@ -72,6 +51,7 @@
                         <td>{{ dades.0.0.canon_aplicat }}</td>
                         <td>{{ dades.0.0.disponible_caixa }}</td>
                         <td>{{ dades.0.0.disponible_real }}</td>
+                        <td>{{ dades.0.0.compromes }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>

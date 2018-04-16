@@ -1,4 +1,4 @@
-from gestprj.models import CentresParticipants, TOrganismes, Projectes, TUsuarisExterns, PersonalExtern, TUsuarisCreaf, PersonalCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, PrjUsuaris, Responsables
+from gestprj.models import * #CentresParticipants, TOrganismes, Projectes, TUsuarisExterns, PersonalExtern, TUsuarisCreaf, PersonalCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, PrjUsuaris, Responsables
 from rest_framework import serializers
 from gestprj import pk
 
@@ -212,3 +212,16 @@ class GestPrjUsuarisSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrjUsuaris
         fields =('url','id_prj_usuaris','id_projecte','id_usuari_xarxa','nom_xarxa','codi_resp','codi_prj','acronim')
+
+# COMPROMETIDO
+class GestComprometidoPersonalSerializer(serializers.ModelSerializer): # OJO el source es solo si el nombre de la variable es diferente al del campo del models
+    # id_projecte = serializers.DecimalField(max_digits=10, decimal_places=0,read_only=True)
+    # compte= serializers.CharField(read_only=True)
+    # descripcio = serializers.CharField(read_only=True)
+    # cost= serializers.DecimalField(max_digits=17, decimal_places=2,read_only=True)
+    # data_inici = serializers.DateField(read_only=True)
+    # data_fi = serializers.DateField(read_only=True)
+
+    class Meta:
+        model = CompromesPersonal
+        fields = ('url', 'id_projecte', 'compte', 'descripcio', 'cost', 'data_inici', 'data_fi')
