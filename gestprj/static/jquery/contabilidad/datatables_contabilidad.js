@@ -926,9 +926,9 @@ $(document).ready(function(){
                 { data:'pendent', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'despeses', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'canon_aplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'disponible_caixa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'disponible_real', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+                { data:'disponible_real', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
             dom: 'Bfrtip',
             buttons:[{

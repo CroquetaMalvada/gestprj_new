@@ -142,9 +142,17 @@ function calcular_compromes_personal(){
         var fecha_fin = new Date(compromes_personal.cell(rowidx,6).data());
         var dif = new Date(fecha_fin-fecha_ini);
         var duracion_total = dif / 1000 / 60 / 60 / 24; // en dias
-        var fecha_calculo = new Date(fecha_actual);
+        var fecha_calculo = new Date(fecha_actual); //el ultimo dia del mes anterior
+        fecha_calculo.setDate(1); //la ponemos al dia 1
+        fecha_calculo.setHours(-1);// y le restamos una hora
+        fecha_calculo_string=$.datepicker.formatDate('yy-mm-dd',fecha_calculo)
+        fecha_calculo = new Date(fecha_calculo_string); //la formateamos
         dif=new Date(fecha_fin - fecha_calculo);
+//        console.log(compromes_personal.cell(rowidx,5).data());
+//        console.log(fecha_fin);
+//        console.log(fecha_calculo);
         var duracion_pendiente = dif/ 1000 / 60 / 60 / 24; // en dias
+        var comprometido = duracion_pendiente * (coste/30);
         var comprometido = duracion_pendiente * (coste/30);
 
 //        alert(fecha_fin);
@@ -156,7 +164,7 @@ function calcular_compromes_personal(){
 //        compromes_personal.cell(rowidx,10).data(comprometido);
 
         $(compromes_personal.cell(rowidx,7).node()).html(duracion_total);
-        $(compromes_personal.cell(rowidx,8).node()).html(fecha_actual);
+        $(compromes_personal.cell(rowidx,8).node()).html(fecha_calculo_string);
         $(compromes_personal.cell(rowidx,9).node()).html(duracion_pendiente);
         $(compromes_personal.cell(rowidx,10).node()).html(formatnumber( comprometido, separador_miles, separador_decimales, 2 ));
 
