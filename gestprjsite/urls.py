@@ -161,6 +161,7 @@ urlpatterns = patterns('',
     # JSON de contabilidad
     url(r'^show_ResponsablesCont/$', views.ListResponsablesCont, name="responsables llista"),
     url(r'^show_ProjectesCont/$', views.ListProjectesCont, name="projectes llista"),
+    url(r'^show_compromes_projecte/(?P<id_projecte>.+)/$', views.ListCompromesProjecte, name="Compromes Projecte"),
     #
 )
 

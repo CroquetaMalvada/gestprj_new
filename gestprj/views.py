@@ -781,7 +781,10 @@ def ListProjectesCont(request):
     resultado = contabilitat_ajax.AjaxListProjectesCont(request)
     return HttpResponse(resultado, content_type='application/json;')
 
-
+#AJAX PARA VER COMPROMETIDO DE UN PROYECTO
+def ListCompromesProjecte(request,id_projecte):
+    resultado=contabilitat_ajax.AjaxListCompromesProjecte(request,id_projecte)
+    return HttpResponse(resultado, content_type='application/json')
 # DADES PROJECTE
 
 @login_required(login_url='/menu/')
@@ -936,7 +939,7 @@ def cont_dades(request):
     context = {'llista_dades': resultado, 'titulo': "FITXA DADES"}
     return render(request, 'gestprj/cont_dades.html', context)
 
-# ESTAT PRESUPOSTARI
+# ESTAT PRESUPOSTARI  *DIVIDIDO EN 3 PARTES
 
 @login_required(login_url='/menu/')
 def cont_estat_pres(request):
@@ -991,10 +994,10 @@ def cont_estat_pres(request):
                     periodes.append({"id_periode":id_periodicitat,"num_periode":num_periodes,"data_min":str(data_min_periode),"data_max":str(data_max_periode)})
                     num_periodes += 1
 
-            # Obtener el comprometido#
+            # Obtener el comprometido# Ojo parece que este no se usa ya que es solo para crear la tabla!
             compromes = 0
             try:
-                for comp in CompromesPersonal.objects.filter(id_projecte=projecte.id_projecte).values("cost", "data_inici", "data_fi"):
+                for comp in CompromesPersonal.objects.filter(id_projecte=projecte.id_projecte).values("cost","data_inici","data_fi"):
                     fecha_actual = datetime.today().date()
 
                     coste = comp["cost"]
@@ -1002,13 +1005,17 @@ def cont_estat_pres(request):
                     fecha_fin = comp["data_fi"]
                     dif = fecha_fin - fecha_ini
                     duracion_total = dif.days
-                    fecha_calculo = fecha_actual  # Ojo cambiar por formula buena(fecha redondeada a mes anterior?)
+                    fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
+                    fecha_calculo = fecha_calculo.replace(day=1)
+                    fecha_calculo = fecha_calculo - timedelta(days=1)
                     dif = fecha_fin - fecha_calculo
                     duracion_pendiente = dif.days
                     compromes = compromes + (duracion_pendiente * (coste / 30))
             except:
                 compromes = 0
+            compromes = float(compromes)
             #
+
 
             projecte["codi_resp"]=cod_responsable
             projecte["codi_prj"]=cod_projecte
@@ -1036,9 +1043,6 @@ def cont_estat_pres(request):
 def ListEstatPresDatos(request,datos):
     resultado=contabilitat_ajax.AjaxListEstatPresDatos(request,datos)
     return HttpResponse(resultado, content_type='application/json;')
-
-
-
 
 def ListDespesesCompte(request,id_partida,cod,data_min,data_max): # AJAX 2 (SE MUESTRAN LOS DATOS
     resultado = contabilitat_ajax.AjaxListDespesesCompte(request,id_partida,cod,data_min,data_max)
@@ -1298,6 +1302,27 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                 net_disponible = round(net_disponible, 2)
 
                 #############
+                # Obtener el comprometido#
+                compromes = 0
+                try:
+                    for comp in CompromesPersonal.objects.filter(id_projecte=projecte.id_projecte).values("cost", "data_inici", "data_fi"):
+                        fecha_actual = datetime.today().date()
+
+                        coste = comp["cost"]
+                        fecha_ini = comp["data_inici"]
+                        fecha_fin = comp["data_fi"]
+                        dif = fecha_fin - fecha_ini
+                        duracion_total = dif.days
+                        fecha_calculo = datetime.today().date() #para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
+                        fecha_calculo = fecha_calculo.replace(day=1)
+                        fecha_calculo = fecha_calculo - timedelta(days=1)
+                        dif = fecha_fin - fecha_calculo
+                        duracion_pendiente = dif.days
+                        compromes = compromes + (duracion_pendiente * (coste / 30))
+                except:
+                    compromes = 0
+                compromes = float(compromes)
+                #
                 ### consulta SQL
                 cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
                                "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND CUENTAS.CUENTA LIKE '7%%' AND CUENTAS.CUENTA NOT LIKE '79%%' AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=%s)) AS ingressos,"
@@ -1332,30 +1357,8 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                                  2)  # OJO! que los que en los que estan tancats las despesas suelen coincir con el net_disponible,pero siempre es despesesD-H
                 canon_aplicat = round(canonD - canonH, 2)
                 disponible_caixa = round(ingressos - despeses - canon_aplicat, 2)
-                disponible_real = round(concedit - iva - canon_total - despeses,
-                                        2)  # OJO esta ok,solo que como algunos importes salen x100 tiene un valor elevado.
+                disponible_real = round(concedit - iva - canon_total - despeses, 2)  # OJO esta ok,solo que como algunos importes salen x100 tiene un valor elevado.
                 pendent = round(abs(concedit - iva - ingressos), 2)
-                #
-
-                # Obtener el comprometido#
-                compromes = 0
-                try:
-                    for comp in CompromesPersonal.objects.filter(id_projecte=projecte.id_projecte).values("cost", "data_inici", "data_fi"):
-                        fecha_actual = datetime.today().date()
-
-                        coste = comp["cost"]
-                        fecha_ini = comp["data_inici"]
-                        fecha_fin = comp["data_fi"]
-                        dif = fecha_fin - fecha_ini
-                        duracion_total = dif.days
-                        fecha_calculo = datetime.today().date() #para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
-                        fecha_calculo = fecha_calculo.replace(day=1)
-                        fecha_calculo = fecha_calculo - timedelta(days=1)
-                        dif = fecha_fin - fecha_calculo
-                        duracion_pendiente = dif.days
-                        compromes = compromes + (duracion_pendiente * (coste / 30))
-                except:
-                    compromes = 0
                 #
 
 
@@ -1386,6 +1389,7 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                     proyectos[0][0]["disponible_caixa"] = proyectos[0][0]["disponible_caixa"] + disponible_caixa
                     proyectos[0][0]["disponible_real"] = proyectos[0][0]["disponible_real"] + disponible_real
 
+                proyectos[0][0]["disponible_real"] = proyectos[0][0]["disponible_real"] -compromes
                 proyectos[0][0]["cod_responsable"] = cod_responsable  # este y el de abajo so correctos pero se superponen una y otra vez por cada proyecto,a ver si se puede mejorar
                 proyectos[0][0]["nom_responsable"] = Responsables.objects.get(codi_resp=cod_responsable).id_usuari.nom_usuari
                 proyectos[0][0]["compromes"] = compromes

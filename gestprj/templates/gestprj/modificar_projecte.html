@@ -714,7 +714,7 @@
                                         <tr>
                                             <th></th>
                                             <th></th>
-                                            <th>Compte</th>
+                                            <th>Nº Compte</th>
                                             <th>Descripció</th>
                                             <th>Cost/mes</th>
                                             <th>Data inici</th>
@@ -1388,17 +1388,18 @@
         <form id="formulario_compromes_personal" action="/gestor_CompromesPersonal/"
               method="POST">
             {% csrf_token %}
-            Compte<select name="compte" style="max-width:300px;">
-                {% if claus_comptes == None %}
-                <option value="">Cap</option>
-                {% else %}
-                <option value="" default>------</option>
-                {% for clau in claus_comptes %}
-                <option value={{ clau.clau_compte }}>{{ clau }}
-                </option>
-                {% endfor %}
-                {% endif %}
-            </select>
+            Nº Compte<input name="compte"/>
+            <!--Compte<select name="compte" style="max-width:300px;">-->
+                <!--{% if claus_comptes == None %}-->
+                <!--<option value="">Cap</option>-->
+                <!--{% else %}-->
+                <!--<option value="" default>&#45;&#45;&#45;&#45;&#45;&#45;</option>-->
+                <!--{% for clau in claus_comptes %}-->
+                <!--<option value={{ clau.clau_compte }}>{{ clau }}-->
+                <!--</option>-->
+                <!--{% endfor %}-->
+                <!--{% endif %}-->
+            <!--</select>-->
             Descripció<input type="text" name="descripcio"><br>
             Coste/mes<input name="cost" class="numero"><br>
             Data inici<input id="data_compromes_inici" name="data_inici"/><br>

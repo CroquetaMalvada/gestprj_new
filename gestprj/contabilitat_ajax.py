@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.db import connections
 from django.core import serializers
-from gestprj.models import Projectes, TCategoriaPrj, TOrganismes, CentresParticipants, PersonalExtern, TUsuarisExterns, PersonalCreaf, TUsuarisCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, Responsables, TUsuarisXarxa, PrjUsuaris,User
+from gestprj.models import * # Projectes, TCategoriaPrj, TOrganismes, CentresParticipants, PersonalExtern, TUsuarisExterns, PersonalCreaf, TUsuarisCreaf, JustificPersonal, TFeines, Financadors, Receptors, JustificInternes, Renovacions, TConceptesPress, Pressupost, PeriodicitatPres, PeriodicitatPartida, Desglossaments, ClausDiferenCompte, JustificProjecte, AuditoriesProjecte, Responsables, TUsuarisXarxa, PrjUsuaris,User
 from django.db.models import Q
 #from gestprj.forms import UsuariXarxaForm
 from gestprj.forms import ProjectesForm
@@ -15,17 +15,19 @@ from gestprj.utils import usuari_a_responsable,id_resp_a_codi_responsable
 from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework.response import Response
-from gestprj.serializers import GestCentresParticipantsSerializer, ProjectesSerializer, \
-    GestTOrganismesSerializer, PersonalExtern_i_organitzacioSerializer, \
-    TUsuarisExternsSerializer, GestTUsuarisExternsSerializer, PersonalExternSerializer, PersonalCreafSerializer, \
-    GestTUsuarisCreafSerializer, GestJustificPersonalSerializer, \
-    GestOrganismesFinSerializer, GestOrganismesRecSerializer, GestJustifInternesSerializer, GestRenovacionsSerializer, \
-    GestConceptesPressSerializer, GestPressupostSerializer, GestPeriodicitatPresSerializer, \
-    GestPeriodicitatPartidaSerializer, GestDesglossamentSerializer, GestJustificacionsProjecteSerializer, \
-    GestAuditoriesSerializer
+from gestprj.serializers import *
+    # GestCentresParticipantsSerializer, ProjectesSerializer, \
+    # GestTOrganismesSerializer, PersonalExtern_i_organitzacioSerializer, \
+    # TUsuarisExternsSerializer, GestTUsuarisExternsSerializer, PersonalExternSerializer, PersonalCreafSerializer, \
+    # GestTUsuarisCreafSerializer, GestJustificPersonalSerializer, \
+    # GestOrganismesFinSerializer, GestOrganismesRecSerializer, GestJustifInternesSerializer, GestRenovacionsSerializer, \
+    # GestConceptesPressSerializer, GestPressupostSerializer, GestPeriodicitatPresSerializer, \
+    # GestPeriodicitatPartidaSerializer, GestDesglossamentSerializer, GestJustificacionsProjecteSerializer, \
+    # GestAuditoriesSerializer
 # from gestprj import pk,consultes_cont
 from django.db import transaction
-from datetime import datetime
+from datetime import datetime, timedelta
+from calendar import monthrange
 from decimal import *
 import ldap
 from ldap_groups import ADGroup
@@ -617,7 +619,27 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
         net_disponible = round(net_disponible, 2)
 
         #############
+        # Obtener el comprometido#
+        compromes = 0
+        try:
+            for comp in CompromesPersonal.objects.filter(id_projecte=projecte.id_projecte).values("cost", "data_inici","data_fi"):
+                fecha_actual = datetime.today().date()
 
+                coste = comp["cost"]
+                fecha_ini = comp["data_inici"]
+                fecha_fin = comp["data_fi"]
+                dif = fecha_fin - fecha_ini
+                duracion_total = dif.days
+                fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
+                fecha_calculo = fecha_calculo.replace(day=1)
+                fecha_calculo = fecha_calculo - timedelta(days=1)
+                dif = fecha_fin - fecha_calculo
+                duracion_pendiente = dif.days
+                compromes = compromes + (duracion_pendiente * (coste / 30))
+        except:
+            compromes = 0
+        compromes=float(compromes)
+        #
         ### consulta SQL
 
         cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
@@ -653,14 +675,13 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
         despeses = round(despesesD - despesesH, 2)  # OJO! que los que en los que estan tancats las despesas suelen coincir con el net_disponible,pero siempre es despesesD-H
         canon_aplicat = round(canonD - canonH, 2)
         disponible_caixa = round(ingressos - despeses - canon_aplicat, 2)
-        disponible_real = round(concedit - iva - canon_total - despeses,
-                                2)  # OJO esta ok,solo que como algunos importes salen x100 tiene un valor elevado.
+        disponible_real = round(concedit - iva - canon_total - despeses-compromes, 2)  # OJO esta ok,solo que como algunos importes salen x100 tiene un valor elevado.
         pendent = round(abs(concedit - iva - ingressos), 2)
 
         resultado.append(
             {"codi": codigo_entero, "nom": projecte.acronim, "concedit": concedit, "canon_total": canon_total,
              "ingressos": ingressos, "pendent": pendent, "despeses": despeses, "canon_aplicat": canon_aplicat,
-             "disponible_real": disponible_real})
+             "disponible_real": disponible_real, "compromes":compromes, "id_projecte":int(projecte.id_projecte)})
     resultado = json.dumps(resultado)
     # Cerramos el cursor
     cursor.close()
@@ -1033,3 +1054,32 @@ def AjaxListJustificacionsCabecera(request,fecha_min,fecha_max):
         resultado.append({"data":str(justificacio.data_justificacio),"codi":codigo_entero,"nom":justificacio.id_projecte.acronim,"responsable":justificacio.id_projecte.id_resp.id_usuari.nom_usuari,"periode":"Del "+str(justificacio.data_inici_periode)+" al "+str(justificacio.data_fi_periode),"observacions":justificacio.comentaris})
     resultado = json.dumps(resultado)
     return resultado
+
+def AjaxListCompromesProjecte(request,id_projecte):
+    resultado=[]
+    #
+    if(id_projecte!="0"):
+        try:
+            for comp in CompromesPersonal.objects.filter(id_projecte=id_projecte).values("compte","descripcio","cost", "data_inici","data_fi"):
+                compromes = 0
+                fecha_actual = datetime.today().date()
+
+                coste = comp["cost"]
+                fecha_ini = comp["data_inici"]
+                fecha_fin = comp["data_fi"]
+                dif = fecha_fin - fecha_ini
+                duracion_total = dif.days
+                fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
+                fecha_calculo = fecha_calculo.replace(day=1)
+                fecha_calculo = fecha_calculo - timedelta(days=1)
+                dif = fecha_fin - fecha_calculo
+                duracion_pendiente = dif.days
+                compromes = float((duracion_pendiente * (coste / 30)))
+                resultado.append({'compte':comp["compte"],'descripcio':comp["descripcio"],'cost':float(coste),'data_inici':str(fecha_ini),'data_fi':str(fecha_fin),'compromes':compromes})
+            resultado = json.dumps(resultado)
+            return resultado
+        except:
+            return [{}]
+        #
+    else:
+        return [{}]

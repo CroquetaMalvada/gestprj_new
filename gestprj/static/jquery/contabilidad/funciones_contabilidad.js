@@ -94,6 +94,16 @@ $(document).ready(function(){
 	    mostrar_dialog("dialog_llista_comptes");
 	});
 
+	//Al mostrar el comprometido de un proyecto
+    $(".datatable").on( 'click', '.info_compromes_prj', function (){
+	    id_projecte = $(this).attr("id");
+	    descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
+	    $("#dialog_llista_comptes").attr("title","DETALL DEL COMPROMÉS:"+descripcio);
+        table_llista_compromes.ajax.url('/show_compromes_projecte/'+id_projecte);
+	    table_llista_compromes.ajax.reload();
+	    mostrar_dialog("dialog_llista_compromes");
+	});
+
 
     $("#formulario_projectes_cont").submit(function(e){// comprueba que haya al menos un proyecto seleccionado
         var num=0;
