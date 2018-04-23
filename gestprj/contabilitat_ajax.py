@@ -300,7 +300,9 @@ def AjaxListEstatPresDatos(request,datos):
             codigo_entero = datos.split("_")[3]
             data_min = datetime.strptime(data_min, "%d-%m-%Y")
             data_max = datetime.strptime(data_max, "%d-%m-%Y")
-            ### para obtener el gastat
+            ### para obtener el gastat y el comprometido de cada cuenta
+            lista_cuentas = []  # para mantener las cuentas de la partida sin repetir y asi calcular el comprometido
+            compromes = 0
             gastat = 0
             for compte in Desglossaments.objects.filter(id_partida=id_partida).values('compte'):
                 cod_compte = str(compte['compte'])
@@ -316,10 +318,9 @@ def AjaxListEstatPresDatos(request,datos):
                             cod_compte = cod_compte + "%%"
                     else:
                         cod_compte = cod_compte + "%"
-
                 # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
-                # OJO UTILIZAR FECHAS?
-                cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+%s AND ( CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE %s+'%%' ) ",(codigo_entero, data_max, data_min, cod_compte))  # AND ( FECHA<'2017-01-01 00:00:00.000' )
+                # OJO SE HA HECHO UN INNER JOIN PARA OBTENER LAS CUENTAS QUE USAREMOS MAS ADELANTE PARA EL COMPROMETIDO
+                cursor.execute("SELECT DEBE,HABER,DESCAPU, CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta FROM __ASIENTOS  INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE CENTROCOSTE2='   '+%s AND ( CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) AND TIPAPU='N' AND __ASIENTOS.IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE %s+'%%' ) ",(codigo_entero, data_max, data_min, cod_compte))  # AND ( FECHA<'2017-01-01 00:00:00.000' )
                 #cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE CENTROCOSTE2='   '+(?) AND ( CONVERT(date,FECHA,121)<=(?) AND CONVERT(date,FECHA,121)>=(?) ) AND TIPAPU='N' AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE (?)+'%' ) ",[codigo_entero, data_max, data_min, cod_compte])  # AND ( FECHA<'2017-01-01 00:00:00.000' )
                 cuentacont = dictfetchall(cursor)
                 if cuentacont:
@@ -329,9 +330,36 @@ def AjaxListEstatPresDatos(request,datos):
                         if cont["HABER"] is None:
                             cont["HABER"] = 0
                         gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
+                        lista_cuentas.append(cont["Cuenta"])
 
-            saldo = pressupostat - float(gastat)  # pasamos datos a float ya que los decimal no los pilla bien el json
-            partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': datos.split("_")[1], 'fecha_max': datos.split("_")[2]})
+                    #
+            # Obtener el comprometido de las cuentas(unificada) de esa partida(este es algo diferente,el except es diferente y el compromes = 0 esta aparte#
+            #primero unificamos las cuentas que estan repetidas
+            lista_cuentas =set(lista_cuentas)
+            #Y ahora calculamos el comprometido
+            for cuent in lista_cuentas:
+                try:
+                    for comp in CompromesPersonal.objects.filter(id_projecte=datos.split("_")[0],compte=cuent).values("cost","data_inici","data_fi"):
+                        fecha_actual = datetime.today().date()
+
+                        coste = comp["cost"]
+                        fecha_ini = comp["data_inici"]
+                        fecha_fin = comp["data_fi"]
+                        dif = fecha_fin - fecha_ini
+                        duracion_total = dif.days
+                        fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
+                        fecha_calculo = fecha_calculo.replace(day=1)
+                        fecha_calculo = fecha_calculo - timedelta(days=1)
+                        dif = fecha_fin - fecha_calculo
+                        duracion_pendiente = dif.days
+                        compromes = compromes + (duracion_pendiente * (coste / 30))
+                except:
+                    compromes = compromes
+            #
+
+            compromes = float(compromes)
+            saldo = pressupostat - float(gastat)-compromes  # pasamos datos a float ya que los decimal no los pilla bien el json
+            partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': datos.split("_")[1], 'fecha_max': datos.split("_")[2], 'compromes':compromes,'id_projecte':datos.split("_")[0],'llista_comptes':','.join(lista_cuentas)})
         resultado = json.dumps(partidas)
         # Cerramos el cursor
         cursor.close()
@@ -736,6 +764,28 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
             prjfet["TotalDebe"] = 0
         if prjfet["TotalHaber"] == None:
             prjfet["TotalHaber"] = 0
+        # Obtener el comprometido de dicha cuenta#
+        compromes = 0
+        try:
+            for comp in CompromesPersonal.objects.filter(id_projecte=projecte.id_projecte,compte=prjfet["Cuenta"]).values("cost", "data_inici","data_fi"):
+                fecha_actual = datetime.today().date()
+
+                coste = comp["cost"]
+                fecha_ini = comp["data_inici"]
+                fecha_fin = comp["data_fi"]
+                dif = fecha_fin - fecha_ini
+                duracion_total = dif.days
+                fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
+                fecha_calculo = fecha_calculo.replace(day=1)
+                fecha_calculo = fecha_calculo - timedelta(days=1)
+                dif = fecha_fin - fecha_calculo
+                duracion_pendiente = dif.days
+                compromes = compromes + (duracion_pendiente * (coste / 30))
+        except:
+            compromes = 0
+        compromes=float(compromes)
+        #
+
         # por cada cuenta,guardar los detalles/movimientos de la misma
         cursor.execute(
             "SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CUENTAS.CUENTA=%s AND CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) ORDER BY cast(FECHA as date)",
@@ -745,7 +795,8 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
 
         total_debe = total_debe + float(prjfet["TotalDebe"])
         total_haber = total_haber + float(prjfet["TotalHaber"])
-        total_disponible = round(total_disponible - float(prjfet["TotalDebe"]) + float(prjfet["TotalHaber"]), 2)
+        # OJO de momento le restamos el comprometido pero quizas habra que quitar esto
+        total_disponible = round(total_disponible - float(prjfet["TotalDebe"]) + float(prjfet["TotalHaber"])- compromes, 2)
 
         if total_disponible < 0.1 and total_disponible > -0.1:  # esto sirve para evitar el floating point arithmetic y que muestre 0 en lugar de un numero largisimo
             total_disponible = 0
@@ -762,7 +813,7 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
 
         resultado.append({"codigo_entero": codigo_entero, "compte": prjfet["Cuenta"], "descripcio": prjfet["Titulo"],
                           "despesa": prjfet["TotalDebe"], "ingres": prjfet["TotalHaber"], "saldo": total_disponible,
-                          "fecha_min": str(fecha_min), "fecha_max": str(fecha_max)})
+                          "fecha_min": str(fecha_min), "fecha_max": str(fecha_max), 'compromes':compromes, 'id_projecte':int(projecte.id_projecte)})
 
     resultado = json.dumps(resultado)
     # Cerramos el cursor
@@ -1082,4 +1133,64 @@ def AjaxListCompromesProjecte(request,id_projecte):
             return [{}]
         #
     else:
+        return [{}]
+
+def AjaxListCompromesCompte(request,id_projecte,compte):
+    resultado=[]
+    #
+    if(compte!="0"):
+        try:
+            for comp in CompromesPersonal.objects.filter(id_projecte=id_projecte, compte=compte).values("compte","descripcio","cost", "data_inici","data_fi"):
+                compromes = 0
+                fecha_actual = datetime.today().date()
+
+                coste = comp["cost"]
+                fecha_ini = comp["data_inici"]
+                fecha_fin = comp["data_fi"]
+                dif = fecha_fin - fecha_ini
+                duracion_total = dif.days
+                fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
+                fecha_calculo = fecha_calculo.replace(day=1)
+                fecha_calculo = fecha_calculo - timedelta(days=1)
+                dif = fecha_fin - fecha_calculo
+                duracion_pendiente = dif.days
+                compromes = float((duracion_pendiente * (coste / 30)))
+                resultado.append({'compte':comp["compte"],'descripcio':comp["descripcio"],'cost':float(coste),'data_inici':str(fecha_ini),'data_fi':str(fecha_fin),'compromes':compromes})
+            resultado = json.dumps(resultado)
+            return resultado
+        except:
+            return [{}]
+        #
+    else:
+        return [{}]
+
+def AjaxListCompromesLlistaComptes(request,id_projecte,llista_comptes):
+    resultado=[]
+    #
+    try:
+        llista_comptes=llista_comptes.split(",")
+        for cuent in llista_comptes:
+            try:
+                for comp in CompromesPersonal.objects.filter(id_projecte=id_projecte, compte=cuent).values("compte","descripcio","cost", "data_inici","data_fi"):
+                    compromes = 0
+                    fecha_actual = datetime.today().date()
+
+                    coste = comp["cost"]
+                    fecha_ini = comp["data_inici"]
+                    fecha_fin = comp["data_fi"]
+                    dif = fecha_fin - fecha_ini
+                    duracion_total = dif.days
+                    fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
+                    fecha_calculo = fecha_calculo.replace(day=1)
+                    fecha_calculo = fecha_calculo - timedelta(days=1)
+                    dif = fecha_fin - fecha_calculo
+                    duracion_pendiente = dif.days
+                    compromes = float(duracion_pendiente * (coste / 30))
+                    resultado.append({'compte':comp["compte"],'descripcio':comp["descripcio"],'cost':float(coste),'data_inici':str(fecha_ini),'data_fi':str(fecha_fin),'compromes':compromes})
+            except:
+                compromes = compromes
+        resultado = json.dumps(resultado)
+        return resultado
+        #
+    except:
         return [{}]

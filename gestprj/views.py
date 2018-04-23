@@ -785,6 +785,17 @@ def ListProjectesCont(request):
 def ListCompromesProjecte(request,id_projecte):
     resultado=contabilitat_ajax.AjaxListCompromesProjecte(request,id_projecte)
     return HttpResponse(resultado, content_type='application/json')
+
+#AJAX PARA VER COMPROMETIDO DE UNA CUENTA
+def ListCompromesCompte(request,id_projecte,compte):
+    resultado=contabilitat_ajax.AjaxListCompromesCompte(request,id_projecte,compte)
+    return HttpResponse(resultado, content_type='application/json')
+
+#AJAX PARA VER COMPROMETIDO DE UNA PARTIDA DE UN PROYECTO
+def ListCompromesLlistaComptes(request,id_projecte,llista_comptes):
+    resultado=contabilitat_ajax.AjaxListCompromesLlistaComptes(request,id_projecte,llista_comptes)
+    return HttpResponse(resultado, content_type='application/json')
+
 # DADES PROJECTE
 
 @login_required(login_url='/menu/')
@@ -1512,10 +1523,11 @@ def ListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo): #AJAX1(SE R
     resultado = contabilitat_ajax.AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo)
     return HttpResponse(resultado, content_type='application/json;')
 
-def ListMovimentsCompte(request,compte,data_min,data_max): # AJAX 2
+def ListMovimentsCompte(request,compte,data_min,data_max): # AJAX 2 (detall compte)
     resultado=contabilitat_ajax.AjaxListMovimentsCompte(request,compte,data_min,data_max)
     return HttpResponse(resultado, content_type='application/json')
 
+#OJO El AJAX 3 (comprometido de esa cuenta) ESTA ABAJO,EL LISTCOMPROMESCOMPTE
 
 @login_required(login_url='/menu/')
 def cont_fitxa_major_prj(request): # INGRESSOS I DESPESES (FITXA MAJOR PRJ)

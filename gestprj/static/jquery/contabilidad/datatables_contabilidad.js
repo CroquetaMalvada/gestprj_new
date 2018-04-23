@@ -2,6 +2,8 @@ var table_projectes;
 var table_responsables;
 var table_comptes;
 var table_llista_compromes;
+var table_llista_compromes_compte;
+var table_llista_compromes_llista_comptes;
 
 var separador_decimales = ',';
 var separador_miles = '.';
@@ -283,10 +285,10 @@ $(document).ready(function(){
         });
    }
 
-  if($("#table_llista_compromes")){//COMPROMES DE ESTAT PPROJECTES PER RESPONSABLE(resum_fitxa_major_prj)
+  if($("#table_llista_compromes")){//COMPROMES DE ESTAT PPROJECTES PER RESPONSABLE
        table_llista_compromes = $("#table_llista_compromes").DataTable({
             ajax: {
-                url: '/show_compromes_projecte/0',
+                url: '/json_vacio/',
                 dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
             },
             columns:[
@@ -313,7 +315,7 @@ $(document).ready(function(){
                     columns: ':visible',
                     format: {
                         body: function(data, row, column, node) {
-                            if(column==2 || column==3)
+                            if(column==2 || column==5)
                                 data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             return data;
                         }
@@ -348,6 +350,136 @@ $(document).ready(function(){
             language: opciones_idioma
         });
    }
+  if($("#table_llista_compromes_compte")){//COMPROMES DE RESUM PER PARTIDES(DELS COMPTES)
+       table_llista_compromes_compte = $("#table_llista_compromes_compte").DataTable({
+            ajax: {
+                url: '/json_vacio/',
+                dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
+            },
+            columns:[
+                {'data': 'compte'},
+                {'data': 'descripcio'},
+                {'data': 'cost', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
+                {'data': 'data_inici'},
+                {'data': 'data_fi'},
+                {'data': 'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )}
+            ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: function(){return '<h4>'+$("#dialog_llista_compromes_compte").attr("title")+'</h4>'},
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: function(){return $("#dialog_llista_compromes_compte").attr("title")},
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==2 || column==5)
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="C"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                   });
+                    $('row c[r^="F"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                   });
+                }
+            },{
+                extend: 'pdf',
+                title: function(){return $("#dialog_llista_compromes_compte").attr("title")},
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: function(){return $("#dialog_llista_compromes_compte").attr("title")},
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
+            scrollY:        '70vh',
+            scrollCollapse: true,
+            paging:         false,
+            autowidth:      true,
+            overflow:       "auto",
+//            order:          [[ 0, "asc" ]],
+            columnDefs:[
+                { type: 'de_date', targets: [3,4] }
+            ],
+            language: opciones_idioma
+        });
+   }
+  if($("#table_llista_compromes_llista_comptes")){//COMPROMES DE RESUM PER PARTIDES(LLISTA DE COMPTES)
+       table_llista_compromes_llista_comptes = $("#table_llista_compromes_llista_comptes").DataTable({
+            ajax: {
+                url: '/json_vacio/',
+                dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
+            },
+            columns:[
+                {'data': 'compte'},
+                {'data': 'descripcio'},
+                {'data': 'cost', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
+                {'data': 'data_inici'},
+                {'data': 'data_fi'},
+                {'data': 'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )}
+            ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: function(){return '<h4>'+$("#dialog_llista_compromes_llista_comptes").attr("title")+'</h4>'},
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: function(){return $("#dialog_llista_compromes_llista_comptes").attr("title")},
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==2 || column==5)
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="C"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                   });
+                    $('row c[r^="F"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                   });
+                }
+            },{
+                extend: 'pdf',
+                title: function(){return $("#dialog_llista_compromes_llista_comptes").attr("title")},
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: function(){return $("#dialog_llista_compromes_llista_comptes").attr("title")},
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
+            scrollY:        '70vh',
+            scrollCollapse: true,
+            paging:         false,
+            autowidth:      true,
+            overflow:       "auto",
+//            order:          [[ 0, "asc" ]],
+            columnDefs:[
+                { type: 'de_date', targets: [3,4] }
+            ],
+            language: opciones_idioma
+        });
+   }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -356,8 +488,99 @@ $(document).ready(function(){
 
 ///Esto sirve para que el campo que contiene una fecha lo detecte como tal para poder asi ordenarlo correctamente por fecha
 
-    if($(".table_estat_pressupostari")){// ESTAT PRESSUPOSTARI ////////////
+    if($(".table_estat_pressupostari")){// ESTAT PRESSUPOSTARI //////////// OJO ESTA ES LA UNICA CON UN IF YA QUE ESTA LA DE PERIODO Y LA DE TOTALES
        $(".table_estat_pressupostari").each(function(){
+       if($(this).attr("total")=="Si"){ // SI ES EL TOTAL
+           $(this).DataTable({
+                ajax:{
+                    url:'/json_vacio/',
+                    contentType: "application/json;",
+                    dataSrc: ''
+                },
+                scrollY:        '90vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                columnDefs: [
+    //                { type: 'de_date', targets: 0 },
+                    {"width": "5%","className":"dt-center", targets: [3] },
+                    {"width": "30%","className":"dt-left", targets:[0]},
+                    {"width": "20%", type: 'num-fmt', targets: [1,2,4] }
+
+                ],
+                columns: [
+                    { data:'desc_partida'},
+                    { data:'pressupostat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                    { data:'gastat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                    { data:{'cod':'codigo_entero','id':'id_partida', 'fecha_min':'fecha_min', 'fecha_max':'fecha_max'},"render": function(data){return '<a class="btn btn-info info_compte_pres" id="'+data['id_partida']+'" cod="'+data['codigo_entero']+'"data_min="'+data['fecha_min']+'" data_max="'+data['fecha_max']+'" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                    { data:'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                    { data:{'id_projecte':'id_projecte', 'llista_comptes':'llista_comptes'},"render": function(data){return '<a class="btn btn-info info_compromes_llista_comptes" id="'+data['id_projecte']+'" comptes="'+data['llista_comptes']+'" title="Info compromés" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                    { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+                ],
+                dom: 'Bfrtip',
+                buttons:[{
+                    extend: 'print',
+                    header: true,
+                    footer: true,
+                    title: "", //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
+                    text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                    exportOptions: { columns: '0,1,2,4'},
+                    autoPrint: true
+                },{
+                    extend: 'excel',
+                    filename: function(){return "Estat Pressupostari de "+$("#nombre_del_proyecto").text();},
+                    text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                    exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                        columns: '0,1,2,4',
+                        format: {
+                            body: function(data, row, column, node) {
+                                if(column==1 || column==2 || column==3)
+                                    data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                                return data;
+                            }
+                        }
+                    },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                        var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                        $('row c[r^="B"]', sheet).each(function () {// "B" es la columna en el excel
+                              $(this).attr('s', 64);
+                        });
+                        $('row c[r^="C"]', sheet).each(function () {
+                              $(this).attr('s', 64);
+                        });
+                        $('row c[r^="D"]', sheet).each(function () {
+                              $(this).attr('s', 64);
+                        });
+                    }
+                },{
+                    extend: 'pdf',
+                    title: function(){return "Estat Pressupostari de "+$("#nombre_del_proyecto").text();},
+                    footer: true,
+                    exportOptions: { columns: '0,1,2,4'},
+                    text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+                },{
+                    extend: 'csv',
+                    filename: function(){return "Estat Pressupostari de "+$("#nombre_del_proyecto").text();},
+                    footer: true,
+                    exportOptions: { columns: '0,1,2,4'},
+                    text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+                }],
+                footerCallback: function( tfoot, data, start, end, display ) {
+                    var api = this.api();
+                    $(this).DataTable().columns( [1,2,4,6] ).every(function(){
+    //                    console.log(this.data());
+                        var sum = this.data().reduce( function (a,b) {
+                            return parseFloat(a) + parseFloat(b);
+                        },0 ); //OJO cambiar a 2????
+                        var bgcolor="LightGreen";
+                        if(sum<-25)
+                            bgcolor="LightCoral";
+                        $(this.footer()).attr("bgcolor",bgcolor);
+                        $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
+                    });
+                  },
+                language: opciones_idioma
+            });
+       }else{// SI ES DE UN PERIODO
            $(this).DataTable({
                 ajax:{
                     url:'/json_vacio/',
@@ -445,6 +668,8 @@ $(document).ready(function(){
                   },
                 language: opciones_idioma
             });
+       }
+
         });
     }
 
@@ -896,8 +1121,8 @@ $(document).ready(function(){
                 dataSrc: ''
             },
             columnDefs: [
-                { type: 'de_date', targets: 0 },
-                { type: 'num-fmt', targets: [2,3,5] }
+                //{ type: 'de_date', targets: 0 },
+                { type: 'num-fmt', targets: [2,3,5,7] }
             ],
             columns: [
                 { data:'compte'},
@@ -905,6 +1130,8 @@ $(document).ready(function(){
                 { data:'despesa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:{'codigo_entero':'codigo_entero','compte':'compte','fecha_min':'fecha_min', 'fecha_max':'fecha_max'},"render": function(data){return '<a class="btn btn-info info_compte" id="'+data["compte"]+'-'+data["codigo_entero"]+'" data_min="'+data['fecha_min']+'" data_max="'+data['fecha_max']+'" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                { data:'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:{'id_projecte':'id_projecte', 'compte':'compte'},"render": function(data){return '<a class="btn btn-info info_compromes_compte" id="'+data['id_projecte']+'" compte="'+data['compte']+'" title="Info compromés" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
                 { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
             dom: 'Bfrtip',
@@ -912,7 +1139,7 @@ $(document).ready(function(){
                 extend: 'print',
                 header: true,
                 footer: true,
-                exportOptions: { columns: '0,1,2,3,5'},
+                exportOptions: { columns: '0,1,2,3,5,7'},
                 title: function(){ return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();}, //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
                 text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
                 autoPrint: true
@@ -924,7 +1151,7 @@ $(document).ready(function(){
                     columns: '0,1,2,3,5',
                     format: {
                         body: function(data, row, column, node) {
-                            if(column==2 || column==3 || column==4)
+                            if(column==2 || column==3 || column==5 || column==7)
                                 data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             return data;
                         }
@@ -937,7 +1164,10 @@ $(document).ready(function(){
                     $('row c[r^="D"]', sheet).each(function () {// "B" es la columna en el excel
                           $(this).attr('s', 64);
                     });
-                    $('row c[r^="E"]', sheet).each(function () {
+                    $('row c[r^="F"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="H"]', sheet).each(function () {
                           $(this).attr('s', 64);
                     });
                 }
@@ -945,21 +1175,21 @@ $(document).ready(function(){
                 extend: 'pdf',
                 title: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
                 footer: true,
-                exportOptions: { columns: '0,1,2,3,5'},
+                exportOptions: { columns: '0,1,2,3,5,7'},
                 text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
             },{
                 extend: 'csv',
                 filename: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
                 footer: true,
-                exportOptions: { columns: '0,1,2,3,5'},
+                exportOptions: { columns: '0,1,2,3,5,7'},
                 text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
             }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $(this).DataTable().columns( [2,3,5] ).every(function(index){
+                $(this).DataTable().columns( [2,3,5,7] ).every(function(index){
 //                    console.log(this.data());
-                    if(index==5){
-                        var sum = this.cell(":last",5).data();
+                    if(index==7){
+                        var sum = this.cell(":last",7).data();
                         if(!sum)
                             sum="0.00";
                     }else

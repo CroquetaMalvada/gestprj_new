@@ -98,10 +98,33 @@ $(document).ready(function(){
     $(".datatable").on( 'click', '.info_compromes_prj', function (){
 	    id_projecte = $(this).attr("id");
 	    descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
-	    $("#dialog_llista_comptes").attr("title","DETALL DEL COMPROMÉS:"+descripcio);
+	    $("#dialog_llista_compromes").attr("title","DETALL DEL COMPROMÉS:"+descripcio);
         table_llista_compromes.ajax.url('/show_compromes_projecte/'+id_projecte);
 	    table_llista_compromes.ajax.reload();
 	    mostrar_dialog("dialog_llista_compromes");
+	});
+
+	//Al mostrar el comprometido de un proyecto y cuenta
+    $(".datatable").on( 'click', '.info_compromes_compte', function (){
+	    id_projecte = $(this).attr("id");
+	    compte = $(this).attr("compte");
+	    //descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
+	    $("#dialog_llista_compromes_compte").attr("title","COMPROMÉS DEL COMPTE:"+compte);
+        table_llista_compromes_compte.ajax.url('/show_compromes_compte/'+id_projecte+'/'+compte);
+	    table_llista_compromes_compte.ajax.reload();
+	    mostrar_dialog("dialog_llista_compromes_compte");
+	});
+
+	//Al mostrar el comprometido de un proyecto y una lista de cuentas(de una partida)
+    $(".datatable").on( 'click', '.info_compromes_llista_comptes', function (){
+	    id_projecte = $(this).attr("id");
+	    comptes = $(this).attr("comptes");
+	    var nom_partida = $(this).parents(".datatable").DataTable().row(".selected",0).data()["desc_partida"]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
+	    console.log($(this).parents(".datatable").DataTable().row(".selected",2).data());
+	    $("#dialog_llista_compromes_llista_comptes").attr("title","COMPROMÉS DE LA PARTIDA: "+nom_partida);
+        table_llista_compromes_llista_comptes.ajax.url('/show_compromes_llista_comptes/'+id_projecte+'/'+comptes);
+	    table_llista_compromes_llista_comptes.ajax.reload();
+	    mostrar_dialog("dialog_llista_compromes_llista_comptes");
 	});
 
 
