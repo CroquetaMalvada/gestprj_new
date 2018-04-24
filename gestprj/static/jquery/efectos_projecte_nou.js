@@ -176,15 +176,17 @@ $("#compromes").click(function(){
 
     ///ACTUALIZAR SELECTS *OJO LOS OTROS 2 ACTUALIZAR ESTAN EN FUNCIONES CABECERA
     if(Admin==1){
-        actualizar_conceptes_press();
-        actualizar_organismes();
-        actualizar_usuaris_externs();
+        if($("#formulario_nou_projecte").length){
+            actualizar_conceptes_press_select();
+            actualizar_organismes_select();
+            actualizar_usuaris_externs_select();
+        }
     }
 });
 
 /////ACTUALIZAR LOS SELECTS
 
-function actualizar_organismes(){
+function actualizar_organismes_select(){
         $.ajax({
                     url: '/llista_organismes_select/',
 //                    type: form.attr('method'),
@@ -205,7 +207,7 @@ function actualizar_organismes(){
         });
 }
 
-function actualizar_conceptes_press(){
+function actualizar_conceptes_press_select(){
         $.ajax({
                     url: '/llista_ConceptesPres/',
 //                    type: form.attr('method'),
@@ -244,7 +246,7 @@ function actualizar_usuaris_creaf_select(){
         });
 }
 
-function actualizar_usuaris_xarxa(){
+function actualizar_usuaris_xarxa_select(){
         $.ajax({
                     url: '/llista_usuaris_xarxa_select/',
 //                    type: form.attr('method'),
@@ -265,7 +267,7 @@ function actualizar_usuaris_xarxa(){
         });
 }
 
-function actualizar_usuaris_externs(){
+function actualizar_usuaris_externs_select(){
         $.ajax({
                     url: '/llista_usuaris_externs_select/',
 //                    type: form.attr('method'),

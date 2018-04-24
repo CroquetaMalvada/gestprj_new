@@ -2,13 +2,20 @@
 var justificacions_cabecera;
 var Admin=0; // Se pone a 1 en la cabecera cuando se logina con permisos de admin,esto evita que se carguen ajax que el usuario normal no vaya a utilizar
 
+var organismes_cabecera;
+var usuaris_creaf_cabecera;
+var usuaris_externs_cabecera;
+var responsables_cabecera;
+var permisos_usuaris_consultar;
+
+
 $(document).ready(function(){
     ////////// DATATABLES DE LA OPCION "EDICIO" !!!!!!!!
     if(Admin==1){
         //////////ORGANISMES
-        var organismes_cabecera= $("#table_organismes_cabecera").children("table").DataTable({
+        organismes_cabecera= $("#table_organismes_cabecera").children("table").DataTable({
                 ajax: {
-                    url: '/llista_Organismes/',
+                    url: '/json_vacio_results/',
                     dataSrc: 'results'
                 },
                 columns:[
@@ -29,9 +36,9 @@ $(document).ready(function(){
                 language: opciones_idioma,
         });
         /////////////USUARIS CREAF
-        var usuaris_creaf_cabecera = $("#table_usuaris_creaf_cabecera").children("table").DataTable({
+        usuaris_creaf_cabecera = $("#table_usuaris_creaf_cabecera").children("table").DataTable({
                 ajax: {
-                    url: '/llista_Usuaris_creaf/',
+                    url: '/json_vacio_results/',
                     dataSrc: 'results'
                 },
                 columns:[
@@ -53,9 +60,9 @@ $(document).ready(function(){
                 language: opciones_idioma,
             });
         /////////////USUARIS EXTERNS
-        var usuaris_externs_cabecera = $("#table_usuaris_externs_cabecera").children("table").DataTable({
+        usuaris_externs_cabecera = $("#table_usuaris_externs_cabecera").children("table").DataTable({
                 ajax: {
-                    url: '/llista_Usuaris_externs/',
+                    url: '/json_vacio_results/',
                     dataSrc: 'results'
                 },
                 columns:[
@@ -77,9 +84,9 @@ $(document).ready(function(){
                 language: opciones_idioma,
             });
         /////////////RESPONSABLES
-        var responsables_cabecera = $("#table_responsables_cabecera").children("table").DataTable({
+        responsables_cabecera = $("#table_responsables_cabecera").children("table").DataTable({
                 ajax: {
-                    url: '/llista_Responsables/',
+                    url: '/json_vacio_results/',
                     dataSrc: 'results'
                 },
                 columns:[
@@ -155,9 +162,9 @@ $(document).ready(function(){
             });
 
         /////////////PERMISOS USUARIOS CONSULTAR PROYECTOS
-        var permisos_usuaris_consultar = $("#table_permisos_usuaris_consultar").children("table").DataTable({
+        permisos_usuaris_consultar = $("#table_permisos_usuaris_consultar").children("table").DataTable({
                 ajax: {
-                    url: '/llista_permisos_usuaris_consultar/',
+                    url: '/json_vacio_results/',
                     dataSrc: 'results'
                 },
                 columns:[
@@ -208,7 +215,7 @@ $(document).ready(function(){
                 form.children("[name='e_mail2']").val(data["e_mail2"]);
             }).done(function( data ){});
 
-            actualizar_organismes();
+            actualizar_organismes_select();
             mostrar_dialog_cabecera("editar_organismes_cabecera");
 
         });
@@ -229,7 +236,7 @@ $(document).ready(function(){
                         success: function(result) {
                              organismes_cabecera.$('tr.selected').hide("highlight",{color:"green"},function(){
                                 organismes_cabecera.ajax.reload();
-                                actualizar_organismes();
+                                actualizar_organismes_select();
                              });
                         }
                     });
@@ -260,7 +267,7 @@ $(document).ready(function(){
                             success: function(result) {
                                  mostrar_dialog_cabecera("table_organismes_cabecera");
                                  organismes_cabecera.ajax.reload();
-                                 actualizar_organismes();
+                                 actualizar_organismes_select();
                             }
 
                 });
@@ -392,7 +399,7 @@ $(document).ready(function(){
                     url: usuaris_externs_cabecera.row(".selected").data()["url"],
                     type: "DELETE",
                     success: function(result) {
-                        actualizar_usuaris_externs();
+                        actualizar_usuaris_externs_select();
                         usuaris_externs_cabecera.ajax.reload();
                     }
                  });
@@ -422,7 +429,7 @@ $(document).ready(function(){
                             success: function(result) {
                                  mostrar_dialog_cabecera("table_usuaris_externs_cabecera");
                                  usuaris_externs_cabecera.ajax.reload();
-                                 actualizar_usuaris_externs();
+                                 actualizar_usuaris_externs_select();
                             }
 
                 });
@@ -590,10 +597,14 @@ $(document).ready(function(){
         $("#dialogs_cabecera").dialog("close");
 
         ///ACTUALIZAR SELECTS *LAS FUNCIONES ESTAN EN EFECTOS PROJECTE NOU Y TAMBIEN LAS OTRAS 2 LLAMADAS A LAS MISMAS
-        actualizar_usuaris_xarxa();
-        actualizar_projectes_select();
-        actualizar_responsables_select();
-        actualizar_usuaris_creaf_select();
+        if(Admin==1){
+            if($("#formulario_nou_projecte").length){
+                actualizar_usuaris_xarxa_select();
+                actualizar_projectes_select();
+                actualizar_responsables_select();
+                actualizar_usuaris_creaf_select();
+            }
+        }
     }
 
 });
@@ -669,6 +680,41 @@ function dialog_projectes_per_responsable_cabecera(){
                 }
 
     });
+}
+
+function dialog_organismes_cabecera(){
+    organismes_cabecera.ajax.url("/llista_Organismes/");
+    organismes_cabecera.ajax.reload();
+    mostrar_dialog_cabecera("table_organismes_cabecera");
+}
+
+function dialog_usuaris_creaf_cabecera(){
+    actualizar_organismes_select();
+    usuaris_creaf_cabecera.ajax.url("/llista_Usuaris_creaf/");;
+    usuaris_creaf_cabecera.ajax.reload();
+    mostrar_dialog_cabecera("table_usuaris_creaf_cabecera");
+}
+
+function dialog_usuaris_externs_cabecera(){
+    actualizar_organismes_select();
+    usuaris_externs_cabecera.ajax.url("/llista_Usuaris_externs/");
+    usuaris_externs_cabecera.ajax.reload();
+    mostrar_dialog_cabecera("table_usuaris_externs_cabecera");
+}
+
+function dialog_responsables_cabecera(){
+    actualizar_usuaris_creaf_select();
+    responsables_cabecera.ajax.url("/llista_Responsables/");
+    responsables_cabecera.ajax.reload();
+    mostrar_dialog_cabecera("table_responsables_cabecera");
+}
+
+function dialog_permisos_usuaris_consultar(){
+    actualizar_usuaris_xarxa_select();
+    actualizar_projectes_select();
+    permisos_usuaris_consultar.ajax.url("/llista_permisos_usuaris_consultar/");
+    permisos_usuaris_consultar.ajax.reload();
+    mostrar_dialog_cabecera("table_permisos_usuaris_consultar");
 }
 
 function imprimir_projectes_resp_cabecera(){

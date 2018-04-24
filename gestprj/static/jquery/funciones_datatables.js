@@ -107,7 +107,7 @@ function actu_import_pres_total(){//////////////// suma los importes de la parti
         periodicitat_pressupost.cell(rowindx,5).data(0);
     });
     pressupost.rows().every(function(rowpress){
-            $.get("/show_PeriodicitatPartida/"+pressupost.row(rowpress).data()["id_part"],function(data){
+            $.get("/show_PeriodicitatPartida/"+pressupost.row(rowpress).data()["id_part"]+"/",function(data){
                 $.each(data["results"],function(index,obj){///si solo pongo data le paso un objeto en lugar e un array y por lo tanto la function no devuelve indice
 //                    console.log(periodicitat_pressupost.cell(index,5).data());
                       if(periodicitat_pressupost.cell(index,5).data()!=undefined){
@@ -155,11 +155,11 @@ function refrescaTabla(tabla){
     else if(tabla==13)
         periodicitat_pressupost.ajax.reload();
     else if(tabla==14){
-            periodicitat_partida.ajax.url('/show_PeriodicitatPartida/'+id_current_partida);
+            periodicitat_partida.ajax.url('/show_PeriodicitatPartida/'+id_current_partida+"/");
             periodicitat_partida.ajax.reload();
             actu_import_pres_total();
     }else if(tabla==15){
-        desglossament.ajax.url('/show_Desglossament/'+id_current_partida);
+        desglossament.ajax.url('/show_Desglossament/'+id_current_partida+"/");
         desglossament.ajax.reload();
     }else if(tabla==16)
         justificacions_projecte.ajax.reload();
@@ -189,7 +189,7 @@ function crear_datatable(tipo){
     }else if(tipo==2){
         return $("#table_centres_participants").DataTable({//contiene los centros que participan en este projecto(solo deberia ejecutarse al cargar un proyecto)
                 ajax: {
-                    url: '/show_centresPart/'+id_prj,
+                    url: '/show_centresPart/'+id_prj+"/",
                     dataSrc: 'results',
                 },
                 columns:[
@@ -213,7 +213,7 @@ function crear_datatable(tipo){
     }else if(tipo==3){//organismos(en principio no se muestran los que estan en el proyecto)
         return $("#table_participants_organismes").children("table").DataTable({
             ajax: {
-                url: '/show_TOrganismes/'+id_prj,
+                url: '/show_TOrganismes/'+id_prj+"/",
                 dataSrc: 'results'
             },
             columns:[
@@ -253,7 +253,7 @@ function crear_datatable(tipo){
     }else if(tipo==5){//usuarios internos que participan en el proyecto y su organizacion
         return $("#table_personal_creaf").DataTable({
             ajax: {
-                url: '/show_Personal_creaf_prj/'+id_prj,
+                url: '/show_Personal_creaf_prj/'+id_prj+"/",
                 dataSrc: 'results'
             },
             columns:[
@@ -283,7 +283,7 @@ function crear_datatable(tipo){
     }else if(tipo==6){//usuarios internos que no participan en el proyecto y su organizacion
         return $("#table_usuaris_creaf").children("table").DataTable({
             ajax: {
-                url: '/show_Personal_creaf/'+id_prj,
+                url: '/show_Personal_creaf/'+id_prj+"/",
                 dataSrc: 'results'
             },
             columns:[
@@ -308,7 +308,7 @@ function crear_datatable(tipo){
     }else if(tipo==7){//usuarios externos que participan en el proyecto y su organizacion
         return $("#table_personal_extern").DataTable({
             ajax: {
-                url: '/show_Personal_extern_prj/'+id_prj,
+                url: '/show_Personal_extern_prj/'+id_prj+"/",
                 dataSrc: 'results'
             },
             columns:[
@@ -332,7 +332,7 @@ function crear_datatable(tipo){
     }else if(tipo==8){//usuarios externos que no participan en el proyecto y su organizacion
         return $("#table_usuaris_externs").children("table").DataTable({
             ajax: {
-                url: '/show_Personal_extern/'+id_prj,
+                url: '/show_Personal_extern/'+id_prj+"/",
                 dataSrc: 'results'
             },
             columns:[
@@ -357,7 +357,7 @@ function crear_datatable(tipo){
     }else if(tipo==9){// justificaciones de x usuario creaf
         return $("#table_justificacions_personal").children("table").DataTable({
             ajax: {
-                url: '/show_justificPersonal/0',
+                url: '/json_vacio_results/',
                 dataSrc: 'results'
             },
             columns:[
@@ -396,7 +396,7 @@ function crear_datatable(tipo){
     }else if(tipo==10){ //////////TABLAS FINANÇAMENT  //ORGANISME FINANCAMENT
         return $("#table_organismes_fin").DataTable({
                     ajax: {
-                        url: '/show_OrganismesFin/'+id_prj,
+                        url: '/show_OrganismesFin/'+id_prj+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -432,7 +432,7 @@ function crear_datatable(tipo){
     }else if(tipo==11){ //////////ORGANISME RECEPTOR
         return $("#table_organismes_rec").DataTable({
                     ajax: {
-                        url: '/show_OrganismesRec/'+id_prj,
+                        url: '/show_OrganismesRec/'+id_prj+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -468,7 +468,7 @@ function crear_datatable(tipo){
     }else if(tipo==12){ //////////JUSTIFICACIONS INTERNES
         return $("#table_justificacions_internes").DataTable({
                     ajax: {
-                        url: '/show_justificInternes/'+id_prj,
+                        url: '/show_justificInternes/'+id_prj+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -506,7 +506,7 @@ function crear_datatable(tipo){
     }else if(tipo==13){ //////////  RENOVACIONS  !Ojo esta tabla es especial ya que sus datos cambian de forma dinamica al,por ejemplo,modificar los valores del iva,canono oficial en los inputs anteriores
         return $("#table_renovacions").DataTable({
                     ajax: {
-                        url: '/show_Renovacions/'+id_prj,
+                        url: '/show_Renovacions/'+id_prj+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -543,7 +543,7 @@ function crear_datatable(tipo){
     }else if(tipo==14){ //////////PRESSUPOST  !OJO esta y la de abajo es la unica de presupost que no cambia el total de forma dinamica
         return $("#table_pressupost").DataTable({
                     ajax: {
-                        url: '/show_Pressupost/'+id_prj,
+                        url: '/show_Pressupost/'+id_prj+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -593,7 +593,7 @@ function crear_datatable(tipo){
     }else if(tipo==15){ //////////PERIODICITAT PRESSUPOST
         return $("#table_periodicitat_pressupost").DataTable({
                     ajax: {
-                        url: '/show_PeriodicitatPres/'+id_prj,
+                        url: '/show_PeriodicitatPres/'+id_prj+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -632,7 +632,7 @@ function crear_datatable(tipo){
     }else if(tipo==16){ //////////PERIODICITAT PARTIDA
         return $("#table_periodicitat_partida").DataTable({
                     ajax: {
-                        url: '/show_PeriodicitatPartida/'+id_current_partida,
+                        url: '/show_PeriodicitatPartida/'+id_current_partida+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -670,7 +670,7 @@ function crear_datatable(tipo){
     }else if(tipo==17){ //////////DESGLOSSAMENT
         return $("#table_desglossament").DataTable({
                     ajax: {
-                        url: '/show_Desglossament/'+id_current_partida,
+                        url: '/show_Desglossament/'+id_current_partida+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -703,7 +703,7 @@ function crear_datatable(tipo){
     }else if(tipo==18){ //////////JUSTIFICACIONS PROJECTE
         return $("#table_justificacions_projecte").DataTable({
                     ajax: {
-                        url: '/show_JustificacionsProjecte/'+id_prj,
+                        url: '/show_JustificacionsProjecte/'+id_prj+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -737,7 +737,7 @@ function crear_datatable(tipo){
     }else if(tipo==19){ //////////AUDITORIES
         return $("#table_auditories").DataTable({
                     ajax: {
-                        url: '/show_Auditories/'+id_prj,
+                        url: '/show_Auditories/'+id_prj+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -771,7 +771,7 @@ function crear_datatable(tipo){
     }else if(tipo==20){ //////////COMPROMÉS
         return $("#table_compromes_personal").DataTable({
                     ajax: {
-                        url: '/show_compromes_personal/'+id_prj,
+                        url: '/show_compromes_personal/'+id_prj+"/",
                         dataSrc: 'results'
                     },
                     columns:[
@@ -819,7 +819,7 @@ function crear_datatable(tipo){
 //    else if(tipo==21){ //////////COMPROMÉS PERSONAL *este es el del dialog
 //        return $("#table_compromes_personal").DataTable({
 ////                    ajax: {
-////                        url: '/show_compromes_personal/'+id_prj,
+////                        url: '/show_compromes_personal/'+id_prj+"/",
 ////                        contentType: "application/json;",
 ////                        dataSrc: ''
 ////                    },

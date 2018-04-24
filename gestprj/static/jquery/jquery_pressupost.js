@@ -113,7 +113,7 @@ $(document).ready(function(){
                         data: form.serialize(),
                         success: function(result) {
                              mostrar_dialog("editar_pressupost");
-                             actualizar_conceptes_press();
+                             actualizar_conceptes_press_select();
                         }
 
             });

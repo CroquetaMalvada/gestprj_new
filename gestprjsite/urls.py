@@ -129,6 +129,7 @@ urlpatterns = patterns('',
 
     url(r'^contabilitat/$', views.list_projectes_cont, name='contabilitat'),
     url(r'^json_vacio/$', views.json_vacio, name='cont_json_vacio'),
+    url(r'^json_vacio_results/$', views.json_vacio_results, name='json vacio pero para datasrc results'),
     url(r'^cont_dades/$', views.cont_dades, name='cont_dades'),
 
     url(r'^cont_estat_pres/$', views.cont_estat_pres, name='cont_estat_pres'),

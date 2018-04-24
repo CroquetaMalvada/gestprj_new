@@ -762,6 +762,9 @@ class GestPrjUsuaris(viewsets.ModelViewSet):
 def json_vacio(request):
     return HttpResponse([{}], content_type='application/json;')
 
+def json_vacio_results(request):
+    return HttpResponse(json.dumps({"results":""}), content_type='application/json;')
+
 @login_required(login_url='/menu/')
 def list_projectes_cont(request): #simplemente carga la template
     context = { 'titulo': "COMPTABILITAT"} # 'llista_projectes': llista_projectes ,
