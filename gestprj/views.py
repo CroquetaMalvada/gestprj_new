@@ -799,6 +799,16 @@ def ListCompromesLlistaComptes(request,id_projecte,llista_comptes):
     resultado=contabilitat_ajax.AjaxListCompromesLlistaComptes(request,id_projecte,llista_comptes)
     return HttpResponse(resultado, content_type='application/json')
 
+#AJAX PARA VER LAS LINEAS DE UN ALBARAN
+def LineasAlbaran(request,id_albaran):
+    resultado=contabilitat_ajax.AjaxLineasAlbaran(request,id_albaran)
+    return HttpResponse(resultado, content_type='application/json')
+
+#AJAX PARA VER LAS LINEAS DE UN PEDIDO
+def LineasPedido(request,id_pedido):
+    resultado=contabilitat_ajax.AjaxLineasPedido(request,id_pedido)
+    return HttpResponse(resultado, content_type='application/json')
+
 # DADES PROJECTE
 
 @login_required(login_url='/menu/')

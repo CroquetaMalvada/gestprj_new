@@ -165,6 +165,10 @@ urlpatterns = patterns('',
     url(r'^show_compromes_projecte/(?P<id_projecte>.+)/$', views.ListCompromesProjecte, name="Compromes Projecte"),
     url(r'^show_compromes_compte/(?P<tipo_comp>.+)/(?P<id_projecte>.+)/(?P<codigo>.+)/(?P<compte>.+)/$', views.ListCompromesCompte, name="Compromes Compte de Projecte"),
     url(r'^show_compromes_llista_comptes/(?P<id_projecte>.+)/(?P<llista_comptes>.+)/$', views.ListCompromesLlistaComptes, name="Compromes Llista Comptes de Projecte"),
+
+    url(r'^show_lineas_albaran/(?P<id_albaran>.+)/$', views.LineasAlbaran, name="Lineas albaran"),
+    url(r'^show_lineas_pedido/(?P<id_pedido>.+)/$', views.LineasPedido, name="Lineas pedido"),
+
     # url(r'^show_compromes_partida/(?P<id_projecte>.+)/(?P<partida>.+)/$', views.ListCompromesPartida, name="Compromes Partida de Projecte"),
     #
 )

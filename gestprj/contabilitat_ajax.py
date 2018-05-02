@@ -790,11 +790,11 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
         try:
             #obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
             cursor.execute(
-                "SELECT NOMPRO,CABEALBC.BASE,CABEALBC.IDALBC,SITUACIONDETALLE FROM CABEALBC INNER JOIN LINEALBA ON CABEALBC.IDALBC=LINEALBA.IDALBC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEALBA.CENTROCOSTE2='   '+%s AND LINEALBA.CTACONL=%s",
+                "SELECT NOMPRO,CABEALBC.BASE,CABEALBC.TOTBRUTO,CABEALBC.IDALBC,SITUACIONDETALLE FROM CABEALBC INNER JOIN LINEALBA ON CABEALBC.IDALBC=LINEALBA.IDALBC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEALBA.CENTROCOSTE2='   '+%s AND LINEALBA.CTACONL=%s",
                 (codigo_entero, prjfet["Cuenta"]))
             albaranfetch = dictfetchall(cursor)
             for albafet in albaranfetch:
-                compromes = compromes + albafet["BASE"]
+                compromes = compromes + albafet["TOTBRUTO"]
             #obtenemos las lineas de los albaranes ya que se asignan a cada cuenta
             # cursor.execute(
             #     "SELECT NOMPRO,LINEALBA.CTACONL,LINEALBA.TEXTO,LINEALBA.BASE,LINEALBA.CENTROCOSTE2,SITUACIONDETALLE FROM CABEALBC INNER JOIN LINEALBA ON CABEALBC.IDALBC=LINEALBA.IDALBC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEALBA.CENTROCOSTE2='   '+%s AND LINEALBA.CTACONL=%s",
@@ -808,11 +808,11 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
         try:
             # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
             cursor.execute(
-                "SELECT NOMPRO,CABEPEDC.BASE,CABEPEDC.IDPEDC,SITUACIONDETALLE FROM CABEPEDC INNER JOIN LINEPEDI ON CABEPEDC.IDPEDC=LINEPEDI.IDPEDC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEPEDI.CENTROCOSTE2='   '+%s AND LINEPEDI.CTACONL=%s",
+                "SELECT NOMPRO,CABEPEDC.BASE,CABEPEDC.TOTBRUTO,CABEPEDC.IDPEDC,SITUACIONDETALLE FROM CABEPEDC INNER JOIN LINEPEDI ON CABEPEDC.IDPEDC=LINEPEDI.IDPEDC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEPEDI.CENTROCOSTE2='   '+%s AND LINEPEDI.CTACONL=%s",
                 (codigo_entero, prjfet["Cuenta"]))
             pedidosfetch = dictfetchall(cursor)
             for pedidofet in pedidosfetch:
-                compromes = compromes + pedidofet["BASE"]
+                compromes = compromes + pedidofet["TOTBRUTO"]
         except:
             compromes = compromes
 
@@ -1203,11 +1203,11 @@ def AjaxListCompromesCompte(request,tipo_comp,id_projecte,codigo_entero,compte):
             try:
                 # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
                 cursor.execute(
-                    "SELECT NOMPRO,RAZON,CABEALBC.BASE,CABEALBC.IDALBC,SITUACIONDETALLE FROM CABEALBC INNER JOIN LINEALBA ON CABEALBC.IDALBC=LINEALBA.IDALBC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEALBA.CENTROCOSTE2='   '+%s AND LINEALBA.CTACONL=%s",
+                    "SELECT NOMPRO,RAZON,CABEALBC.BASE,CABEALBC.TOTBRUTO,CABEALBC.IDALBC,SITUACIONDETALLE FROM CABEALBC INNER JOIN LINEALBA ON CABEALBC.IDALBC=LINEALBA.IDALBC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEALBA.CENTROCOSTE2='   '+%s AND LINEALBA.CTACONL=%s",
                     (codigo_entero, compte))
                 albaranfetch = dictfetchall(cursor)
                 for albafet in albaranfetch:
-                    comp_albaranes.append({"compte":compte,"descripcio":albafet["NOMPRO"],"rao":albafet["RAZON"],"idalb":float(albafet["IDALBC"]),"compromes":float(albafet["BASE"])})
+                    comp_albaranes.append({"compte":compte,"descripcio":albafet["NOMPRO"],"rao":albafet["RAZON"],"idalb":float(albafet["IDALBC"]),"compromes":float(albafet["TOTBRUTO"])})
                 cursor.close()
                 resultado = json.dumps(comp_albaranes)
                 return resultado
@@ -1219,11 +1219,11 @@ def AjaxListCompromesCompte(request,tipo_comp,id_projecte,codigo_entero,compte):
             try:
                 # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
                 cursor.execute(
-                    "SELECT NOMPRO,RAZON,CABEPEDC.BASE,CABEPEDC.IDPEDC,SITUACIONDETALLE FROM CABEPEDC INNER JOIN LINEPEDI ON CABEPEDC.IDPEDC=LINEPEDI.IDPEDC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEPEDI.CENTROCOSTE2='   '+%s AND LINEPEDI.CTACONL=%s",
+                    "SELECT NOMPRO,RAZON,CABEPEDC.BASE,CABEPEDC.TOTBRUTO,CABEPEDC.IDPEDC,SITUACIONDETALLE FROM CABEPEDC INNER JOIN LINEPEDI ON CABEPEDC.IDPEDC=LINEPEDI.IDPEDC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEPEDI.CENTROCOSTE2='   '+%s AND LINEPEDI.CTACONL=%s",
                     (codigo_entero, compte))
                 pedidosfetch = dictfetchall(cursor)
                 for pedidofet in pedidosfetch:
-                    comp_pedidos.append({"compte":compte,"descripcio":pedidofet["NOMPRO"],"rao":pedidofet["RAZON"],"idped":float(pedidofet["IDPEDC"]),"compromes":float(pedidofet["BASE"])})
+                    comp_pedidos.append({"compte":compte,"descripcio":pedidofet["NOMPRO"],"rao":pedidofet["RAZON"],"idped":float(pedidofet["IDPEDC"]),"compromes":float(pedidofet["TOTBRUTO"])})
 
                 cursor.close()
                 resultado = json.dumps(comp_pedidos)
@@ -1264,3 +1264,58 @@ def AjaxListCompromesLlistaComptes(request,id_projecte,llista_comptes):
         #
     except:
         return [{}]
+
+def AjaxLineasAlbaran(request,id_albaran):
+    linas_albaran=[]
+    cursor = connections['contabilitat'].cursor()
+    id_albaran=str(id_albaran)
+    try:
+        # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
+        cursor.execute("SELECT FECHA,DESCLIN,PRECIO,UNIDADES,UNISERVIDA FROM LINEALBA WHERE IDALBC=%s+'.00'",[id_albaran])
+        lineas = dictfetchall(cursor)
+        for linea in lineas:
+            linas_albaran.append({"data":str(linea["FECHA"]),"descripcio":linea["DESCLIN"],"preu":linea["PRECIO"],"unitats":linea["UNIDADES"],"unitats_serv":linea["UNISERVIDA"]})
+        cursor.close()
+        resultado = json.dumps(linas_albaran)
+        return resultado
+    except:
+        cursor.close()
+        return [{}]
+
+def AjaxLineasPedido(request, id_pedido):
+    linas_pedido = []
+    cursor = connections['contabilitat'].cursor()
+    try:
+        # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
+        cursor.execute("SELECT FECHA,DESCLIN,PRECIO,UNIDADES,UNISERVIDA FROM LINEALBA WHERE IDPEDC=%s+'.00'",
+                       [id_pedido])
+        lineas = dictfetchall(cursor)
+        for linea in lineas:
+            linas_pedido.append(
+                {"data": str(linea["FECHA"]), "descripcio": linea["DESCLIN"], "preu": linea["PRECIO"],
+                 "unitats": linea["UNIDADES"], "unitats_serv": linea["UNISERVIDA"]})
+        cursor.close()
+        resultado = json.dumps(linas_pedido)
+        return resultado
+    except:
+        cursor.close()
+        return [{}]
+
+# def AjaxLineasPedidos(request,id_pedido):
+#     cursor = connections['contabilitat'].cursor()
+#     try:
+#         # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
+#         cursor.execute(
+#             "SELECT NOMPRO,RAZON,CABEPEDC.BASE,CABEPEDC.IDPEDC,SITUACIONDETALLE FROM CABEPEDC INNER JOIN LINEPEDI ON CABEPEDC.IDPEDC=LINEPEDI.IDPEDC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEPEDI.CENTROCOSTE2='   '+%s AND LINEPEDI.CTACONL=%s",
+#             (codigo_entero, compte))
+#         pedidosfetch = dictfetchall(cursor)
+#         for pedidofet in pedidosfetch:
+#             comp_pedidos.append({"compte": compte, "descripcio": pedidofet["NOMPRO"], "rao": pedidofet["RAZON"],
+#                                  "idped": float(pedidofet["IDPEDC"]), "compromes": float(pedidofet["BASE"])})
+#
+#         cursor.close()
+#         resultado = json.dumps(comp_pedidos)
+#         return resultado
+#     except:
+#         cursor.close()
+#         return [{}]

@@ -11,6 +11,10 @@ var table_llista_compromes_pedidos_compte;
 //por cuentaS
 var table_llista_compromes_llista_comptes;
 
+//lineas albaranes y pedidos
+var table_lineas_albaran;
+var table_lineas_pedido;
+
 var separador_decimales = ',';
 var separador_miles = '.';
 
@@ -432,7 +436,7 @@ $(document).ready(function(){
                 {'data': 'compte'},
                 {'data': 'descripcio'},
                 {'data': 'rao'},
-                { data:{'idalb':'idalb', 'compte':'compte'},"render": function(data){return '<a class="btn btn-info info_compromes_albaranes_compte" idalb="'+data['idalb']+'" compte="'+data['compte']+'" title="Info sobre alvarà" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                { data:{'idalb':'idalb', 'compte':'compte', 'descripcio':'descripcio'},"render": function(data){return '<a class="btn btn-info info_compromes_albaranes_compte" idalb="'+data['idalb']+'" compte="'+data['compte']+'" desc="'+data['descripcio']+'" title="Info sobre albarà" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
                 {'data': 'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )}
             ],
             dom: 'Bfrtip',
@@ -490,7 +494,7 @@ $(document).ready(function(){
                 {'data': 'compte'},
                 {'data': 'descripcio'},
                 {'data': 'rao'},
-                { data:{'idped':'idped', 'compte':'compte'},"render": function(data){return '<a class="btn btn-info info_compromes_pedidos_compte" idped="'+data['idped']+'" compte="'+data['compte']+'" title="Info sobre la comanda" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                { data:{'idped':'idped', 'compte':'compte', 'descripcio':'descripcio'},"render": function(data){return '<a class="btn btn-info info_compromes_pedidos_compte" idped="'+data['idped']+'" compte="'+data['compte']+'" desc="'+data['descripcio']+'" title="Info sobre la comanda" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
                 {'data': 'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )}
             ],
             dom: 'Bfrtip',
@@ -601,6 +605,131 @@ $(document).ready(function(){
 //            order:          [[ 0, "asc" ]],
             columnDefs:[
                 { type: 'de_date', targets: [3,4] }
+            ],
+            language: opciones_idioma
+        });
+   }
+/////////////
+
+  if($("#table_lineas_albaran")){//LINEAS DE UN ALBARAN
+       table_lineas_albaran = $("#table_lineas_albaran").DataTable({
+            ajax: {
+                url: '/json_vacio/',
+                dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
+            },
+            columns:[
+                {'data': 'data'},
+                {'data': 'descripcio'},
+                {'data': 'preu', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
+                {'data': 'unitats'},
+                {'data': 'unitats_serv'},
+            ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: function(){return '<h4>'+$("#dialog_lineas_albaran").attr("title")+'</h4>'},
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: function(){return $("#dialog_lineas_albaran").attr("title")},
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==2)
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="C"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                   });
+                }
+            },{
+                extend: 'pdf',
+                title: function(){return $("#dialog_lineas_albaran").attr("title")},
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: function(){return $("#dialog_lineas_albaran").attr("title")},
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
+            scrollY:        '70vh',
+            scrollCollapse: true,
+            paging:         false,
+            autowidth:      true,
+            overflow:       "auto",
+//            order:          [[ 0, "asc" ]],
+            columnDefs:[
+                { type: 'de_date', targets: [0] }
+            ],
+            language: opciones_idioma
+        });
+   }
+
+   if($("#table_lineas_albaran")){//LINEAS DE UN PEDIDO
+       table_lineas_pedido = $("#table_lineas_pedido").DataTable({
+            ajax: {
+                url: '/json_vacio/',
+                dataSrc: '' //como no hay ninguna variable general que contiene el array json,lo dejamos como un string vacio
+            },
+            columns:[
+                {'data': 'data'},
+                {'data': 'descripcio'},
+                {'data': 'preu', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
+                {'data': 'unitats'},
+                {'data': 'unitats_serv'},
+            ],
+            dom: 'Bfrtip',
+            buttons:[{
+                extend: 'print',
+                header: true,
+                footer: true,
+                title: function(){return '<h4>'+$("#dialog_lineas_albaran").attr("title")+'</h4>'},
+                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                autoPrint: true
+            },{
+                extend: 'excel',
+                filename: function(){return $("#dialog_lineas_albaran").attr("title")},
+                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==2)
+                                data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                            return data;
+                        }
+                    }
+                },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="C"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                   });
+                }
+            },{
+                extend: 'pdf',
+                title: function(){return $("#dialog_lineas_albaran").attr("title")},
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+            },{
+                extend: 'csv',
+                filename: function(){return $("#dialog_lineas_albaran").attr("title")},
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+            }],
+            scrollY:        '70vh',
+            scrollCollapse: true,
+            paging:         false,
+            autowidth:      true,
+            overflow:       "auto",
+//            order:          [[ 0, "asc" ]],
+            columnDefs:[
+                { type: 'de_date', targets: [0] }
             ],
             language: opciones_idioma
         });

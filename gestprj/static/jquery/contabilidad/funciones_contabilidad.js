@@ -128,13 +128,34 @@ $(document).ready(function(){
 	    id_projecte = $(this).attr("id");
 	    comptes = $(this).attr("comptes");
 	    var nom_partida = $(this).parents(".datatable").DataTable().row(".selected",0).data()["desc_partida"]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
-	    console.log($(this).parents(".datatable").DataTable().row(".selected",2).data());
+//	    console.log($(this).parents(".datatable").DataTable().row(".selected",2).data());
 	    $("#dialog_llista_compromes_llista_comptes").attr("title","COMPROMÉS DE LA PARTIDA: "+nom_partida);
         table_llista_compromes_llista_comptes.ajax.url('/show_compromes_llista_comptes/'+id_projecte+'/'+comptes);
 	    table_llista_compromes_llista_comptes.ajax.reload();
 	    mostrar_dialog("dialog_llista_compromes_llista_comptes");
 	});
 
+    //Mostrar las lineas del comprometido de un albaran
+    $(".datatable").on( 'click', '.info_compromes_albaranes_compte', function (){
+	    id_albaran = $(this).attr("idalb");
+	    compte = $(this).attr("compte");
+	    descripcio = $(this).attr("desc");
+	    $("#dialog_lineas_albaran").attr("title","LÍNIES DE L'ALBARÀ: "+descripcio);
+        table_lineas_albaran.ajax.url('/show_lineas_albaran/'+id_albaran+'/');
+	    table_lineas_albaran.ajax.reload();
+	    mostrar_dialog("dialog_lineas_albaran");
+	});
+
+    //Mostrar las lineas del comprometido de un pedido
+    $(".datatable").on( 'click', '.info_compromes_pedido_compte', function (){
+	    id_pedido = $(this).attr("idped");
+	    compte = $(this).attr("compte");
+	    descripcio = $(this).attr("desc");
+	    $("#dialog_lineas_pedido").attr("title","LÍNIES DE COMANDA: "+descripcio);
+        table_lineas_pedido.ajax.url('/show_lineas_pedido/'+id_pedido+'/');
+	    table_lineas_pedido.ajax.reload();
+	    mostrar_dialog("dialog_lineas_pedido");
+	});
 
     $("#formulario_projectes_cont").submit(function(e){// comprueba que haya al menos un proyecto seleccionado
         var num=0;
