@@ -764,8 +764,10 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
             prjfet["TotalDebe"] = 0
         if prjfet["TotalHaber"] == None:
             prjfet["TotalHaber"] = 0
+
         # Obtener el comprometido de dicha cuenta#
         compromes = 0
+        #COMPROMETIDO DE PERSONAL
         try:
             for comp in CompromesPersonal.objects.filter(id_projecte=projecte.id_projecte,compte=prjfet["Cuenta"]).values("cost", "data_inici","data_fi"):
                 fecha_actual = datetime.today().date()
@@ -782,7 +784,38 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
                 duracion_pendiente = dif.days
                 compromes = compromes + (duracion_pendiente * (coste / 30))
         except:
-            compromes = 0
+            compromes = compromes
+
+        #COMPROMETIDO DE ALBARANES
+        try:
+            #obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
+            cursor.execute(
+                "SELECT NOMPRO,CABEALBC.BASE,CABEALBC.IDALBC,SITUACIONDETALLE FROM CABEALBC INNER JOIN LINEALBA ON CABEALBC.IDALBC=LINEALBA.IDALBC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEALBA.CENTROCOSTE2='   '+%s AND LINEALBA.CTACONL=%s",
+                (codigo_entero, prjfet["Cuenta"]))
+            albaranfetch = dictfetchall(cursor)
+            for albafet in albaranfetch:
+                compromes = compromes + albafet["BASE"]
+            #obtenemos las lineas de los albaranes ya que se asignan a cada cuenta
+            # cursor.execute(
+            #     "SELECT NOMPRO,LINEALBA.CTACONL,LINEALBA.TEXTO,LINEALBA.BASE,LINEALBA.CENTROCOSTE2,SITUACIONDETALLE FROM CABEALBC INNER JOIN LINEALBA ON CABEALBC.IDALBC=LINEALBA.IDALBC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEALBA.CENTROCOSTE2='   '+%s AND LINEALBA.CTACONL=%s",
+            #     (codigo_entero, prjfet["Cuenta"]))
+
+            # "SELECT NOMPRO,LINEALBA.CTACONL,LINEALBA.TEXTO,LINEALBA.BASE,LINEALBA.CENTROCOSTE2,SITUACIONDETALLE FROM CABEALBC INNER JOIN LINEALBA ON CABEALBC.IDALBC=LINEALBA.IDALBC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEALBA.CENTROCOSTE2='   '+%s AND LINEALBA.CTACONL=%s",
+        except:
+            compromes = compromes
+
+        #COMPROMETIDO DE PEDIDOS
+        try:
+            # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
+            cursor.execute(
+                "SELECT NOMPRO,CABEPEDC.BASE,CABEPEDC.IDPEDC,SITUACIONDETALLE FROM CABEPEDC INNER JOIN LINEPEDI ON CABEPEDC.IDPEDC=LINEPEDI.IDPEDC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEPEDI.CENTROCOSTE2='   '+%s AND LINEPEDI.CTACONL=%s",
+                (codigo_entero, prjfet["Cuenta"]))
+            pedidosfetch = dictfetchall(cursor)
+            for pedidofet in pedidosfetch:
+                compromes = compromes + pedidofet["BASE"]
+        except:
+            compromes = compromes
+
         compromes=float(compromes)
         #
 
@@ -790,6 +823,7 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
         cursor.execute(
             "SELECT CONVERT(VARCHAR,FECHA,105)as Fecha, SUBSTRING(CONVERT(VARCHAR,NUMAPUNTE), 6, 4) AS Asiento,  CONVERT(VARCHAR,CUENTAS.CUENTA) AS Cuenta, CONVERT(NVARCHAR(100),DESCAPU) AS Descripcion, CONVERT(varchar,DEBE)AS Debe, CONVERT(varchar,HABER)AS Haber FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CUENTAS.CUENTA=%s AND CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) ORDER BY cast(FECHA as date)",
             (prjfet["Cuenta"], fecha_max, fecha_min))
+        # SELECT NOMPRO,LINEALBA.CTACONL,LINEALBA.TEXTO,LINEALBA.BASE,LINEALBA.CENTROCOSTE2,SITUACIONDETALLE FROM CABEALBC INNER JOIN LINEALBA ON CABEALBC.IDALBC=LINEALBA.IDALBC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEALBA.CENTROCOSTE2='   03589'
         # cursor.execute("SELECT TOP 100 PERCENT Fecha, Asiento, Cuenta, Descripcion, Debe, Haber FROM Apuntes WHERE (Cuenta=(?) AND (Diario='0' OR Diario='4' OR Diario='1') AND ((Apuntes.Fecha)>=CONVERT(date, (?),105) AND (Apuntes.Fecha)<=CONVERT(date, (?),105))) ORDER BY cast(Fecha as date)",[prjfet["Cuenta"],fecha_min,fecha_max])
         comptes[prjfet["Cuenta"]] = dictfetchall(cursor)
 
@@ -1135,33 +1169,69 @@ def AjaxListCompromesProjecte(request,id_projecte):
     else:
         return [{}]
 
-def AjaxListCompromesCompte(request,id_projecte,compte):
+def AjaxListCompromesCompte(request,tipo_comp,id_projecte,codigo_entero,compte):
     resultado=[]
+    comp_personal=[]
+    comp_albaranes=[]
+    comp_pedidos=[]
     #
-    if(compte!="0"):
-        try:
-            for comp in CompromesPersonal.objects.filter(id_projecte=id_projecte, compte=compte).values("compte","descripcio","cost", "data_inici","data_fi"):
-                compromes = 0
-                fecha_actual = datetime.today().date()
+    try:
+        if tipo_comp == "1": #PERSONAL
+            try:
+                for comp in CompromesPersonal.objects.filter(id_projecte=id_projecte, compte=compte).values("compte","descripcio","cost", "data_inici","data_fi"):
+                    compromes = 0
+                    fecha_actual = datetime.today().date()
 
-                coste = comp["cost"]
-                fecha_ini = comp["data_inici"]
-                fecha_fin = comp["data_fi"]
-                dif = fecha_fin - fecha_ini
-                duracion_total = dif.days
-                fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
-                fecha_calculo = fecha_calculo.replace(day=1)
-                fecha_calculo = fecha_calculo - timedelta(days=1)
-                dif = fecha_fin - fecha_calculo
-                duracion_pendiente = dif.days
-                compromes = float((duracion_pendiente * (coste / 30)))
-                resultado.append({'compte':comp["compte"],'descripcio':comp["descripcio"],'cost':float(coste),'data_inici':str(fecha_ini),'data_fi':str(fecha_fin),'compromes':compromes})
-            resultado = json.dumps(resultado)
-            return resultado
-        except:
-            return [{}]
-        #
-    else:
+                    coste = comp["cost"]
+                    fecha_ini = comp["data_inici"]
+                    fecha_fin = comp["data_fi"]
+                    dif = fecha_fin - fecha_ini
+                    duracion_total = dif.days
+                    fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
+                    fecha_calculo = fecha_calculo.replace(day=1)
+                    fecha_calculo = fecha_calculo - timedelta(days=1)
+                    dif = fecha_fin - fecha_calculo
+                    duracion_pendiente = dif.days
+                    compromes = float((duracion_pendiente * (coste / 30)))
+                    comp_personal.append({'compte':comp["compte"],'descripcio':comp["descripcio"],'cost':float(coste),'data_inici':str(fecha_ini),'data_fi':str(fecha_fin),'compromes':compromes})
+                resultado = json.dumps(comp_personal)
+                return resultado
+            except:
+                return [{}]
+        if tipo_comp == "2":  # ALBARANES
+            cursor = connections['contabilitat'].cursor()
+            try:
+                # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
+                cursor.execute(
+                    "SELECT NOMPRO,RAZON,CABEALBC.BASE,CABEALBC.IDALBC,SITUACIONDETALLE FROM CABEALBC INNER JOIN LINEALBA ON CABEALBC.IDALBC=LINEALBA.IDALBC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEALBA.CENTROCOSTE2='   '+%s AND LINEALBA.CTACONL=%s",
+                    (codigo_entero, compte))
+                albaranfetch = dictfetchall(cursor)
+                for albafet in albaranfetch:
+                    comp_albaranes.append({"compte":compte,"descripcio":albafet["NOMPRO"],"rao":albafet["RAZON"],"idalb":float(albafet["IDALBC"]),"compromes":float(albafet["BASE"])})
+                cursor.close()
+                resultado = json.dumps(comp_albaranes)
+                return resultado
+            except:
+                cursor.close()
+                return [{}]
+        if tipo_comp == "3":#PEDIDOS
+            cursor = connections['contabilitat'].cursor()
+            try:
+                # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
+                cursor.execute(
+                    "SELECT NOMPRO,RAZON,CABEPEDC.BASE,CABEPEDC.IDPEDC,SITUACIONDETALLE FROM CABEPEDC INNER JOIN LINEPEDI ON CABEPEDC.IDPEDC=LINEPEDI.IDPEDC WHERE SITUACIONDETALLE!='SERVIDO, TOTALMENTE SERVIDO' AND LINEPEDI.CENTROCOSTE2='   '+%s AND LINEPEDI.CTACONL=%s",
+                    (codigo_entero, compte))
+                pedidosfetch = dictfetchall(cursor)
+                for pedidofet in pedidosfetch:
+                    comp_pedidos.append({"compte":compte,"descripcio":pedidofet["NOMPRO"],"rao":pedidofet["RAZON"],"idped":float(pedidofet["IDPEDC"]),"compromes":float(pedidofet["BASE"])})
+
+                cursor.close()
+                resultado = json.dumps(comp_pedidos)
+                return resultado
+            except:
+                cursor.close()
+                return [{}]
+    except:
         return [{}]
 
 def AjaxListCompromesLlistaComptes(request,id_projecte,llista_comptes):

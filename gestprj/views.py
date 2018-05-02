@@ -790,8 +790,8 @@ def ListCompromesProjecte(request,id_projecte):
     return HttpResponse(resultado, content_type='application/json')
 
 #AJAX PARA VER COMPROMETIDO DE UNA CUENTA
-def ListCompromesCompte(request,id_projecte,compte):
-    resultado=contabilitat_ajax.AjaxListCompromesCompte(request,id_projecte,compte)
+def ListCompromesCompte(request,tipo_comp,id_projecte,codigo,compte):
+    resultado=contabilitat_ajax.AjaxListCompromesCompte(request,tipo_comp,id_projecte,codigo,compte)
     return HttpResponse(resultado, content_type='application/json')
 
 #AJAX PARA VER COMPROMETIDO DE UNA PARTIDA DE UN PROYECTO

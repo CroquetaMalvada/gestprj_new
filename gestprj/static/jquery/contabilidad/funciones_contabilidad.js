@@ -108,10 +108,18 @@ $(document).ready(function(){
     $(".datatable").on( 'click', '.info_compromes_compte', function (){
 	    id_projecte = $(this).attr("id");
 	    compte = $(this).attr("compte");
+	    codigo = $(this).attr("cod");
 	    //descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
 	    $("#dialog_llista_compromes_compte").attr("title","COMPROMÉS DEL COMPTE:"+compte);
-        table_llista_compromes_compte.ajax.url('/show_compromes_compte/'+id_projecte+'/'+compte);
+	    // comp personal
+        table_llista_compromes_compte.ajax.url('/show_compromes_compte/1/'+id_projecte+'/'+codigo+'/'+compte+'/');
 	    table_llista_compromes_compte.ajax.reload();
+	    //comp albaranes
+        table_llista_compromes_albaranes_compte.ajax.url('/show_compromes_compte/2/'+id_projecte+'/'+codigo+'/'+compte+'/');
+	    table_llista_compromes_albaranes_compte.ajax.reload();
+	    //comp pedidos
+        table_llista_compromes_pedidos_compte.ajax.url('/show_compromes_compte/3/'+id_projecte+'/'+codigo+'/'+compte+'/');
+	    table_llista_compromes_pedidos_compte.ajax.reload();
 	    mostrar_dialog("dialog_llista_compromes_compte");
 	});
 
