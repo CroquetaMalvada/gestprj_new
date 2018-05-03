@@ -147,7 +147,7 @@ $(document).ready(function(){
 	});
 
     //Mostrar las lineas del comprometido de un pedido
-    $(".datatable").on( 'click', '.info_compromes_pedido_compte', function (){
+    $(".datatable").on( 'click', '.info_compromes_pedidos_compte', function (){
 	    id_pedido = $(this).attr("idped");
 	    compte = $(this).attr("compte");
 	    descripcio = $(this).attr("desc");

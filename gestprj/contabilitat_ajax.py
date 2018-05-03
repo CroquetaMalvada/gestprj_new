@@ -1287,7 +1287,7 @@ def AjaxLineasPedido(request, id_pedido):
     cursor = connections['contabilitat'].cursor()
     try:
         # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
-        cursor.execute("SELECT FECHA,DESCLIN,PRECIO,UNIDADES,UNISERVIDA FROM LINEALBA WHERE IDPEDC=%s+'.00'",
+        cursor.execute("SELECT FECHA,DESCLIN,PRECIO,UNIDADES,UNISERVIDA FROM LINEPEDI WHERE IDPEDC=%s+'.00'",
                        [id_pedido])
         lineas = dictfetchall(cursor)
         for linea in lineas:
