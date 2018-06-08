@@ -15,6 +15,8 @@ var table_llista_compromes_llista_comptes;
 var table_lineas_albaran;
 var table_lineas_pedido;
 
+var sum_compromes_no_asignat=0;
+
 var separador_decimales = ',';
 var separador_miles = '.';
 
@@ -244,7 +246,15 @@ $(document).ready(function(){
                 {'data': 'Descripcion'},
                 {'data': 'Debe', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
                 {'data': 'Haber', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
-                {'data': 'Saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )}
+                {'data': 'Saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )},
+                { data:{'Numapunte':'Numapunte',"Debe":"Debe"},"render": function(data){
+                    if(data["Debe"]>0){
+                        return '<a class="btn btn-success generar_detalles_pedido" numapunte="'+data['Numapunte']+'" title="Generar document amb detalls" href="#"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></a>';
+                    }else{
+                        return '<a class="btn btn-danger" title="No hi ha despeses per detallar." href="#"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></a>';
+                    }
+
+                }},
             ],
             dom: 'Bfrtip',
             buttons:[{
@@ -253,13 +263,14 @@ $(document).ready(function(){
                 footer: true,
                 title: function(){return '<h4>'+$("#dialog_llista_comptes").attr("title")+'</h4>'},
                 text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
-                autoPrint: true
+                autoPrint: true,
+                exportOptions: { columns: '0,1,2,4,5'}
             },{
                 extend: 'excel',
                 filename: function(){return $("#dialog_llista_comptes").attr("title")},
                 text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
-                    columns: ':visible',
+                    columns: '0,1,2,4,5',
                     format: {
                         body: function(data, row, column, node) {
                             if(column==3 || column==4 || column==5)
@@ -276,11 +287,13 @@ $(document).ready(function(){
             },{
                 extend: 'pdf',
                 title: function(){return $("#dialog_llista_comptes").attr("title")},
-                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>',
+                exportOptions: { columns: '0,1,2,4,5'}
             },{
                 extend: 'csv',
                 filename: function(){return $("#dialog_llista_comptes").attr("title")},
-                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>',
+                exportOptions: { columns: '0,1,2,4,5'}
             }],
             scrollY:        '70vh',
             scrollCollapse: true,
@@ -495,6 +508,7 @@ $(document).ready(function(){
                 {'data': 'descripcio'},
                 {'data': 'rao'},
                 { data:{'idped':'idped', 'compte':'compte', 'descripcio':'descripcio'},"render": function(data){return '<a class="btn btn-info info_compromes_pedidos_compte" idped="'+data['idped']+'" compte="'+data['compte']+'" desc="'+data['descripcio']+'" title="Info sobre la comanda" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                //{ data:{'idped':'idped'},"render": function(data){return '<a class="btn btn-success generar_detalles_pedido" id_pedido="'+data['idped']+'" title="Generar document amb detalls" href="#"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></a>';}},
                 {'data': 'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 )}
             ],
             dom: 'Bfrtip',
@@ -745,12 +759,32 @@ $(document).ready(function(){
 
     if($(".table_estat_pressupostari")){// ESTAT PRESSUPOSTARI //////////// OJO ESTA ES LA UNICA CON UN IF YA QUE ESTA LA DE PERIODO Y LA DE TOTALES
        $(".table_estat_pressupostari").each(function(){
+       // inf=$(this).next(".info_cuentas_no_asignadas"); //para poner la info de las cuentas no asignadas manualmente
        if($(this).attr("total")=="Si"){ // SI ES EL TOTAL
            $(this).DataTable({
                 ajax:{
                     url:'/json_vacio/',
                     contentType: "application/json;",
-                    dataSrc: ''
+                    //dataSrc: ''
+                    dataSrc: function(json){
+                        if(!jQuery.isEmptyObject(json)){
+                            var inf=$(".ui-accordion-content-active").find(".info_cuentas_no_asignadas");
+                            if(json["cuentas_no_asignadas"].length>0){
+                                $(inf).html("<span class='glyphicon glyphicon-warning-sign' aria-hidden='true' style='color:red'></span> Falten per assignar els següents comptes:<br>")
+                                $.each(json["cuentas_no_asignadas"][0]["comptes"],function(){
+                                    $(inf).append("<div class='col-md-1'><b>"+this+"</b></div>");
+                                });
+                                $(inf).append("<br><br><div class='col-md-12'>Hi ha un compromés de: <font color='red'>"+parseFloat(json["cuentas_no_asignadas"][0]["compromes"]).toFixed(2)+"€</font> en aquests comptes.<b>S'afegirà als resultats i es restarà de 'Saldo'</b></div>")
+                                sum_compromes_no_asignat=parseFloat(json["cuentas_no_asignadas"][0]["compromes"]);
+                            }
+                            //alert("carga json con "+sum_compromes_no_asignat);
+                            return json["partidas"];
+                        }else{
+                            return "";
+                        }
+
+                    },
+
                 },
                 scrollY:        '90vh',
                 scrollCollapse: true,
@@ -769,7 +803,7 @@ $(document).ready(function(){
                     { data:'gastat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                     { data:{'cod':'codigo_entero','id':'id_partida', 'fecha_min':'fecha_min', 'fecha_max':'fecha_max'},"render": function(data){return '<a class="btn btn-info info_compte_pres" id="'+data['id_partida']+'" cod="'+data['codigo_entero']+'"data_min="'+data['fecha_min']+'" data_max="'+data['fecha_max']+'" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
                     { data:'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                    { data:{'id_projecte':'id_projecte', 'llista_comptes':'llista_comptes'},"render": function(data){return '<a class="btn btn-info info_compromes_llista_comptes" id="'+data['id_projecte']+'" comptes="'+data['llista_comptes']+'" title="Info compromés" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                    { data:{'cod':'codigo_entero','id_projecte':'id_projecte', 'llista_comptes':'llista_comptes'},"render": function(data){return '<a class="btn btn-info info_compromes_llista_comptes" id="'+data['id_projecte']+'" comptes="'+data['llista_comptes']+'" codigo_entero="'+data['codigo_entero']+'" title="Info compromés" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
                     { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
                 ],
                 dom: 'Bfrtip',
@@ -779,17 +813,17 @@ $(document).ready(function(){
                     footer: true,
                     title: "", //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
                     text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
-                    exportOptions: { columns: '0,1,2,4'},
+                    exportOptions: { columns: '0,1,2,4,6'},
                     autoPrint: true
                 },{
                     extend: 'excel',
                     filename: function(){return "Estat Pressupostari de "+$("#nombre_del_proyecto").text();},
                     text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
                     exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
-                        columns: '0,1,2,4',
+                        columns: '0,1,2,4,6',
                         format: {
                             body: function(data, row, column, node) {
-                                if(column==1 || column==2 || column==3)
+                                if(column==1 || column==2 || column==4 || column==6)
                                     data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                                 return data;
                             }
@@ -802,7 +836,10 @@ $(document).ready(function(){
                         $('row c[r^="C"]', sheet).each(function () {
                               $(this).attr('s', 64);
                         });
-                        $('row c[r^="D"]', sheet).each(function () {
+                        $('row c[r^="E"]', sheet).each(function () {
+                              $(this).attr('s', 64);
+                        });
+                        $('row c[r^="G"]', sheet).each(function () {
                               $(this).attr('s', 64);
                         });
                     }
@@ -810,18 +847,18 @@ $(document).ready(function(){
                     extend: 'pdf',
                     title: function(){return "Estat Pressupostari de "+$("#nombre_del_proyecto").text();},
                     footer: true,
-                    exportOptions: { columns: '0,1,2,4'},
+                    exportOptions: { columns: '0,1,2,4,6'},
                     text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
                 },{
                     extend: 'csv',
                     filename: function(){return "Estat Pressupostari de "+$("#nombre_del_proyecto").text();},
                     footer: true,
-                    exportOptions: { columns: '0,1,2,4'},
+                    exportOptions: { columns: '0,1,2,4,6'},
                     text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
                 }],
                 footerCallback: function( tfoot, data, start, end, display ) {
                     var api = this.api();
-                    $(this).DataTable().columns( [1,2,4,6] ).every(function(){
+                    $(this).DataTable().columns( [1,2,4,6] ).every(function(index){
     //                    console.log(this.data());
                         var sum = this.data().reduce( function (a,b) {
                             return parseFloat(a) + parseFloat(b);
@@ -830,7 +867,24 @@ $(document).ready(function(){
                         if(sum<-25)
                             bgcolor="LightCoral";
                         $(this.footer()).attr("bgcolor",bgcolor);
+                        // Ojo funcion exclusiva para sumar al comprometido el que aparece en el datasrc
+
+                        if(index==4){/// sumar al comprometido el no asignado
+                            sum=sum+sum_compromes_no_asignat;
+                        }else if(index==6){// restar ese comprometido no asignado al saldo total
+                            sum=sum-sum_compromes_no_asignat;
+                            sum_compromes_no_asignat=0;
+                        }
                         $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
+//                        }else{
+//                            sum=sum+sum_compromes_no_asignat;
+//                            //alert("footer "+sum+" + "+sum_compromes_no_asignat);
+//                            $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
+//                            sum_compromes_no_asignat=0;
+//                        }
+
+
+
                     });
                   },
                 language: opciones_idioma
@@ -945,7 +999,8 @@ $(document).ready(function(){
             },
             columnDefs: [
                 {"width": "10%", type: 'de_date', targets: 0 },
-                {"width": "10%",type: 'num-fmt', targets: [1,2,3,5,6] },
+                {"width": "10%",type: 'num-fmt', targets: [1,2,5,7] },
+                {"width": "5%", targets: [3,6] },
                 {"width": "40%","className":"dt-left", targets:[4]}
             ],
             columns: [
@@ -956,6 +1011,14 @@ $(document).ready(function(){
                 { data:'descripcio' },
 //                { data:'pagat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'despesa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:{'Numapunte':'Numapunte',"nfactura":"nfactura"},"render": function(data){
+                    if(data["nfactura"]!=0){
+                        return '<a class="btn btn-success generar_detalles_pedido tooltip_factura" numapunte="'+data['Numapunte']+'" title="Veure factura '+data["nfactura"]+'" nfact="'+data["nfactura"]+'" href="#"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></a>';
+                    }else{
+                        return '<a class="btn btn-danger tooltip_factura" title="No hi ha despeses per detallar." nfact="'+data["nfactura"]+'" href="#"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></a>';
+                    }
+
+                }},
                 { data:'saldo_disponible', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
             dom: 'Bfrtip',
@@ -965,7 +1028,17 @@ $(document).ready(function(){
                 footer: true,
                 title: "Llista Despeses de "+$("#nombre_del_proyecto").text(), //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
                 text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
-                autoPrint: true
+                autoPrint: true,
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==6)
+                                data=$(data).attr("nfact");
+                            return data;
+                        }
+                    }
+                }
             },{
                 extend: 'excel',
                 filename: function(){return "Llista Despeses de "+$("#nombre_del_proyecto").text();},
@@ -973,8 +1046,10 @@ $(document).ready(function(){
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
                     format: {
                         body: function(data, row, column, node) {
-                            if( column==5 || column==6)
+                            if( column==5 || column==7)
                                 data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                            else if(column==6)
+                                data=$(data).attr("nfact");
                             return data;
                         }
                     }
@@ -983,7 +1058,7 @@ $(document).ready(function(){
                     $('row c[r^="F"]', sheet).each(function () {// "B" es la columna en el excel
                           $(this).attr('s', 64);
                     });
-                    $('row c[r^="G"]', sheet).each(function () {
+                    $('row c[r^="H"]', sheet).each(function () {
                           $(this).attr('s', 64);
                     });
                 }
@@ -991,23 +1066,43 @@ $(document).ready(function(){
                 extend: 'pdf',
                 title: function(){return "Llista Despeses de "+$("#nombre_del_proyecto").text();},
                 footer: true,
-                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==6)
+                                data=$(data).attr("nfact");
+                            return data;
+                        }
+                    }
+                }
             },{
                 extend: 'csv',
                 filename: function(){return "Llista Despeses de "+$("#nombre_del_proyecto").text();},
                 footer: true,
-                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==6)
+                                data=$(data).attr("nfact");
+                            return data;
+                        }
+                    }
+                }
             }],
             footerCallback: function( tfoot, data, start, end, display ) {
                 var api = this.api();
-                $(this).DataTable().columns( [5,6] ).every(function(index){
+                $(this).DataTable().columns( [5,7] ).every(function(index){
 //                    console.log(this.data());
                     if(index==5)
                         var sum = this.data().reduce( function (a,b) {
                             return parseFloat(a) + parseFloat(b);
                         },0 ); //OJO cambiar a 2????
                     else{
-                        var sum = this.cell(":last",6).data();
+                        var sum = this.cell(":last",7).data();
                         if(!sum)
                             sum="0.00";
                     }
@@ -1017,7 +1112,9 @@ $(document).ready(function(){
                     $(this.footer()).attr("bgcolor",bgcolor);
                     $( this.footer() ).html( "<b>"+formatnumber( sum, separador_miles, separador_decimales, 2 )+"</b>" );
                 });
-              },
+              },drawCallback: function(){
+                $(".tooltip_factura").tooltip();
+            },
             language: opciones_idioma
         });
     }
@@ -1112,7 +1209,7 @@ $(document).ready(function(){
         });
     }
 
-    if($(".table_fitxa_major_prj")){// INGRESOS I DESPESES (FITXA MAJOR PROJECTES)
+    if($(".table_fitxa_major_prj")){// INGRESSOS I DESPESES (FITXA MAJOR PROJECTES)
        $(".table_fitxa_major_prj").DataTable({
             scrollY:        '60vh',
             scrollCollapse: true,
@@ -1125,9 +1222,9 @@ $(document).ready(function(){
             },
             columnDefs: [
                 { type: 'de_date', targets: 0 },
-                { type: 'num-fmt', targets: [6,7] },
-                {"width": "5%","className":"dt-center", targets: [0,1,2,5] },
-                {"width": "10%", targets:[6,7]},
+                { type: 'num-fmt', targets: [6,8] },
+                {"width": "5%","className":"dt-center", targets: [0,1,2,5,7] },
+                {"width": "10%", targets:[6,8]},
                 {"width": "30%","className":"dt-left", targets:[3,4]}
             ],
             columns: [
@@ -1143,6 +1240,14 @@ $(document).ready(function(){
                         return '<a class="btn btn-success observacions" title="'+data['Observaciones']+'"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>';
                 }},
                 { data:'despesa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                { data:{'Numapunte':'Numapunte',"nfactura":"nfactura"},"render": function(data){
+                    if(data["nfactura"]!=0){
+                        return '<a class="btn btn-success generar_detalles_pedido tooltip_factura" numapunte="'+data['Numapunte']+'" title="Veure factura '+data["nfactura"]+'" nfact="'+data["nfactura"]+'" href="#"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></a>';
+                    }else{
+                        return '<a class="btn btn-danger tooltip_factura" title="No hi ha despeses per detallar." nfact="" href="#"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></a>';
+                    }
+
+                }},
                 { data:'ingres', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
 //                { data:'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
@@ -1160,6 +1265,8 @@ $(document).ready(function(){
                         body: function(data, row, column, node) {
                             if(column==5)
                                 data=$(data).attr("title");
+                            else if(column==7)
+                                data=$(data).attr("nfact");
                             return data;
                         }
                     }
@@ -1172,10 +1279,12 @@ $(document).ready(function(){
                     columns: ':visible',
                     format: {
                         body: function(data, row, column, node) {
-                            if(column==6 || column==7)
+                            if(column==6 || column==8)
                                 data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             else if(column==5)
                                 data=$(data).attr("title");
+                            else if(column==7)
+                                data=$(data).attr("nfact");
                             return data;
                         }
                     }
@@ -1184,7 +1293,7 @@ $(document).ready(function(){
 //                    $('row c[r^="E"]', sheet).each(function () {
 //                          $(this).attr('s', 64);
 //                    });
-                    $('row c[r^="H"]', sheet).each(function () {// "B" es la columna en el excel
+                    $('row c[r^="G"]', sheet).each(function () {// "B" es la columna en el excel
                           $(this).attr('s', 64);
                     });
                     $('row c[r^="I"]', sheet).each(function () {
@@ -1202,6 +1311,8 @@ $(document).ready(function(){
                         body: function(data, row, column, node) {
                             if(column==5)
                                 data=$(data).attr("title");
+                            else if(column==7)
+                                data=$(data).attr("nfact");
                             return data;
                         }
                     }
@@ -1217,6 +1328,8 @@ $(document).ready(function(){
                         body: function(data, row, column, node) {
                             if(column==5)
                                 data=$(data).attr("title");
+                            else if(column==7)
+                                data=$(data).attr("nfact");
                             return data;
                         }
                     }
@@ -1224,7 +1337,7 @@ $(document).ready(function(){
             }],
             footerCallback: function( tfoot, data, start, end, display ) {// aplicar el formateo en los footers indicados
                 var api = this.api();
-                $(this).DataTable().columns( [6,7] ).every(function(){
+                $(this).DataTable().columns( [6,8] ).every(function(){
 //                    console.log(this.data());
                     var sum = this.data().reduce( function (a,b) {
                         return parseFloat(a) + parseFloat(b);
@@ -1238,6 +1351,7 @@ $(document).ready(function(){
             },
             drawCallback: function(){
                 $(".observacions").tooltip();
+                $(".tooltip_factura").tooltip();
             },
             language: opciones_idioma
         });
@@ -1271,7 +1385,8 @@ $(document).ready(function(){
                 { data:'despeses', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'canon_aplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'compromes', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
-                { data:{'id_projecte':'id_projecte'},"render": function(data){return '<a class="btn btn-info info_compromes_prj" id="'+data['id_projecte']+'" title="Info compromés" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                //{ data:{'compte':'compte','fecha_min':'fecha_min', 'fecha_max':'fecha_max'},"render": function(data){return '<a class="btn btn-info info_compte" id="'+data["compte"]+'-'+data["codigo_entero"]+'" data_min="'+data['fecha_min']+'" data_max="'+data['fecha_max']+'" title="Info" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
+                { data:{'id_projecte':'id_projecte','codi':'codi','fecha_min':'fecha_min', 'fecha_max':'fecha_max'},"render": function(data){return '<a class="btn btn-info info_compromes_prj" id="'+data['id_projecte']+'" codigo_entero="'+data['codi']+'" title="Info compromés" href="#"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';}},
                 //{ data:'disponiblecaixa', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
                 { data:'disponible_real', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
             ],
@@ -1937,3 +2052,16 @@ $(document).on("change", ".checkbox_responsable",function(){
     else
         projectes_de_responsable(this,"Tancat");
 });
+
+// Obtener compromes de llista de comptes
+function compromes_llista_comptes(){
+    $.ajax({
+                url: "show_compromes_llista_comptes/",
+                type: "post",
+                data: form.serialize()+"&id_projecte="+id_prj,
+                success: function(result) {
+                     console.log(result);
+                }
+
+    });
+}

@@ -97,11 +97,32 @@ $(document).ready(function(){
 	//Al mostrar el comprometido de un proyecto
     $(".datatable").on( 'click', '.info_compromes_prj', function (){
 	    id_projecte = $(this).attr("id");
+	    codigo_entero = $(this).attr("codigo_entero");
 	    descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
 	    $("#dialog_llista_compromes").attr("title","DETALL DEL COMPROMÉS:"+descripcio);
-        table_llista_compromes.ajax.url('/show_compromes_projecte/'+id_projecte);
-	    table_llista_compromes.ajax.reload();
-	    mostrar_dialog("dialog_llista_compromes");
+//        table_llista_compromes.ajax.url('/show_compromes_projecte/'+id_projecte+"/"+codigo_entero);
+//	    table_llista_compromes.ajax.reload();
+        $.ajax({
+            url: "/show_compromes_projecte/"+id_projecte+"/"+codigo_entero+"/",
+            //type: "post",
+            //data: "id_projecte="+id_prj,
+            success: function(result) {
+                 console.log(result);
+                 table_llista_compromes_compte.clear();
+                 table_llista_compromes_compte.rows.add(result["compromes_personal"]);
+                 table_llista_compromes_compte.draw();
+
+                 table_llista_compromes_albaranes_compte.clear();
+                 table_llista_compromes_albaranes_compte.rows.add(result["compromes_albaran"]);
+                 table_llista_compromes_albaranes_compte.draw();
+
+                 table_llista_compromes_pedidos_compte.clear();
+                 table_llista_compromes_pedidos_compte.rows.add(result["compromes_pedidos"]);
+                 table_llista_compromes_pedidos_compte.draw();
+            }
+
+        });
+	    mostrar_dialog("dialog_llista_compromes_comptes");
 	});
 
 	//Al mostrar el comprometido de un proyecto y cuenta
@@ -111,28 +132,60 @@ $(document).ready(function(){
 	    codigo = $(this).attr("cod");
 	    //descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
 	    $("#dialog_llista_compromes_compte").attr("title","COMPROMÉS DEL COMPTE:"+compte);
-	    // comp personal
-        table_llista_compromes_compte.ajax.url('/show_compromes_compte/1/'+id_projecte+'/'+codigo+'/'+compte+'/');
-	    table_llista_compromes_compte.ajax.reload();
-	    //comp albaranes
-        table_llista_compromes_albaranes_compte.ajax.url('/show_compromes_compte/2/'+id_projecte+'/'+codigo+'/'+compte+'/');
-	    table_llista_compromes_albaranes_compte.ajax.reload();
-	    //comp pedidos
-        table_llista_compromes_pedidos_compte.ajax.url('/show_compromes_compte/3/'+id_projecte+'/'+codigo+'/'+compte+'/');
-	    table_llista_compromes_pedidos_compte.ajax.reload();
+        $.ajax({
+            url: "/show_compromes_llista_comptes/"+id_projecte+"/"+codigo+"/"+compte,
+            //type: "post",
+            //data: "id_projecte="+id_prj,
+            success: function(result) {
+                 //console.log(result);
+                 table_llista_compromes_compte.clear();
+                 table_llista_compromes_compte.rows.add(result["compromes_personal"]);
+                 table_llista_compromes_compte.draw();
+
+                 table_llista_compromes_albaranes_compte.clear();
+                 table_llista_compromes_albaranes_compte.rows.add(result["compromes_albaran"]);
+                 table_llista_compromes_albaranes_compte.draw();
+
+                 table_llista_compromes_pedidos_compte.clear();
+                 table_llista_compromes_pedidos_compte.rows.add(result["compromes_pedidos"]);
+                 table_llista_compromes_pedidos_compte.draw();
+            }
+
+        });
 	    mostrar_dialog("dialog_llista_compromes_compte");
 	});
 
 	//Al mostrar el comprometido de un proyecto y una lista de cuentas(de una partida)
     $(".datatable").on( 'click', '.info_compromes_llista_comptes', function (){
 	    id_projecte = $(this).attr("id");
+	    codigo_entero = $(this).attr("codigo_entero");
 	    comptes = $(this).attr("comptes");
 	    var nom_partida = $(this).parents(".datatable").DataTable().row(".selected",0).data()["desc_partida"]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
 //	    console.log($(this).parents(".datatable").DataTable().row(".selected",2).data());
-	    $("#dialog_llista_compromes_llista_comptes").attr("title","COMPROMÉS DE LA PARTIDA: "+nom_partida);
-        table_llista_compromes_llista_comptes.ajax.url('/show_compromes_llista_comptes/'+id_projecte+'/'+comptes);
-	    table_llista_compromes_llista_comptes.ajax.reload();
-	    mostrar_dialog("dialog_llista_compromes_llista_comptes");
+	    $("#dialog_llista_compromes_comptes").attr("title","COMPROMÉS DE LA PARTIDA: "+nom_partida);
+        $.ajax({
+            url: "/show_compromes_llista_comptes/"+id_projecte+"/"+codigo_entero+"/"+comptes,
+            //type: "post",
+            //data: "id_projecte="+id_prj,
+            success: function(result) {
+                 //console.log(result);
+                 table_llista_compromes_compte.clear();
+                 table_llista_compromes_compte.rows.add(result["compromes_personal"]);
+                 table_llista_compromes_compte.draw();
+
+                 table_llista_compromes_albaranes_compte.clear();
+                 table_llista_compromes_albaranes_compte.rows.add(result["compromes_albaran"]);
+                 table_llista_compromes_albaranes_compte.draw();
+
+                 table_llista_compromes_pedidos_compte.clear();
+                 table_llista_compromes_pedidos_compte.rows.add(result["compromes_pedidos"]);
+                 table_llista_compromes_pedidos_compte.draw();
+            }
+
+        });
+//        table_llista_compromes_llista_comptes.ajax.url('/show_compromes_llista_comptes/'+id_projecte+'/'+codigo_entero+'/'+comptes);
+//	    table_llista_compromes_llista_comptes.ajax.reload();
+	    mostrar_dialog("dialog_llista_compromes_comptes");
 	});
 
     //Mostrar las lineas del comprometido de un albaran
@@ -155,6 +208,12 @@ $(document).ready(function(){
         table_lineas_pedido.ajax.url('/show_lineas_pedido/'+id_pedido+'/');
 	    table_lineas_pedido.ajax.reload();
 	    mostrar_dialog("dialog_lineas_pedido");
+	});
+
+    //Generar pdf de los detalles de un pedido
+    $(".datatable").on( 'click', '.generar_detalles_pedido', function (){
+	    num_apunte = $(this).attr("numapunte");
+        generar_factura(num_apunte);
 	});
 
     $("#formulario_projectes_cont").submit(function(e){// comprueba que haya al menos un proyecto seleccionado
@@ -211,4 +270,310 @@ function borrar_cookies(){
     Cookies.remove("proyectos");
     Cookies.remove("fecha_min");
     Cookies.remove("fecha_max");
+}
+
+function generar_factura(id_pedido){
+        $.ajax({
+            url: "/show_lineas_pedido_detalles/"+num_apunte+"/",
+            //type: "post",
+            //data: "id_projecte="+id_prj,
+            success: function(result) {
+                 console.log(result);
+                 generar_pdf_factura(result);
+            }
+
+        });
+}
+function generar_pdf_factura(datos){
+    var cabecera_pdf={text:'Factura '+datos["referencia"],style:"titulo"};
+    var lineas=[];
+    var cabecera_lineas= [
+        {
+            text:"Proyecto",
+            fillColor: '#eeeeee'
+        },{
+            text:"Descripción",
+            fillColor: '#eeeeee'
+        },{
+            text:"Uds",
+            fillColor: '#eeeeee'
+        },{
+            text:"PVP",
+            fillColor: '#eeeeee'
+        },{
+            text:"%IVA",
+            fillColor: '#eeeeee'
+        },{
+            text:"Total",
+            fillColor: '#eeeeee'
+        }
+    ];
+    lineas.push(cabecera_lineas);
+    $.each(datos.lineas, function(){
+        var lin=[];
+        lin.push(this.centrocoste2);
+        lin.push(this.desclin);
+        lin.push(this.unidades);
+        lin.push(this.prcmoneda);
+        lin.push(this.poriva);
+        lin.push(this.basemoneda);
+        lineas.push(lin);
+    });
+    console.log(lineas);
+    var all_pdf = {
+        header:cabecera_pdf,
+        content: [
+            {
+                    columns:[
+                        {
+                            width: "50%",
+                            table: {
+                                headerRows: 1,
+    //                            widths: [ '*', 'auto', 100, '*' ],
+                                //header: 'Proveedor',
+                                body: [
+                                    [{
+                                        text:"Proveedor",
+                                        fillColor: '#eeeeee'
+                                    }],
+                                    [{
+                                    text: ""+datos["nompro"]+"\n"+datos["dirpro"]+"\n"+datos["dtopro"]+" "+datos["pobpro"]+"\n"+datos["nomprovi"]+"\nNif: "+datos["nifpro"]+""
+                                    }],
+                                ]
+                            }
+                        }
+                    ]
+            },
+            {text:"\n\n\n"},
+            {
+                table: {
+                    headerRows: 1,
+                    widths: [ 'auto', 'auto', 'auto', 'auto' ],//widths: [ '20%', '20%', '20%', '20%' ],
+                    //header: 'Proveedor',
+                    body: [
+                        [
+                            {
+                                text:"S/Nº factura",
+                                fillColor: '#eeeeee'
+                            },{
+                                text:"Fecha",
+                                fillColor: '#eeeeee'
+                            },{
+                                text:"Proveedor",
+                                fillColor: '#eeeeee'
+                            },{
+                                text:"Ref.Interna",
+                                fillColor: '#eeeeee'
+                            },
+                        ],
+                        [
+                            {
+                            text: ""+datos["referencia"]+""
+                            },{
+                            text: ""+datos["fecha"]+""
+                            },
+                            {
+                            text: ""+datos["codpro"]+""
+                            },
+                            {
+                            text: ""+datos["serie"]+"/"+datos["referencia"]+""
+                            }
+                        ],
+                    ]
+                }
+            },
+            {text:"\n"},
+            {
+                table: {
+                    //headerRows: 1,
+                    widths: [ '10%', '50%', '10%', '10%', '10%', '10%' ],
+                    //header: 'Proveedor',
+                    body:
+                            lineas
+                            //[ '   38646','   38646', '   38646', '   38646', '   38646', '   38646' ]
+                }
+            },
+            {text:"\n\n\n"},
+            {
+                table: {
+                    widths: [ '50%' ],
+                    body:[
+                        [{border: [true, true, true, true],text:"Validación:\n\n\n\n\n\n\n\n"}]
+                    ]
+                }
+            },
+            {
+                table: {
+                    headerRows: 1,
+                    widths: [ '20%', '20%', '20%', '20%', '20%' ],
+                    //header: 'Proveedor',
+                    body: [
+                        [
+                            {
+                                text:"Base imponible",
+                                fillColor: '#eeeeee'
+                            },{
+                                text:"IVA",
+                                fillColor: '#eeeeee'
+                            },{
+                                text:"",
+                                fillColor: '#eeeeee'
+                            },{
+                                text:"IRPF ",
+                                fillColor: '#eeeeee'
+                            },{
+                                text:"Total factura",
+                                fillColor: '#eeeeee'
+                            }
+                        ],
+                        [
+                            {
+                            text: ""+datos["base_imponible"]+""
+                            },
+                            {
+                            text: ""+datos["totivamoneda"]+""
+                            },
+                            {text:""},
+                            {
+                            text: ""+datos["totirpfmoneda"]+""
+                            },
+                            {
+                            text: ""+datos["totmoneda"]+""
+                            }
+                        ]
+                    ]
+                }
+            },{
+                table: {
+                    headerRows: 1,
+                    widths: [ '50%', '40%', '10%' ],
+                    //header: 'Proveedor',
+                    body: [
+                        [
+                            {
+                                colSpan:3,
+                                text:"Condiciones de pago",
+                                fillColor: '#eeeeee'
+                            },
+                            "",""
+                        ],
+                        [
+                            {
+                            border: [true,false,false,false],
+                            text: "Forma de pago:  "+datos["forpag"]+""
+                            },
+                            {
+                            border: [false,false,false,false],
+                            text: "Vencimientos: "
+                            },
+                            {
+                            border: [false,false,true,false],
+                            text:""
+                            }
+
+                        ],[
+                            {
+                            border: [true,false,false,false],
+                            text: "Doc. de pago:  "+datos["docupago"]+""
+                            },
+                            {
+                            border: [false,false,false,false],
+                            text: ""
+                            },
+                            {
+                            border: [false,false,true,false],
+                            text:""
+                            }
+
+                        ],[
+                            {
+                                colSpan:3,
+                                text:datos["obs"]
+                            },"",""
+                        ]
+
+                    ]
+                }
+            },
+//            {
+//                        image: url_image,
+//                        width: 200,
+//                        height: 100,
+//                        style:"titulo"
+//
+//            },
+//            {text:" "},
+//            {text: "Dades bàsiques",style:"header"},
+//            {text:" "},
+//            //{image:url_image,width:250,alignment: 'center'},
+//            {
+//                columns:[
+//                    [
+//                        datos_basicos,
+//                        'OBSERVACIONS: '+$("#info_observacions").html(),
+//                    ]
+//                ]
+//            },
+//            {text:" "},
+//            {text: "Mapa",style:"header"},
+//            {text:" "},
+//            {text:" "},
+//            {
+//                columns:[
+//                    {
+//                        width: "*",
+//                        text: "Resum localitats"
+//                    },{
+//                        width: "*",
+//                        text: "Mapa"
+//                    }
+//                ]
+//            },
+//            {text:" "},
+//            {
+//                columns:[
+//                    {
+//                        width: "*",
+//                        table: {
+////                            headerRows: 1,
+////                            widths: [ '*', 'auto', 100, '*' ],
+//                            body: [
+//                              [ 'Espècie', $("#info_genere").html()+' '+$("#info_especie").html() ],
+//                              [ 'Nº UTMs 10km', $("#td_n_utms_10").text()],
+//                              [ 'Nº UTMs 1km', $("#td_n_utms_1").text()],
+//                              [ 'Nº Citacions puntuals', $("#td_n_citacions").text()],
+//                              [ "Nº Masses d'aigua", $("#td_n_masses").text()],
+//                              [ { text: 'Localitats Totals:', bold: true }, $("#td_n_localitats_totals").text() ]
+//                            ]
+//                        }
+//                    },{
+////                       stack: [/// esto sirve para que se pueda hacer un width con *
+////                            {
+////                                image: url_mapa,
+////                            }
+////                       ],
+//                        image: url_mapa,
+//                        width: 300,
+//                        height: 200
+//
+//                    }
+//
+//                ]
+//            }
+
+        ],
+        styles: {
+            header: {
+            fontSize: 22,
+            bold: true
+            },
+            titulo: {
+            italic: true,
+            alignment: 'center'
+            }
+        }
+    };
+
+    pdfMake.createPdf(all_pdf).download('Factura_'+datos["referencia"]+'.pdf');
+
 }

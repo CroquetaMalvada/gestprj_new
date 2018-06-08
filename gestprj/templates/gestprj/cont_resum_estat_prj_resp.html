@@ -72,31 +72,157 @@
     </div>
 
 <!--DIALOGS Y MODALS-->
-    <div id="dialogs" title=" ">
-        <div id="dialog_llista_compromes" class="dialogcont" title="DETALL DEL COMPROMÉS:">
-            <table class="table table-striped table-bordered datatable" id="table_llista_compromes" width="100%">
-                <!--<a class="btn btn-info" id="imprimir_compte" title="Imprimir" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>-->
-                <thead>
-                    <tr>
-                        <th>Nº Compte</th>
-                        <th>Descripció</th>
-                        <th>Cost/mes</th>
-                        <th>Data inici</th>
-                        <th>Data final</th>
-                        <th>Compromés</th>
-                    </tr>
-                </thead>
-                <tbody>
+<div id="dialogs" title=" ">
+    <!--COMPROMES DEL PROYECTO-->
+    <div id="dialog_llista_compromes_comptes" class="dialogcont" title="COMPROMÉS DE LA PARTIDA:">
+        <!--COMPROMES PERSONAL-->
+        <h3>COMPROMÉS DEL PERSONAL</h3>
+        <table class="table table-striped table-bordered datatable" id="table_llista_compromes_compte" width="100%">
+            <!--<a class="btn btn-info" id="imprimir_compte" title="Imprimir" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>-->
+            <thead>
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <th>Nº Compte</th>
+                    <th>Descripció</th>
+                    <th>Cost/mes</th>
+                    <th>Data inici</th>
+                    <th>Data final</th>
+                    <th>Compromés</th>
                 </tr>
-                </tbody>
-            </table>
-        </div>
+            </thead>
+            <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+        <hr>
+        <!--COMPROMES ALBARANES-->
+        <h3>COMPROMÉS D'ALBARANS</h3>
+        <table class="table table-striped table-bordered datatable" id="table_llista_compromes_albaranes_compte" width="100%">
+            <!--<a class="btn btn-info" id="imprimir_compte" title="Imprimir" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>-->
+            <thead>
+                <tr>
+                    <th>Nº Compte</th>
+                    <th>Descripció</th>
+                    <th>Raó</th>
+                    <th></th>
+                    <th>Compromés</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+        <hr>
+        <!--COMPROMES PEDIDOS-->
+        <h3>COMPROMÉS DE COMANDES</h3>
+        <table class="table table-striped table-bordered datatable" id="table_llista_compromes_pedidos_compte" width="100%">
+            <!--<a class="btn btn-info" id="imprimir_compte" title="Imprimir" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>-->
+            <thead>
+                <tr>
+                    <th>Nº Compte</th>
+                    <th>Descripció</th>
+                    <th>Raó</th>
+                    <th></th>
+                    <th>Compromés</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
     </div>
+<!--LINEAS DE ALBARAN-->
+    <div id="dialog_lineas_albaran" class="dialogcont" title="LÍNIES DE L'ALBARÀ:">
+        <table class="table table-striped table-bordered datatable" id="table_lineas_albaran" width="100%">
+            <!--<a class="btn btn-info" id="imprimir_compte" title="Imprimir" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>-->
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Descripció</th>
+                    <th>Preu</th>
+                    <th>Unitats demanades</th>
+                    <th>Unitats servides</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!--LINEAS DE PEDIDOS-->
+    <div id="dialog_lineas_pedido" class="dialogcont" title="LÍNIES DE COMANDA:">
+        <table class="table table-striped table-bordered datatable" id="table_lineas_pedido" width="100%">
+            <!--<a class="btn btn-info" id="imprimir_compte" title="Imprimir" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>-->
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Descripció</th>
+                    <th>Preu</th>
+                    <th>Unitats demanades</th>
+                    <th>Unitats servides</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+    <!--<div id="dialogs" title=" ">-->
+        <!--<div id="dialog_llista_compromes" class="dialogcont" title="DETALL DEL COMPROMÉS:">-->
+            <!--<table class="table table-striped table-bordered datatable" id="table_llista_compromes" width="100%">-->
+                <!--&lt;!&ndash;<a class="btn btn-info" id="imprimir_compte" title="Imprimir" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>&ndash;&gt;-->
+                <!--<thead>-->
+                    <!--<tr>-->
+                        <!--<th>Nº Compte</th>-->
+                        <!--<th>Descripció</th>-->
+                        <!--<th>Cost/mes</th>-->
+                        <!--<th>Data inici</th>-->
+                        <!--<th>Data final</th>-->
+                        <!--<th>Compromés</th>-->
+                    <!--</tr>-->
+                <!--</thead>-->
+                <!--<tbody>-->
+                <!--<tr>-->
+                    <!--<td></td>-->
+                    <!--<td></td>-->
+                    <!--<td></td>-->
+                    <!--<td></td>-->
+                    <!--<td></td>-->
+                    <!--<td></td>-->
+                <!--</tr>-->
+                <!--</tbody>-->
+            <!--</table>-->
+        <!--</div>-->
+    <!--</div>-->
 {% endblock %}

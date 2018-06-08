@@ -605,6 +605,7 @@ $(document).ready(function(){
                 actualizar_usuaris_creaf_select();
             }
         }
+
     }
 
 });
@@ -658,15 +659,17 @@ function dialog_projectes_per_responsable_cabecera(){
                 datatype:'json',
                 success: function(result) {
                     var html="";
-                    var titulo="<h2>PROJECTES PER RESPONSABLE ( "+$.datepicker.formatDate('dd/mm/yy', new Date())+" )</h2>";
+                    var titulo="<button onclick='imprimir_projectes_resp_cabecera();' class='btn btn-info'><span class='glyphicon glyphicon-print' aria-hidden='true'></span> Imprimir resultats</button>";
 //                    html=html+'<a onclick="imprimir_projectes_resp_cabecera();" class="glyphicon glyphicon-print" aria-hidden="true">Imprimir</a>'
+                    html="<div id='contenido_projectes_responsable_consultar'><h2>PROJECTES PER RESPONSABLE ( "+$.datepicker.formatDate('dd/mm/yy', new Date())+" )</h2>"
                     $(result).each(function(){
-                        html=html+"<h3>"+this.id+" - "+this.nom_responsable+"</h3><table class='table'><tr><th>Codi</th><th>Nom</th><th>Entitat Finançadora</th></tr>";
+                        html=html+"<h3>"+this.codi_investigador+" - "+this.nom_responsable+"</h3><table class='table table-striped table-bordered tabla_projectes_resp_consultar'><thead><tr><th>Codi</th><th>Nom</th><th>Entitat Finançadora</th></tr></thead>";
                         $(this.projectes).each(function(){
                             html=html+"<tr><td>"+this.codi+"</td><td>"+this.nom+"</td><td>"+this.entitats+"</td></tr>"
                         });
-                        html=html+"</table><br>"
+                        html=html+"</table><br>";
                     });
+                    html=html+"</div>";
 
                  return $.confirm({
                     title:titulo,
@@ -674,7 +677,20 @@ function dialog_projectes_per_responsable_cabecera(){
                     cancelButton: 'Tancar',
                     confirmButton: false,
                     columnClass: 'xlarge',
-                    closeIcon: true
+                    closeIcon: true,
+                    onOpen: function(){
+                        $(".tabla_projectes_resp_consultar").DataTable({
+                            //$(this).DataTable({
+                                scrollY:        '50vh',
+                                scrollCollapse: true,
+                                paging:         false,
+                                autowidth:      true,
+                                overflow:       "auto",
+                                language: opciones_idioma,
+                            //});
+                        });
+
+                    }
                  });
 
                 }
@@ -717,11 +733,11 @@ function dialog_permisos_usuaris_consultar(){
     mostrar_dialog_cabecera("table_permisos_usuaris_consultar");
 }
 
+/// IMPRIMIR LOS RESULTADOS DE LA CONSULTA DE PROJECTES PER RESPONSABLE(BOTON GENERADO EN LA FUNCION)
 function imprimir_projectes_resp_cabecera(){
-    window.print();
+    $("#contenido_projectes_responsable_consultar").printArea({"mode":"popup"});
 }
 
 function mostrar_permisos_usuaris_consultar(){
-
     mostrar_dialog_cabecera("table_permisos_usuaris_consultar");
 }

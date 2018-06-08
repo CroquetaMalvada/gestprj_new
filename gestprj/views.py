@@ -785,18 +785,20 @@ def ListProjectesCont(request):
     return HttpResponse(resultado, content_type='application/json;')
 
 #AJAX PARA VER COMPROMETIDO DE UN PROYECTO
-def ListCompromesProjecte(request,id_projecte):
-    resultado=contabilitat_ajax.AjaxListCompromesProjecte(request,id_projecte)
+def ListCompromesProjecte(request,id_projecte,codigo_entero):
+    resultado=contabilitat_ajax.AjaxListCompromesProjecte(request,id_projecte,codigo_entero)
+    resultado = json.dumps(resultado)
     return HttpResponse(resultado, content_type='application/json')
 
 #AJAX PARA VER COMPROMETIDO DE UNA CUENTA
 def ListCompromesCompte(request,tipo_comp,id_projecte,codigo,compte):
-    resultado=contabilitat_ajax.AjaxListCompromesCompte(request,tipo_comp,id_projecte,codigo,compte)
+    resultado=contabilitat_ajax.AjaxListCompromesCompte(request,tipo_comp,id_projecte,codigo,[compte])
+    resultado = json.dumps(resultado)
     return HttpResponse(resultado, content_type='application/json')
 
-#AJAX PARA VER COMPROMETIDO DE UNA PARTIDA DE UN PROYECTO
-def ListCompromesLlistaComptes(request,id_projecte,llista_comptes):
-    resultado=contabilitat_ajax.AjaxListCompromesLlistaComptes(request,id_projecte,llista_comptes)
+#AJAX PARA VER COMPROMETIDO DE VARIAS CUENTAS(COMO UNA PARTIDA) DE UN PROYECTO
+def ListCompromesLlistaComptes(request,id_projecte,codigo_entero,llista_comptes):
+    resultado=contabilitat_ajax.AjaxListCompromesLlistaComptes(request,id_projecte,codigo_entero,llista_comptes)
     return HttpResponse(resultado, content_type='application/json')
 
 #AJAX PARA VER LAS LINEAS DE UN ALBARAN
@@ -807,6 +809,17 @@ def LineasAlbaran(request,id_albaran):
 #AJAX PARA VER LAS LINEAS DE UN PEDIDO
 def LineasPedido(request,id_pedido):
     resultado=contabilitat_ajax.AjaxLineasPedido(request,id_pedido)
+    return HttpResponse(resultado, content_type='application/json')
+
+#AJAX PARA VER LAS LINEAS DE UN ALBARAN DETALLADAMENTE EN FACTURA
+def LineasAlbaranDetalles(request,id_albaran):
+    resultado=contabilitat_ajax.AjaxLineasAlbaranDetalles(request,id_albaran)
+    return HttpResponse(resultado, content_type='application/json')
+
+#AJAX PARA VER LAS LINEAS DE UN PEDIDO DETALLADAMENTE EN FACTURA
+def LineasPedidoDetalles(request,num_apunte):
+    resultado=contabilitat_ajax.AjaxLineasPedidoDetalles(request,num_apunte)
+    resultado = json.dumps(resultado)
     return HttpResponse(resultado, content_type='application/json')
 
 # DADES PROJECTE
@@ -1068,7 +1081,7 @@ def ListEstatPresDatos(request,datos):
     resultado=contabilitat_ajax.AjaxListEstatPresDatos(request,datos)
     return HttpResponse(resultado, content_type='application/json;')
 
-def ListDespesesCompte(request,id_partida,cod,data_min,data_max): # AJAX 2 (SE MUESTRAN LOS DATOS
+def ListDespesesCompte(request,id_partida,cod,data_min,data_max): # AJAX 2 (SE MUESTRAN LOS DATOS AL CLICAR BOTON
     resultado = contabilitat_ajax.AjaxListDespesesCompte(request,id_partida,cod,data_min,data_max)
     return HttpResponse(resultado, content_type='application/json;')
 
@@ -1742,7 +1755,14 @@ def ListProjectesResponsableCabecera(request): # AJAX PARA LOS PROYECTOS POR RES
                     entitats=entitats+entitat["id_organisme__nom_organisme"]+" - "
                 proyectos.append({"codi":codi,"nom":nom,"entitats":entitats})
 
-        resultado.append({"id":id_investigador,"nom_responsable":nom_investigador,"projectes":proyectos})
+        resultado.append({"codi_investigador":inv,"nom_responsable":nom_investigador,"projectes":proyectos})
 
     resultado = json.dumps(resultado)
     return HttpResponse(resultado, content_type='application/json;')
+
+
+# # OBTENER LOS DATOS DE UNA FACTURA
+# @login_required(login_url='/menu/')
+# def DatosFactura(request): # AJAX PARA LAS JUSTIFICACIONES DE LA CABECERA
+#     resultado=contabilitat_ajax.AjaxDatosFactura(request)
+#     return HttpResponse(resultado, content_type='application/json;')

@@ -1388,7 +1388,7 @@
         <form id="formulario_compromes_personal" action="/gestor_CompromesPersonal/"
               method="POST">
             {% csrf_token %}
-            Nº Compte<input name="compte"/>
+            Nº Compte<input name="compte" maxlength="9"/>
             <!--Compte<select name="compte" style="max-width:300px;">-->
                 <!--{% if claus_comptes == None %}-->
                 <!--<option value="">Cap</option>-->
