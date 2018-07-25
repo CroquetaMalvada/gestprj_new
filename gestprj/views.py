@@ -305,6 +305,18 @@ class GestTUsuarisExterns(viewsets.ModelViewSet):  # todos los usuarios externos
     queryset = TUsuarisExterns.objects.all()
     serializer_class = GestTUsuarisExternsSerializer
 
+# USUARIS XARXA #################
+class ListUsuarisXarxa(generics.ListAPIView):  # todos los usuarios xarxa
+    serializer_class = GestTUsuarisXarxaSerializer
+
+    def get_queryset(self):
+        return TUsuarisCreaf.objects.all().order_by('nom_xarxa')
+
+class GestTUsuarisXarxa(viewsets.ModelViewSet):
+    queryset = TUsuarisXarxa.objects.all()
+    serializer_class = GestTUsuarisXarxaSerializer
+
+
 # RESPOSNABLESS #################
 class ListResponsables(generics.ListAPIView):  # todos los responsables(usamos serializer ya que no es el  select y necesitaremos la url del serializer)
     serializer_class = ResponsablesSerializer
@@ -816,7 +828,7 @@ def LineasAlbaranDetalles(request,id_albaran):
     resultado=contabilitat_ajax.AjaxLineasAlbaranDetalles(request,id_albaran)
     return HttpResponse(resultado, content_type='application/json')
 
-#AJAX PARA VER LAS LINEAS DE UN PEDIDO DETALLADAMENTE EN FACTURA
+#AJAX PARA VER LAS LINEAS DE UN PEDIDO DETALLADAMENTE EN FACTURA ( PDF )
 def LineasPedidoDetalles(request,num_apunte):
     resultado=contabilitat_ajax.AjaxLineasPedidoDetalles(request,num_apunte)
     resultado = json.dumps(resultado)
@@ -903,9 +915,9 @@ def cont_dades(request):
         for despesa in Renovacions.objects.filter(id_projecte=projecte.id_projecte):
             import_concedit = float(despesa.import_concedit)
             despesa_total_concedit = despesa_total_concedit + import_concedit
-            iva = round(((import_concedit * percen_iva) / 100), 2)
+            iva = round(((import_concedit * percen_iva) / (100 * (1 + percen_iva / 100))), 2)
             despesa_total_iva = despesa_total_iva + iva
-            canon = round(((import_concedit * percen_canon_creaf) / 100), 2)
+            canon = round(((import_concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))), 2)
             despesa_total_canon = despesa_total_canon + canon
             net = round((import_concedit - iva - canon), 2)
             despesa_total_net = despesa_total_net + net
@@ -1484,6 +1496,66 @@ def ListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos): # AJAX1(SE REL
     resultado= contabilitat_ajax.AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos)
     return HttpResponse(resultado, content_type='application/json;')
 
+def imprimir_resum_estat_prj_resp(request): # IMPRIMIR LISTADO DE ESOS PROYECTOS
+    try:
+        projectes = request.POST["impr_prjs"].split(",")
+        projectes.remove("")
+        fecha_min = request.POST["impr_data_min"]
+        fecha_max = request.POST["impr_data_max"]
+        resultado=[]
+        investigadores = {}  # diccionario
+        # Averiguar el numero de investigadores a partir de inspeccionar todos los proyectos que hemos recibido
+        for projecte_chk in projectes:
+            cod_responsable = projecte_chk.split("-")[0]
+            if int(cod_responsable) not in investigadores:
+                investigadores[int(cod_responsable)]=int(cod_responsable)
+                # num_investigadores=num_investigadores+1
+
+        for inv in investigadores:
+            nom_resp = Responsables.objects.get(codi_resp=inv).id_usuari.nom_usuari
+            proyectos = ""
+            totales = []
+            for projecte_chk in projectes:
+                cod_responsable = projecte_chk.split("-")[0]
+                if(inv==int(cod_responsable)):
+                    if proyectos == "":
+                        proyectos = str(projecte_chk)
+                    else:
+                        proyectos = proyectos + "," + str(projecte_chk)
+
+            data_proyectos = json.loads(contabilitat_ajax.AjaxListEstatPrjRespDatos(request, fecha_min, fecha_max, proyectos))
+            # totales
+            total_concedit = 0
+            total_canon_total = 0
+            total_ingressos = 0
+            total_pendent = 0
+            total_despeses = 0
+            total_canon_aplicat = 0
+            total_compromes = 0
+            total_disponible_real = 0
+            for dat in data_proyectos:
+                total_concedit = total_concedit+dat["concedit"]
+                total_canon_total = total_canon_total+dat["canon_total"]
+                total_ingressos = total_ingressos+dat["ingressos"]
+                total_pendent = total_pendent+dat["pendent"]
+                total_despeses = total_despeses+dat["despeses"]
+                total_canon_aplicat = total_canon_aplicat+dat["canon_aplicat"]
+                total_compromes = total_compromes+dat["compromes"]
+                total_disponible_real = total_disponible_real+dat["disponible_real"]
+            totales = {"total_concedit":total_concedit,"total_canon_total":total_canon_total,"total_ingressos":total_ingressos,"total_pendent":total_pendent,"total_despeses":total_despeses,"total_canon_aplicat":total_canon_aplicat,"total_compromes":total_compromes,"total_disponible_real":total_disponible_real}
+            #######
+            # for (index,elemento) in data_proyectos:
+            #     elemento=elemento+{""}
+
+            resultado.append({"nom_responsable":nom_resp,"projectes":data_proyectos,"totals":totales})
+
+        context = {'responsables':resultado,"data_max":str(fecha_max),"data_min":str(fecha_min),'titulo': "ESTAT PROJECTES PER RESPONSABLE"} # 'llista_estat_pres': llista_estat_pres,
+    except:
+        context = {'responsables': [],"data_max":str(fecha_max),"data_min":str(fecha_min), 'titulo': "ESTAT PROJECTES PER RESPONSABLE"}  # 'llista_estat_pres': llista_estat_pres,
+    return render(request, 'gestprj/cont_imprimir_resum_estat_prj_resp.html', context)
+
+
+
 @login_required(login_url='/menu/')
 def cont_resum_fitxa_major_prj(request): #RESUM PER PARTIDES
 
@@ -1760,7 +1832,27 @@ def ListProjectesResponsableCabecera(request): # AJAX PARA LOS PROYECTOS POR RES
     resultado = json.dumps(resultado)
     return HttpResponse(resultado, content_type='application/json;')
 
+@login_required(login_url='/menu/')
+def ListUsuarisXarxaSenseAssignar(request): # AJAX PARA LOS USUARIOS XARXA QUE NO ESTAN ASIGNADOS A UN USUARIO CREAF
+    resultado = []
+    usuarios_no_asignados = TUsuarisCreaf.objects.exclude(id_usuari__in=TUsuarisXarxa.objects.all().values_list('id_usuari',flat=True))
 
+    for usuario in usuarios_no_asignados:
+        resultado.append({"id": float(usuario.id_usuari),"nom_usuari": usuario.nom_usuari})
+
+    resultado = json.dumps(resultado)
+    return HttpResponse(resultado, content_type='application/json;')
+
+@login_required(login_url='/menu/')
+def AfegirUsuarisXarxaSenseAssignar(request):  # AJAX PARA LOS USUARIOS XARXA QUE NO ESTAN ASIGNADOS A UN USUARIO CREAF
+    try:
+        id=request.POST["id"]
+        nom = request.POST["nom_xarxa"]
+        u = TUsuarisXarxa.objects.create(id_usuari=id,nom_xarxa=nom)
+        u.save()
+        return True
+    except:
+        return HttpResponse('Error.', status=401)
 # # OBTENER LOS DATOS DE UNA FACTURA
 # @login_required(login_url='/menu/')
 # def DatosFactura(request): # AJAX PARA LAS JUSTIFICACIONES DE LA CABECERA

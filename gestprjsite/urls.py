@@ -21,6 +21,8 @@ router.register(r'gestor_PersonalCreaf',views.GestPersonalCreaf)# gestionar y mo
 router.register(r'gestor_UsuariExtern',views.GestTUsuarisExterns)# gestionar y mostrar los usuarios externos
 router.register(r'gestor_PersonalExtern',views.GestPersonalExtern)# gestionar y mostrartodo el personal externo
 
+router.register(r'gestor_UsuariXarxa',views.GestTUsuarisXarxa)# gestionar y mostrar los usuarios internos
+
 router.register(r'gestor_Responsables',views.GestResponsables)# gestionar y mostrar los responsables
 
 router.register(r'gestor_JustificPersonal',views.GestJustificPersonal)# gestionar justificaciones de personal creaf
@@ -73,11 +75,14 @@ urlpatterns = patterns('',
     url('^llista_Organismes/', views.ListTOrganismes.as_view()),# para la datatable de organismes cabecera
     url('^llista_Usuaris_creaf/', views.ListUsuarisCreaf.as_view()),# para la datatable de personal creaf cabecera
     url('^llista_Usuaris_externs/', views.ListUsuarisExterns.as_view()),# para la datatable de personal extern cabecera
+    url('^llista_Usuaris_xarxa/', views.ListUsuarisXarxa.as_view()),# para la datatable de usuaris xarxa cabecera
     url('^llista_Responsables/', views.ListResponsables.as_view()),# para la datatable de responsables cabecera
     url('^llista_permisos_usuaris_consultar/', views.ListPermisosUsuarisConsultar.as_view()),# para la datatable de permisos usuaris cabecera
     url('^llista_ConceptesPres/', views.ListConceptesPress),# para los select con el nombre de las partidas
     url('^llista_justificacions_cabecera/(?P<fecha_min>.+)/(?P<fecha_max>.+)/$', views.ListJustificacionsCabecera),# justificaciones en edicio en la cabecera
     url('^llista_projectes_responsable_consultar/', views.ListProjectesResponsableCabecera),# para la cabecera
+    url('^llista_usuaris_xarxa_sense_assignar/', views.ListUsuarisXarxaSenseAssignar),# para la cabecera
+    url('^afegir_usuari_xarxa_sense_assignar/', views.AfegirUsuarisXarxaSenseAssignar),# para la cabecera
 
     url('^show_Personal_creaf/(?P<id_projecte>.+)/$', views.ListPersonalCreafNoProjecte.as_view()),# personal itnerno que no este en el proyecto
     url('^show_Personal_creaf_prj/(?P<id_projecte>.+)/$', views.ListPersonalCreafProjecte.as_view()),# personal interno de un proyecto
@@ -158,6 +163,10 @@ urlpatterns = patterns('',
     url(r'^show_fitxa_major_prj_datos/(?P<fecha_min>.+)/(?P<fecha_max>.+)/(?P<codigo>.+)/$', views.ListFitxaMajorPrjDatos, name='fitxa_major_prj_datos'), # ajax1
 
     url(r'^cont_comptes_no_assignats/$', views.cont_comptes_no_assignats, name='comptes_no_assignats'),
+
+    # IMPRIMIR LISTADOS EN CONTABILIDAD
+    url(r'^imprimir_resum_estat_prj_resp/$', views.imprimir_resum_estat_prj_resp, name='estat_prj_resp_imprimir'),
+
 
     # JSON de contabilidad
     url(r'^show_ResponsablesCont/$', views.ListResponsablesCont, name="responsables llista"),

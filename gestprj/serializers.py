@@ -55,6 +55,13 @@ class GestTUsuarisCreafSerializer(serializers.ModelSerializer): # info a obtener
         model = TUsuarisCreaf
         fields = ('url','id_usuari','nom_usuari','adreca','cp','poblacio','provincia','pais','tel1','tel2','fax','e_mail1','e_mail2','id_organisme')
 
+# USUARIS XARXA #################
+class GestTUsuarisXarxaSerializer(serializers.ModelSerializer): # info a obtener/mostrar
+
+    class Meta:
+        model = TUsuarisCreaf
+        fields = ('url','id_usuari_xarxa','nom_xarxa','id_usuari')
+
 # class GestTUsuarisCreafSerializer(serializers.ModelSerializer): # datos necesarios para crear/editar
 #
 #     class Meta:

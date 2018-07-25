@@ -78,11 +78,18 @@
 
             <h4>Estat de projectes</h4>
             <input name="opcio_cont" type="radio" value="2" />Estat Pressupostari<br>
-            <input name="opcio_cont" type="radio" value="6" />Estat Projectes per Responsable<br>
+            <input name="opcio_cont" type="radio" value="6" />Estat Projectes per Responsable
+            {% if user.username == 'minidaniAAAAAAAA' %}
+            <a id="imprimir_llistat_projectes_resp_submit" class="btn btn-info" title="Imprimir Llistat" href="#">
+                <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+            </a><br>
+            {% endif %}
+
             {% for group in user.groups.all %}
                 {% if group.name == 'Admins gestprj' or group.name == 'Mods gestprj' %}
             <input name="opcio_cont" type="radio" value="8" />Resum Estat Projectes *<br>
-            <input name="opcio_cont" type="radio" value="9" />Resum Estat Cànon Projectes per Responsable *<br>
+            <input name="opcio_cont" type="radio" value="9" />Resum Estat Cànon Projectes per Responsable *
+            <br>
                 {% endif %}
             {% endfor %}
             <hr>
@@ -104,6 +111,12 @@
             Fins a:<input id="data_max" name="data_max"/><br>
             <input type="submit" value="CONTINUAR">
         </div>
+    </form>
+    <form id="imprimir_llistat_projectes_resp" action="/imprimir_resum_estat_prj_resp/" method="post">
+        {% csrf_token %}
+        <input id="impr_data_min" name="impr_data_min" hidden />
+        <input id="impr_data_max" name="impr_data_max" hidden />
+        <input id="impr_prjs" name="impr_prjs" hidden />
     </form>
 </div>
 {% endblock %}

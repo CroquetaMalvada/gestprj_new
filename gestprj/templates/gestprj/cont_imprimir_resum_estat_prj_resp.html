@@ -1,0 +1,97 @@
+{% extends "gestprj/base.html" %}
+
+{% block contenido %}
+<!--<h1 align="center">Estat Projectes agrupat per Responsable</h1><br><br>-->
+<style>
+@page {
+  size: A4;
+  margin: 0;
+}
+@media print {
+  html, body {
+    width: 210mm;
+    height: 297mm;
+  }
+}
+</style>
+<br>
+    <div id="imprimir_pagina" class="col-md-12 col-md-offset-0" style="background:white;height:90vh;overflow:scroll;">
+        <!--<div id="accordion">-->
+            {% for responsable in responsables %}
+            <h3>{{ responsable.nom_responsable }}</h3>
+            <div>
+                <p align="right" class="col-md-3">
+                Fins a: <b>{{ data_max }}</b>
+                </p>
+                <table class="table table-bordered" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Codi</th>
+                            <th>Nom</th>
+                            <th>Concedit</th>
+                            <!--<th>Iva</th>-->
+                            <th>Cànon Total</th>
+                            <th>Cobrat</th> <!-- Ingressos -->
+                            <th>Pendent</th>
+                            <th>Despeses</th>
+                            <th>Cànon Aplicat</th>
+                            <th>Compromés</th>
+                            <!--<th>Disponible Caixa</th>-->
+                            <th>Disponible Real</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for projecte in responsable.projectes %}
+                            <tr>
+                                        <td>{{ projecte.codi }}</td>
+                                        <td>{{ projecte.nom }}</td>
+                                        <td>{{ projecte.concedit }}</td>
+                                        <td>{{ projecte.canon_total }}</td>
+                                        <td>{{ projecte.ingressos }}</td>
+                                        <td>{{ projecte.pendent }}</td>
+                                        <td>{{ projecte.despeses }}</td>
+                                        <td>{{ projecte.canon_aplicat }}</td>
+                                        <td>{{ projecte.compromes }}</td>
+                                        <td>{{ projecte.disponible_real }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td><b>Totals: </b></td>
+                                    <td>{{ responsable.totals.total_concedit }}</td>
+                                    <td>{{ responsable.totals.total_canon_total }}</td>
+                                    <td>{{ responsable.totals.total_ingressos }}</td>
+                                    <td>{{ responsable.totals.total_pendent }}</td>
+                                    <td>{{ responsable.totals.total_despeses }}</td>
+                                    <td>{{ responsable.totals.total_canon_aplicat }}</td>
+                                    <td>{{ responsable.totals.total_compromes }}</td>
+                                    <td>{{ responsable.totals.total_disponible_real }}</td>
+                                </tr>
+                        </tfoot>
+                        <!--<tbody>-->
+                        <!--{% for projecte in responsable.0.projectes %}-->
+                        <!--<tr>-->
+                            <!--<td>{{ projecte.codi }}</td>-->
+                            <!--<td>{{ projecte.nom }}</td>-->
+                            <!--<td>{{ projecte.concedit }}</td>-->
+                            <!--&lt;!&ndash;<td>{{ projecte.iva }}</td>&ndash;&gt;-->
+                            <!--<td>{{ projecte.canon_total }}</td>-->
+                            <!--<td>{{ projecte.ingressos }}</td>-->
+                            <!--<td>{{ projecte.pendent }}</td>-->
+                            <!--<td>{{ projecte.despeses }}</td>-->
+                            <!--<td>{{ projecte.canon_aplicat }}</td>-->
+                            <!--&lt;!&ndash;<td>{{ projecte.disponible_caixa }}</td>&ndash;&gt;-->
+                            <!--<td>{{ projecte.disponible_real }}</td>-->
+                        <!--</tr>-->
+                        <!--{% endfor %}-->
+                        <!--</tbody>-->
+                </table>
+            </div>
+            <br><br>
+        {% endfor %}
+        <!--</div>-->
+    </div>
+<div  hidden></div>
+{% endblock %}
