@@ -8,7 +8,7 @@
         </div>
 
         <ul class="nav navbar-nav navbar-right">
-            {% if user.username == 'minidaniAAAAAAAA' %}
+            {% if user.username == 'minidani' %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="true">
@@ -16,8 +16,8 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="#" onclick='dialog_usuaris_xarxa_sense_assignar();'>Comprovar usuaris-xarxa sense assignar</a></li>
-                        <li><a href="#" onclick='dialog_usuaris_xarxa_cabecera();'>Usuaris xarxa</a></li>
+                        <li><a href="#" onclick='dialog_usuaris_xarxa_sense_assignar();'>Usuaris-xarxa sense assignar</a></li>
+                        <!--<li><a href="#" onclick='dialog_usuaris_xarxa_cabecera();'>Usuaris xarxa</a></li>-->
                     </ul>
                 </li>
                 {% load staticfiles %}
@@ -404,6 +404,7 @@
             <tr>
                 <th>Id usuari Creaf</th>
                 <th>Nom i cognoms</th>
+                <th>Nom d'usuari Creaf</th>
                 <!--<th>Nom usuari Creaf</th>-->
                 <th>Assignar</th>
             </tr>
@@ -415,40 +416,41 @@
     <!---->
 
     <!--USUARIS XARXA (SOLO SUPERADMIN) -->
-    <div id="table_usuaris_xarxa_cabecera" class="dialogcabecera" title="Usuaris Xarxa sense assignar">
-        <table class="table table-striped table-bordered datatable">
-            <thead>
-            <tr>
-                <th></th>
-                <th>Nom Xarxa</th>
-                <th>Id usuari</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-    <!---->
-   <!---->
-    <div id="editar_usuaris_xarxa_cabecera" class="dialogcabecera" title="Usuaris Xarxa">
-        <form id="formulario_usuaris_xarxa_cabecera" action="/gestor_UsuarisXarxa/" method="POST">
-            {% csrf_token %}
+    <!--<div id="table_usuaris_xarxa_cabecera" class="dialogcabecera" title="Usuaris Xarxa">-->
+        <!--<table class="table table-striped table-bordered datatable">-->
+            <!--<thead>-->
+            <!--<tr>-->
+                <!--<th></th>-->
+                <!--<th>Id usuari Creaf</th>-->
+                <!--<th>Nom i cognoms</th>-->
+                <!--<th>Nom d'usuari Creaf</th>-->
+                <!--<th></th>-->
+            <!--</tr>-->
+            <!--</thead>-->
+            <!--<tbody>-->
+            <!--</tbody>-->
+        <!--</table>-->
+    <!--</div>-->
+    <!--&lt;!&ndash;&ndash;&gt;-->
+   <!--&lt;!&ndash;&ndash;&gt;-->
+    <!--<div id="editar_usuaris_xarxa_cabecera" class="dialogcabecera" title="Usuaris Xarxa">-->
+        <!--<form id="formulario_usuaris_xarxa_cabecera" action="/gestor_UsuarisXarxa/" method="POST">-->
+            <!--{% csrf_token %}-->
 
-            Nom xarxa: <select class='select_nom_xarxa' name="nom_xarxa" style="max-width:300px;"></select>
-            Id usuari (Creaf): <select class='select_id_usuari' name="id_usuari" style="max-width:300px;"></select>
+            <!--Nom xarxa: <select class='select_nom_xarxa' name="nom_xarxa" style="max-width:300px;"></select>-->
+            <!--Id usuari (Creaf): <select class='select_id_usuari' name="id_usuari" style="max-width:300px;"></select>-->
 
-            <button class="btn btn-success" type="submit" title="Guardar" href="#">
-                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
-            </button>
+            <!--<button class="btn btn-success" type="submit" title="Guardar" href="#">-->
+                <!--<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar-->
+            <!--</button>-->
 
-            <button class="btn btn-danger" title="Cancel·lar" href="#" type="button"
-                    onclick='mostrar_dialog_cabecera("table_usuaris_xarxa_cabecera");'>
-                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar
-            </button>
-        </form>
-    </div>
-    <!---->
+            <!--<button class="btn btn-danger" title="Cancel·lar" href="#" type="button"-->
+                    <!--onclick='mostrar_dialog_cabecera("table_usuaris_xarxa_cabecera");'>-->
+                <!--<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel·lar-->
+            <!--</button>-->
+        <!--</form>-->
+    <!--</div>-->
+    <!--&lt;!&ndash;&ndash;&gt;-->
 </div>
 
 

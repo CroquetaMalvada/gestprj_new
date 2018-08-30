@@ -59,7 +59,7 @@ class GestTUsuarisCreafSerializer(serializers.ModelSerializer): # info a obtener
 class GestTUsuarisXarxaSerializer(serializers.ModelSerializer): # info a obtener/mostrar
 
     class Meta:
-        model = TUsuarisCreaf
+        model = TUsuarisXarxa
         fields = ('url','id_usuari_xarxa','nom_xarxa','id_usuari')
 
 # class GestTUsuarisCreafSerializer(serializers.ModelSerializer): # datos necesarios para crear/editar

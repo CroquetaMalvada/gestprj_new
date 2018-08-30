@@ -3,16 +3,16 @@
 {% block contenido %}
 <!--<h1 align="center">Estat Projectes agrupat per Responsable</h1><br><br>-->
 <style>
-@page {
-  size: A4;
-  margin: 0;
-}
 @media print {
-  html, body {
-    width: 210mm;
-    height: 297mm;
-  }
+    body, h1, h2, h3, ol, ul, div, span, p {
+
+        width: auto !important;
+        float: none !important;
+        position: static !important;
+        overflow: visible !important;
+    }
 }
+
 </style>
 <br>
     <div id="imprimir_pagina" class="col-md-12 col-md-offset-0" style="background:white;height:90vh;overflow:scroll;">

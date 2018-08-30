@@ -66,7 +66,7 @@ from django.contrib.auth.models import User
 
 
 class TUsuarisXarxa(models.Model):
-    id_usuari_xarxa = models.DecimalField(db_column='ID_USUARI_XARXA', max_digits=10, decimal_places=0, primary_key=True)  # Field name made lowercase.
+    id_usuari_xarxa = models.AutoField(db_column='ID_USUARI_XARXA', primary_key=True)  # Field name made lowercase.
     nom_xarxa = models.CharField(db_column='NOM_XARXA', max_length=255, blank=True)  # Field name made lowercase.
     id_usuari = models.DecimalField(db_column='ID_USUARI', max_digits=10, decimal_places=0, blank=True, null=True,unique=True)  # Field name made lowercase.
 

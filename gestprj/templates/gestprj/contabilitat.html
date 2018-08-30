@@ -79,12 +79,14 @@
             <h4>Estat de projectes</h4>
             <input name="opcio_cont" type="radio" value="2" />Estat Pressupostari<br>
             <input name="opcio_cont" type="radio" value="6" />Estat Projectes per Responsable
-            {% if user.username == 'minidaniAAAAAAAA' %}
-            <a id="imprimir_llistat_projectes_resp_submit" class="btn btn-info" title="Imprimir Llistat" href="#">
-                <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
-            </a><br>
-            {% endif %}
-
+            {% for group in user.groups.all %}
+                {% if group.name == 'Admins gestprj' or group.name == 'Mods gestprj' %}
+                <a id="imprimir_llistat_projectes_resp_submit" class="btn btn-info" title="Imprimir Llistat" href="#">
+                    <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+                </a>
+                {% endif %}
+            {% endfor %}
+            <br>
             {% for group in user.groups.all %}
                 {% if group.name == 'Admins gestprj' or group.name == 'Mods gestprj' %}
             <input name="opcio_cont" type="radio" value="8" />Resum Estat Projectes *<br>

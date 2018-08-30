@@ -310,7 +310,7 @@ class ListUsuarisXarxa(generics.ListAPIView):  # todos los usuarios xarxa
     serializer_class = GestTUsuarisXarxaSerializer
 
     def get_queryset(self):
-        return TUsuarisCreaf.objects.all().order_by('nom_xarxa')
+        return TUsuarisXarxa.objects.all().order_by('nom_xarxa')
 
 class GestTUsuarisXarxa(viewsets.ModelViewSet):
     queryset = TUsuarisXarxa.objects.all()
@@ -1847,8 +1847,9 @@ def ListUsuarisXarxaSenseAssignar(request): # AJAX PARA LOS USUARIOS XARXA QUE N
 def AfegirUsuarisXarxaSenseAssignar(request):  # AJAX PARA LOS USUARIOS XARXA QUE NO ESTAN ASIGNADOS A UN USUARIO CREAF
     try:
         id=request.POST["id"]
-        nom = request.POST["nom_xarxa"]
-        u = TUsuarisXarxa.objects.create(id_usuari=id,nom_xarxa=nom)
+        nom_usuari = request.POST["nom_usuari"]
+        # nom_creaf = resquest.POST["nom_creaf"]
+        u = TUsuarisXarxa.objects.create(id_usuari=id,nom_xarxa=nom_usuari)
         u.save()
         return True
     except:
