@@ -681,7 +681,7 @@ function dialog_projectes_per_responsable_cabecera(){
                     onOpen: function(){
                         $(".tabla_projectes_resp_consultar").DataTable({
                             //$(this).DataTable({
-                                scrollY:        '50vh',
+                                //scrollY:        '50vh',
                                 scrollCollapse: true,
                                 paging:         false,
                                 autowidth:      true,

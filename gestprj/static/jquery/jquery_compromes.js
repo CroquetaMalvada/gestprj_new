@@ -152,8 +152,8 @@ function calcular_compromes_personal(){
 //        console.log(fecha_fin);
 //        console.log(fecha_calculo);
         var duracion_pendiente = dif/ 1000 / 60 / 60 / 24; // en dias
-        var comprometido = duracion_pendiente * (coste/30);
-        var comprometido = duracion_pendiente * (coste/30);
+        //var comprometido = duracion_pendiente * (coste/30.42);
+        var comprometido = duracion_pendiente * (coste/30.42);
 
 //        alert(fecha_fin);
 //        alert(fecha_calculo);

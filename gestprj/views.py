@@ -1059,7 +1059,7 @@ def cont_estat_pres(request):
                     fecha_calculo = fecha_calculo - timedelta(days=1)
                     dif = fecha_fin - fecha_calculo
                     duracion_pendiente = dif.days
-                    compromes = compromes + (duracion_pendiente * (coste / 30))
+                    compromes = compromes + (duracion_pendiente * (coste / 30.42))
             except:
                 compromes = 0
             compromes = float(compromes)
@@ -1351,7 +1351,7 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                 net_disponible = round(net_disponible, 2)
 
                 #############
-                # Obtener el comprometido#
+                # Obtener el comprometido #
                 compromes = 0
                 try:
                     for comp in CompromesPersonal.objects.filter(id_projecte=projecte.id_projecte).values("cost", "data_inici", "data_fi"):
@@ -1367,7 +1367,7 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                         fecha_calculo = fecha_calculo - timedelta(days=1)
                         dif = fecha_fin - fecha_calculo
                         duracion_pendiente = dif.days
-                        compromes = compromes + (duracion_pendiente * (coste / 30))
+                        compromes = compromes + (duracion_pendiente * (coste / 30.42))
                 except:
                     compromes = 0
                 compromes = float(compromes)

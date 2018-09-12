@@ -32,7 +32,14 @@ $(document).ready(function(){
 //        }
 //
 //        head.appendChild(style);
+
+        var pagina_actual = $("body").html();
+        var contenido_imprimir = $("#imprimir_pagina").clone();
+        $("body").empty().html(contenido_imprimir);
         window.print();
+        $('body').html(pagina_actual);
+
+
         //@page {
         //  size: A4;
         //  margin: 0;
