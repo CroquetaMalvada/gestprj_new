@@ -1242,7 +1242,7 @@ def AjaxListCompromesCompte(request,tipo_comp,id_projecte,codigo_entero,comptes)
                         fecha_calculo = fecha_calculo - timedelta(days=1)
                         dif = fecha_fin - fecha_calculo
                         duracion_pendiente = dif.days
-                        compromes = float((duracion_pendiente * (coste / 30.42)))
+                        compromes = float((duracion_pendiente * (coste / Decimal(30.42))))
                         comp_personal.append({'compte':comp["compte"],'descripcio':comp["descripcio"],'cost':float(coste),'data_inici':str(fecha_ini),'data_fi':str(fecha_fin),'compromes':compromes})
                 # resultado = json.dumps(comp_personal)
                 return comp_personal

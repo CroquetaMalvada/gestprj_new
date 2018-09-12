@@ -1059,7 +1059,7 @@ def cont_estat_pres(request):
                     fecha_calculo = fecha_calculo - timedelta(days=1)
                     dif = fecha_fin - fecha_calculo
                     duracion_pendiente = dif.days
-                    compromes = compromes + (duracion_pendiente * (coste / 30.42))
+                    compromes = compromes + (duracion_pendiente * (coste / Decimal(30.42)))
             except:
                 compromes = 0
             compromes = float(compromes)
@@ -1367,7 +1367,7 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                         fecha_calculo = fecha_calculo - timedelta(days=1)
                         dif = fecha_fin - fecha_calculo
                         duracion_pendiente = dif.days
-                        compromes = compromes + (duracion_pendiente * (coste / 30.42))
+                        compromes = compromes + (duracion_pendiente * (coste / Decimal(30.42)))
                 except:
                     compromes = 0
                 compromes = float(compromes)
