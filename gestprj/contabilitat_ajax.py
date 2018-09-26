@@ -242,44 +242,44 @@ def AjaxListEstatPresDatos(request,datos):
             pressupostat = float(partidaperio['import_field'])
             if desc_partida not in tipos_partida:
                 tipos_partida[desc_partida] = {"desc_partida": desc_partida, "pressupostat": float(0), "gastat": float(0),"saldo": float(0), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': datos.split("_")[1], 'fecha_max': datos.split("_")[2]}
-            ### para obtener el gastat
-            gastat = 0
-            cuenta = 0
-            for compte in Desglossaments.objects.filter(id_partida=partidaperio['id_partida__id_partida']).values('compte','id_compte','id_compte__clau_compte'):
-                cod_compte = str(compte['compte'])
-                if cod_compte is None:
-                    cod_compte = "0000"
-                # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
-                # if primer_digito =='6' or primer_digito =='2' :
-                if len(cod_compte) < 4:
-                    if len(cod_compte) < 3:
-                        if len(cod_compte) < 2:
-                            cod_compte = cod_compte + "%%%"
+                ### para obtener el gastat
+                gastat = 0
+                cuenta = 0
+                for compte in Desglossaments.objects.filter(id_partida=partidaperio['id_partida__id_partida']).values('compte','id_compte','id_compte__clau_compte'):
+                    cod_compte = str(compte['compte'])
+                    if cod_compte is None:
+                        cod_compte = "0000"
+                    # primer_digito=str(cod_compte)[0] # solo son cuentas contables los que empiezan por 6 y 2
+                    # if primer_digito =='6' or primer_digito =='2' :
+                    if len(cod_compte) < 4:
+                        if len(cod_compte) < 3:
+                            if len(cod_compte) < 2:
+                                cod_compte = cod_compte + "%%%"
+                            else:
+                                cod_compte = cod_compte + "%%"
                         else:
-                            cod_compte = cod_compte + "%%"
-                    else:
-                        cod_compte = cod_compte + "%"
+                            cod_compte = cod_compte + "%"
 
-                if compte['id_compte']:
-                    clau = str(compte['id_compte__clau_compte'])
+                    if compte['id_compte']:
+                        clau = str(compte['id_compte__clau_compte'])
 
-                # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
-                # OJO UTILIZAR FECHAS?
-                cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE(  CENTROCOSTE2='   '+%s AND ( CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) AND TIPAPU='N'  AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE %s+'%%' AND CUENTA NOT LIKE 6296+%s ) ) ",(codigo_entero, data_max_periode, data_min_periode, cod_compte, codigo_entero))
-                cuentacont = dictfetchall(cursor)
-                if cuentacont:
-                    for cont in cuentacont:
-                        if cont["DEBE"] is None:
-                            cont["DEBE"] = 0
-                        if cont["HABER"] is None:
-                            cont["HABER"] = 0
-                        gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
+                    # Ojo parece que se necesitan 3 espacios en el codigo de centrocoste2,puede ser por la importacion que hicieron los de erp?los datos nuevos introducidos tambien tienen esos 3 espacios?
+                    # OJO UTILIZAR FECHAS?
+                    cursor.execute("SELECT DEBE,HABER,DESCAPU FROM __ASIENTOS WHERE(  CENTROCOSTE2='   '+%s AND ( CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s ) AND TIPAPU='N'  AND IDCUENTA IN (SELECT IDCUENTA FROM CUENTAS WHERE CUENTA LIKE %s+'%%' AND CUENTA NOT LIKE 6296+%s ) ) ",(codigo_entero, data_max_periode, data_min_periode, cod_compte, codigo_entero))
+                    cuentacont = dictfetchall(cursor)
+                    if cuentacont:
+                        for cont in cuentacont:
+                            if cont["DEBE"] is None:
+                                cont["DEBE"] = 0
+                            if cont["HABER"] is None:
+                                cont["HABER"] = 0
+                            gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
 
-            saldo = pressupostat - float(gastat)  # pasamos datos a float ya que los decimal no los pilla bien el json
-            #partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero})
-            tipos_partida[desc_partida]["pressupostat"]=float(tipos_partida[desc_partida]["pressupostat"]+pressupostat)
-            tipos_partida[desc_partida]["gastat"] = float(tipos_partida[desc_partida]["gastat"] + float(gastat))
-            tipos_partida[desc_partida]["saldo"] = float(tipos_partida[desc_partida]["saldo"] + saldo)
+                saldo = pressupostat - float(gastat)  # pasamos datos a float ya que los decimal no los pilla bien el json
+                #partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero})
+                tipos_partida[desc_partida]["pressupostat"]=float(tipos_partida[desc_partida]["pressupostat"]+pressupostat)
+                tipos_partida[desc_partida]["gastat"] = float(tipos_partida[desc_partida]["gastat"] + float(gastat))
+                tipos_partida[desc_partida]["saldo"] = float(tipos_partida[desc_partida]["saldo"] + saldo)
         for partida in tipos_partida:
             partidas.append(tipos_partida[partida])
         resultado = json.dumps(partidas)

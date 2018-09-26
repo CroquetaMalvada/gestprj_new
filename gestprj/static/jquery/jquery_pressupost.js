@@ -180,7 +180,7 @@ $(document).ready(function(){
     //                          alert(response["id_perio"]);
                             pressupost.rows().every(function(rowidx,tableloop,rowloop){
                                 $.ajax({
-                                    url: "/gestor_PeriodicitatPartida/",
+                                    url: "/gestor_PeriodicitatPres/", //gestor_PeriodicitatPartida
                                     type: "POST",
                                     datatype:'json',
                                     data: {'id_partida':pressupost.row(rowidx).data()["id_part"],'id_periodicitat':response["id_perio"],'import_field':0},
