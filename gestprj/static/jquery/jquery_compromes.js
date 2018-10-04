@@ -142,16 +142,30 @@ function calcular_compromes_personal(){
         var fecha_fin = new Date(compromes_personal.cell(rowidx,6).data());
         var dif = new Date(fecha_fin-fecha_ini);
         var duracion_total = dif / 1000 / 60 / 60 / 24; // en dias
+        var duracion_pendiente = 0;
         var fecha_calculo = new Date(fecha_actual); //el ultimo dia del mes anterior
         fecha_calculo.setDate(1); //la ponemos al dia 1
         fecha_calculo.setHours(-1);// y le restamos una hora
         fecha_calculo_string=$.datepicker.formatDate('yy-mm-dd',fecha_calculo)
         fecha_calculo = new Date(fecha_calculo_string); //la formateamos
-        dif=new Date(fecha_fin - fecha_calculo);
+        if(fecha_calculo<fecha_ini){
+            dif=new Date(fecha_fin - fecha_ini);
+            if(""+fecha_ini==""+fecha_fin)//si ademas fecha fin e ini son iguales, seguramente se trate de una indemnizacion por tanto que la pendiente sea 1 dia
+                duracion_pendiente = 30;
+            else
+                duracion_pendiente = dif/ 1000 / 60 / 60 / 24; // en dias
+        }else{
+            dif=new Date(fecha_fin - fecha_calculo);
+            duracion_pendiente = dif/ 1000 / 60 / 60 / 24; // en dias
+            if(duracion_pendiente<0){
+                duracion_pendiente=0;
+            }
+        }
+
 //        console.log(compromes_personal.cell(rowidx,5).data());
 //        console.log(fecha_fin);
 //        console.log(fecha_calculo);
-        var duracion_pendiente = dif/ 1000 / 60 / 60 / 24; // en dias
+
         //var comprometido = duracion_pendiente * (coste/30.42);
         var comprometido = duracion_pendiente * (coste/30.42);
 

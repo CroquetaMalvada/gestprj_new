@@ -307,6 +307,7 @@ def AjaxListEstatPresDatos(request,datos):
 
             ### para obtener el gastat y el comprometido de cada cuenta
             lista_cuentas = []  # para mantener las cuentas de la partida sin repetir y asi calcular el comprometido
+            lista_cuentas_pers = []# para calcular el comprometido de personal
             compromes = 0
             gastat = 0
             for compte in Desglossaments.objects.filter(id_partida=id_partida).values('compte'):
@@ -335,8 +336,11 @@ def AjaxListEstatPresDatos(request,datos):
                         if cont["HABER"] is None:
                             cont["HABER"] = 0
                         gastat = gastat + (Decimal(cont["DEBE"] - cont["HABER"]))
-                        lista_cuentas.append(cont["Cuenta"])
+                        lista_cuentas.append(cont['Cuenta'])
 
+                #### obtener las cuentas que hay en esta partida para el comprometido personal
+                for cuenta_comp_pers in CompromesPersonal.objects.filter(id_projecte=id_prj,compte__startswith=str(compte['compte'])).values("compte").distinct():
+                    lista_cuentas_pers.append(cuenta_comp_pers['compte'])
                     #
             # Obtener el comprometido de las cuentas(unificada) de esa partida(este es algo diferente,el except es diferente y el compromes = 0 esta aparte#
             #primero unificamos las cuentas que estan repetidas
@@ -345,7 +349,7 @@ def AjaxListEstatPresDatos(request,datos):
                 total_cuentas_prj_gest.append(cue)
 
             #Y ahora calculamos el comprometido
-            comp_personal=AjaxListCompromesCompte(request, "1", id_prj, codigo_entero, lista_cuentas)
+            comp_personal=AjaxListCompromesCompte(request, "1", id_prj, codigo_entero, lista_cuentas_pers)
             for compr in comp_personal:
                 compromes=compromes+compr["compromes"]
             comp_albaranes = AjaxListCompromesCompte(request, "2", id_prj, codigo_entero, lista_cuentas)
@@ -1237,11 +1241,22 @@ def AjaxListCompromesCompte(request,tipo_comp,id_projecte,codigo_entero,comptes)
                         fecha_fin = comp["data_fi"]
                         dif = fecha_fin - fecha_ini
                         duracion_total = dif.days
+                        duracion_pendiente = 0
                         fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
                         fecha_calculo = fecha_calculo.replace(day=1)
                         fecha_calculo = fecha_calculo - timedelta(days=1)
-                        dif = fecha_fin - fecha_calculo
-                        duracion_pendiente = dif.days
+                        if fecha_calculo<fecha_ini:
+                            dif = fecha_fin - fecha_ini
+                            if str(fecha_fin)==str(fecha_ini):
+                                duracion_pendiente=30
+                            else:
+                                duracion_pendiente = dif.days
+                        else:
+                            dif = fecha_fin - fecha_calculo
+                            duracion_pendiente = dif.days
+                            if duracion_pendiente<0:
+                                duracion_pendiente=0
+
                         compromes = float((duracion_pendiente * (coste / Decimal(30.42))))
                         comp_personal.append({'compte':comp["compte"],'descripcio':comp["descripcio"],'cost':float(coste),'data_inici':str(fecha_ini),'data_fi':str(fecha_fin),'compromes':compromes})
                 # resultado = json.dumps(comp_personal)
