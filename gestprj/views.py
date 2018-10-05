@@ -1007,19 +1007,22 @@ def cont_estat_pres(request):
             ##### Cuentas:
             concedit = 0
             for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
-                concedit = round(concedit + float(importe['import_concedit']))
+                concedit = round(concedit + float(importe['import_concedit']),2)
 
-            percen_iva = round(0.0, 4)
+            percen_iva = 0
             if projecte['percen_iva']:
-                percen_iva = round(projecte['percen_iva'], 4)
+                percen_iva = round(projecte['percen_iva'], 2)
+            projecte['percen_iva'] = percen_iva
 
-            percen_canon_creaf = round(0.0, 4)
+            percen_canon_creaf = 0
             if projecte['percen_canon_creaf']:
-                percen_canon_creaf = round(projecte['percen_canon_creaf'], 4)
+                percen_canon_creaf = round(projecte['percen_canon_creaf'], 2)
+            projecte['percen_canon_creaf'] = percen_canon_creaf
 
-            canon_oficial = round(0.0, 4)
+            canon_oficial = 0
             if projecte['canon_oficial']:
                 canon_oficial = round(projecte['canon_oficial'], 2)
+            projecte['canon_oficial'] = canon_oficial
 
             iva = concedit - (concedit / (1 + percen_iva / 100))
             canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
@@ -1118,19 +1121,22 @@ def cont_despeses(request):
             ##### Cuentas:
             concedit = 0
             for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
-                concedit = round(concedit + float(importe['import_concedit']))
+                concedit = round(concedit + float(importe['import_concedit']),2)
 
-            percen_iva = round(0.0, 4)
+            percen_iva = 0
             if projecte['percen_iva']:
-                percen_iva = round(projecte['percen_iva'], 4)
+                percen_iva = round(projecte['percen_iva'], 2)
+            projecte['percen_iva'] = percen_iva
 
-            percen_canon_creaf = round(0.0, 4)
+            percen_canon_creaf = 0
             if projecte['percen_canon_creaf']:
-                percen_canon_creaf = round(projecte['percen_canon_creaf'], 4)
+                percen_canon_creaf = round(projecte['percen_canon_creaf'], 2)
+            projecte['percen_canon_creaf'] = percen_canon_creaf
 
-            canon_oficial = round(0.0, 4)
+            canon_oficial = 0
             if projecte['canon_oficial']:
                 canon_oficial = round(projecte['canon_oficial'], 2)
+            projecte['canon_oficial'] = canon_oficial
 
             iva = concedit - (concedit / (1 + percen_iva / 100))
             canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
@@ -1198,19 +1204,22 @@ def cont_ingresos(request):
             concedit = 0
             concedit = 0
             for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
-                concedit = round(concedit + float(importe['import_concedit']))
+                concedit = round(concedit + float(importe['import_concedit']),2)
 
-            percen_iva = round(0.0, 4)
+            percen_iva = 0
             if projecte['percen_iva']:
-                percen_iva = round(projecte['percen_iva'], 4)
+                percen_iva = round(projecte['percen_iva'], 2)
+            projecte['percen_iva'] = percen_iva
 
-            percen_canon_creaf = round(0.0, 4)
+            percen_canon_creaf = 0
             if projecte['percen_canon_creaf']:
-                percen_canon_creaf = round(projecte['percen_canon_creaf'], 4)
+                percen_canon_creaf = round(projecte['percen_canon_creaf'], 2)
+            projecte['percen_canon_creaf'] = percen_canon_creaf
 
-            canon_oficial = round(0.0, 4)
+            canon_oficial = 0
             if projecte['canon_oficial']:
                 canon_oficial = round(projecte['canon_oficial'], 2)
+            projecte['canon_oficial'] = canon_oficial
 
             iva = concedit - (concedit / (1 + percen_iva / 100))
             # canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
@@ -1574,19 +1583,22 @@ def cont_resum_fitxa_major_prj(request): #RESUM PER PARTIDES
             ##### Cuentas:
             concedit = 0
             for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
-                concedit = round(concedit + float(importe['import_concedit']))
+                concedit = round(concedit + float(importe['import_concedit']),2)
 
-            percen_iva = round(0.0, 4)
+            percen_iva = 0
             if projecte['percen_iva']:
-                percen_iva = round(projecte['percen_iva'], 4)
+                percen_iva = round(projecte['percen_iva'], 2)
+            projecte['percen_iva'] = percen_iva
 
-            percen_canon_creaf = round(0.0, 4)
+            percen_canon_creaf = 0
             if projecte['percen_canon_creaf']:
-                percen_canon_creaf = round(projecte['percen_canon_creaf'], 4)
+                percen_canon_creaf = round(projecte['percen_canon_creaf'], 2)
+            projecte['percen_canon_creaf'] = percen_canon_creaf
 
-            canon_oficial = round(0.0, 4)
+            canon_oficial = 0
             if projecte['canon_oficial']:
                 canon_oficial = round(projecte['canon_oficial'], 2)
+            projecte['canon_oficial'] = canon_oficial
 
             iva = concedit - (concedit / (1 + percen_iva / 100))
             canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
@@ -1645,19 +1657,22 @@ def cont_fitxa_major_prj(request): # INGRESSOS I DESPESES (FITXA MAJOR PRJ)
             ##### Cuentas:
             concedit = 0
             for importe in Financadors.objects.filter(id_projecte=projecte['id_projecte']).values('import_concedit'):
-                concedit = round(concedit + float(importe['import_concedit']))
+                concedit = round(concedit + float(importe['import_concedit']),2)
 
-            percen_iva = round(0.0, 4)
+            percen_iva = 0
             if projecte['percen_iva']:
-                percen_iva = round(projecte['percen_iva'], 4)
+                percen_iva = round(projecte['percen_iva'], 2)
+            projecte['percen_iva'] = percen_iva
 
-            percen_canon_creaf = round(0.0, 4)
+            percen_canon_creaf = 0
             if projecte['percen_canon_creaf']:
-                percen_canon_creaf = round(projecte['percen_canon_creaf'], 4)
+                percen_canon_creaf = round(projecte['percen_canon_creaf'], 2)
+            projecte['percen_canon_creaf'] = percen_canon_creaf
 
-            canon_oficial = round(0.0, 4)
+            canon_oficial = 0
             if projecte['canon_oficial']:
                 canon_oficial = round(projecte['canon_oficial'], 2)
+            projecte['canon_oficial'] = canon_oficial
 
             iva = concedit - (concedit / (1 + percen_iva / 100))
             canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))

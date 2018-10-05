@@ -1291,7 +1291,14 @@ def AjaxListCompromesCompte(request,tipo_comp,id_projecte,codigo_entero,comptes)
                         (codigo_entero, compte))
                     pedidosfetch = dictfetchall(cursor)
                     for pedidofet in pedidosfetch:
-                        comp_pedidos.append({"compte":compte,"descripcio":pedidofet["NOMPRO"],"rao":pedidofet["RAZON"],"idped":float(pedidofet["IDPEDC"]),"compromes":float(pedidofet["TOTBRUTO"])})
+                        comp_no_recibidos=0
+                        cursor.execute("SELECT FECHA,DESCLIN,PRECIO,UNIDADES,UNISERVIDA FROM LINEPEDI WHERE IDPEDC=%s+'.00'",[float(pedidofet["IDPEDC"])])
+                        lineas = dictfetchall(cursor)
+                        for linea in lineas:
+                            if linea["UNISERVIDA"]<linea["UNIDADES"]:
+                                comp_no_recibidos=comp_no_recibidos+(linea["PRECIO"]*linea["UNIDADES"])-(linea["PRECIO"]*linea["UNISERVIDA"])
+                                #linas_pedido.append({"data": str(linea["FECHA"]), "descripcio": linea["DESCLIN"], "preu": linea["PRECIO"],"unitats": linea["UNIDADES"], "unitats_serv": linea["UNISERVIDA"]})
+                        comp_pedidos.append({"compte":compte,"descripcio":pedidofet["NOMPRO"],"rao":pedidofet["RAZON"],"idped":float(pedidofet["IDPEDC"]),"compromes":float(comp_no_recibidos)})
 
                 # resultado = json.dumps(comp_pedidos)
                 cursor.close()
