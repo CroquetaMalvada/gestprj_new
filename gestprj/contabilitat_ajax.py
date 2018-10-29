@@ -494,8 +494,17 @@ def AjaxListDespesesDatos(request,fecha_min,fecha_max,codigo):
     concedit = 0
     for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
         concedit = concedit + importe.import_concedit
-    iva = concedit - (concedit / (1 + projecte.percen_iva / 100))
-    canon = (concedit * projecte.percen_canon_creaf) / (100 * (1 + projecte.percen_iva / 100))
+
+    percen_iva = projecte.percen_iva
+    if percen_iva == None:
+        percen_iva = 0
+
+    percen_canon_creaf = projecte.percen_canon_creaf
+    if percen_canon_creaf == None:
+        percen_canon_creaf = 0
+
+    iva = concedit - (concedit / (1 + percen_iva / 100))
+    canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
     net_disponible = concedit - iva - canon
 
     concedit = round(concedit, 2)
@@ -592,7 +601,12 @@ def AjaxListIngresosDatos(request,fecha_min,fecha_max,codigo):
     concedit = 0
     for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
         concedit = concedit + importe.import_concedit
-    iva = concedit - (concedit / (1 + projecte.percen_iva / 100))
+
+    percen_iva = projecte.percen_iva
+    if percen_iva == None:
+        percen_iva = 0
+
+    iva = concedit - (concedit / (1 + percen_iva / 100))
     # canon = (concedit * projecte.percen_canon_creaf) / (100 * (1 + projecte.percen_iva / 100))
     net_disponible = concedit - iva  # Ojo que este no usa canon
 
@@ -800,8 +814,16 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
     for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
         concedit = concedit + importe.import_concedit
 
-    iva = concedit - (concedit / (1 + projecte.percen_iva / 100))
-    canon = (concedit * projecte.percen_canon_creaf) / (100 * (1 + projecte.percen_iva / 100))
+    percen_iva = projecte.percen_iva
+    if percen_iva == None:
+        percen_iva = 0
+
+    percen_canon_creaf = projecte.percen_canon_creaf
+    if percen_canon_creaf == None:
+        percen_canon_creaf = 0
+
+    iva = concedit - (concedit / (1 + percen_iva / 100))
+    canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
     net_disponible = concedit - iva - canon
     #####
 
