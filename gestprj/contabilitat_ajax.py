@@ -362,7 +362,11 @@ def AjaxListEstatPresDatos(request,datos):
 
             compromes = float(compromes)
             saldo = pressupostat - float(gastat)-compromes  # pasamos datos a float ya que los decimal no los pilla bien el json
-            partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': datos.split("_")[1], 'fecha_max': datos.split("_")[2], 'compromes':compromes,'id_projecte':datos.split("_")[0],'llista_comptes':','.join(lista_cuentas)})
+            ##Ojo que en el caso de Personal, la lista de cuentas se obtiene de diferente manera,asi que al input le pasamos la lista cuentas pers
+            if(desc_partida=='Personal'):
+                partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': datos.split("_")[1], 'fecha_max': datos.split("_")[2], 'compromes':compromes,'id_projecte':datos.split("_")[0],'llista_comptes':','.join(lista_cuentas_pers)})
+            else:
+                partidas.append({"desc_partida": desc_partida, "pressupostat": float(pressupostat), "gastat": float(gastat),"saldo": float(saldo), 'id_partida': str(id_partida), 'codigo_entero': codigo_entero, 'fecha_min': datos.split("_")[1], 'fecha_max': datos.split("_")[2], 'compromes':compromes,'id_projecte':datos.split("_")[0],'llista_comptes':','.join(lista_cuentas)})
 
 
         #OJO!!!!,como en este caso consultamos las cuentas en la bdd del gestor,hay
@@ -403,7 +407,7 @@ def AjaxListEstatPresDatos(request,datos):
         # Cerramos el cursor
         cursor.close()
         return resultado
-
+    cursor.close()
     return []
 
 
@@ -926,7 +930,7 @@ def AjaxListMovimentsCompte(request,compte,fecha_min,fecha_max):
                 saldo = round((saldo - float(result["Debe"])) + float(result["Haber"]), 2)
                 result["Saldo"] = saldo
 
-        cursor.close()
+            cursor.close()
         resultado = json.dumps(fetch)
         return resultado
     else:
@@ -1440,18 +1444,18 @@ def AjaxLineasAlbaranDetalles(request,id_albaran):
 
 
 
-    try:
-        # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
-        cursor.execute("SELECT FECHA,DESCLIN,PRECIO,UNIDADES,UNISERVIDA FROM LINEALBA WHERE IDALBC=%s+'.00'",[id_albaran])
-        lineas = dictfetchall(cursor)
-        for linea in lineas:
-            linas_albaran.append({"data":str(linea["FECHA"]),"descripcio":linea["DESCLIN"],"preu":linea["PRECIO"],"unitats":linea["UNIDADES"],"unitats_serv":linea["UNISERVIDA"]})
-        cursor.close()
-        resultado = json.dumps(linas_albaran)
-        return resultado
-    except:
-        cursor.close()
-        return [{}]
+    # try:
+    #     # obtenemos las cabeceras de los albaranes,para que se vean las lineas de los albaranes lo pondremos aparte
+    #     cursor.execute("SELECT FECHA,DESCLIN,PRECIO,UNIDADES,UNISERVIDA FROM LINEALBA WHERE IDALBC=%s+'.00'",[id_albaran])
+    #     lineas = dictfetchall(cursor)
+    #     for linea in lineas:
+    #         linas_albaran.append({"data":str(linea["FECHA"]),"descripcio":linea["DESCLIN"],"preu":linea["PRECIO"],"unitats":linea["UNIDADES"],"unitats_serv":linea["UNISERVIDA"]})
+    #     cursor.close()
+    #     resultado = json.dumps(linas_albaran)
+    #     return resultado
+    # except:
+    #     cursor.close()
+    #     return [{}]
 
 #VER DETALLES DE LAS LINEAS DE UN ALBARAN PARA GENERAR FACTURA
 def AjaxLineasPedidoDetalles(request, num_apunte): # OJO en la captura que me ha pasado j.a parece que hay campos donde se puede leer mas texto por ejemplo basemoncab + ...
