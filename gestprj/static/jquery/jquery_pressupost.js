@@ -317,8 +317,8 @@ $(document).ready(function(){
                              cerrar_dialog();
                              refrescaTabla(15);
                         },
-                        error: function(result){
-                            console.log(result);
+                        error: function(error){
+                            console.log(error);
                         }
 
             });

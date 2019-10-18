@@ -76,7 +76,7 @@ $(document).ready(function(){
 	    cod=$(this).attr("cod");
 	    //console.log($(this).parents(".datatable").DataTable().row(".selected").data()["desc_partida"]);
 	    partida = $(this).parents(".datatable").DataTable().row(".selected",0).data()["desc_partida"];
-	    $("#dialog_llista_comptes").attr("title","DETALL DE LES DESPESES DE LA PARTIDA: "+partida);
+	    $("#dialog_llista_comptes").attr("title","DETALL DE LES DESPESES DE LA PARTIDA '"+partida+"'");
         table_llista_despeses.ajax.url('/show_Despeses_Compte/'+id_compte+'/'+cod+'/'+data_min+'/'+data_max);
 	    table_llista_despeses.ajax.reload();
 	    mostrar_dialog("dialog_llista_comptes");
@@ -88,7 +88,7 @@ $(document).ready(function(){
 	    data_min = $(this).attr("data_min");
 	    data_max = $(this).attr("data_max");
 	    descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
-	    $("#dialog_llista_comptes").attr("title","DETALL MOVIMENTS COMPTE:"+id_compte+" - "+descripcio);
+	    $("#dialog_llista_comptes").attr("title","DETALL MOVIMENTS COMPTE '"+id_compte+"'");//+" - "+descripcio
         table_comptes.ajax.url('/show_Moviments_Compte/'+id_compte+'/'+data_min+'/'+data_max);
 	    table_comptes.ajax.reload();
 	    mostrar_dialog("dialog_llista_comptes");
@@ -99,7 +99,7 @@ $(document).ready(function(){
 	    id_projecte = $(this).attr("id");
 	    codigo_entero = $(this).attr("codigo_entero");
 	    descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
-	    $("#dialog_llista_compromes").attr("title","DETALL DEL COMPROMÉS:"+descripcio);
+	    $("#dialog_llista_compromes").attr("title","DETALL DEL COMPROMÉS '"+descripcio+"'");
 //        table_llista_compromes.ajax.url('/show_compromes_projecte/'+id_projecte+"/"+codigo_entero);
 //	    table_llista_compromes.ajax.reload();
         $.ajax({
@@ -107,7 +107,7 @@ $(document).ready(function(){
             //type: "post",
             //data: "id_projecte="+id_prj,
             success: function(result) {
-                 console.log(result);
+                 //console.log(result);
                  table_llista_compromes_compte.clear();
                  table_llista_compromes_compte.rows.add(result["compromes_personal"]);
                  table_llista_compromes_compte.draw();
@@ -131,7 +131,7 @@ $(document).ready(function(){
 	    compte = $(this).attr("compte");
 	    codigo = $(this).attr("cod");
 	    //descripcio = $(this).parents(".datatable").DataTable().row(".selected",0).data()[1]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
-	    $("#dialog_llista_compromes_compte").attr("title","COMPROMÉS DEL COMPTE:"+compte);
+	    $("#dialog_llista_compromes_compte").attr("title","COMPROMÉS DEL COMPTE '"+compte+"'");
         $.ajax({
             url: "/show_compromes_llista_comptes/"+id_projecte+"/"+codigo+"/"+compte,
             //type: "post",
@@ -162,7 +162,7 @@ $(document).ready(function(){
 	    comptes = $(this).attr("comptes");
 	    var nom_partida = $(this).parents(".datatable").DataTable().row(".selected",0).data()["desc_partida"]; // Ojo que al pasarlo a ajax devolvera "descripcio"o algo asi en lguar del 1
 //	    console.log($(this).parents(".datatable").DataTable().row(".selected",2).data());
-	    $("#dialog_llista_compromes_comptes").attr("title","COMPROMÉS DE LA PARTIDA: "+nom_partida);
+	    $("#dialog_llista_compromes_comptes").attr("title","COMPROMÉS DE LA PARTIDA '"+nom_partida+"'");
         $.ajax({
             url: "/show_compromes_llista_comptes/"+id_projecte+"/"+codigo_entero+"/"+comptes,
             //type: "post",
@@ -193,7 +193,7 @@ $(document).ready(function(){
 	    id_albaran = $(this).attr("idalb");
 	    compte = $(this).attr("compte");
 	    descripcio = $(this).attr("desc");
-	    $("#dialog_lineas_albaran").attr("title","LÍNIES DE L'ALBARÀ: "+descripcio);
+	    $("#dialog_lineas_albaran").attr("title","LÍNIES DE L'ALBARÀ '"+descripcio+"'");
         table_lineas_albaran.ajax.url('/show_lineas_albaran/'+id_albaran+'/');
 	    table_lineas_albaran.ajax.reload();
 	    mostrar_dialog("dialog_lineas_albaran");
@@ -204,7 +204,7 @@ $(document).ready(function(){
 	    id_pedido = $(this).attr("idped");
 	    compte = $(this).attr("compte");
 	    descripcio = $(this).attr("desc");
-	    $("#dialog_lineas_pedido").attr("title","LÍNIES DE COMANDA: "+descripcio);
+	    $("#dialog_lineas_pedido").attr("title","LÍNIES DE COMANDA '"+descripcio+"'");
         table_lineas_pedido.ajax.url('/show_lineas_pedido/'+id_pedido+'/');
 	    table_lineas_pedido.ajax.reload();
 	    mostrar_dialog("dialog_lineas_pedido");
@@ -278,7 +278,7 @@ function generar_factura(id_pedido){
             //type: "post",
             //data: "id_projecte="+id_prj,
             success: function(result) {
-                 console.log(result);
+                 //console.log(result);
                  generar_pdf_factura(result);
             }
 
@@ -319,7 +319,7 @@ function generar_pdf_factura(datos){
         lin.push(this.basemoneda);
         lineas.push(lin);
     });
-    console.log(lineas);
+    //console.log(lineas);
     var all_pdf = {
         header:cabecera_pdf,
         content: [

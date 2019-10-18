@@ -183,6 +183,16 @@ $(document).ready(function(){
                 footer: true,
                 title: function(){return '<h4>'+$("#dialog_llista_comptes").attr("title")+'</h4>'},
                 text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                    columns: ':visible',
+                    format: {
+                        body: function(data, row, column, node) {
+                            if(column==4)
+                                data=$(data).attr("title");
+                            return data;
+                        }
+                    }
+                },
                 autoPrint: true
             },{
                 extend: 'excel',
@@ -201,7 +211,7 @@ $(document).ready(function(){
                     }
                 },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
-                    $('row c[r^="E"]', sheet).each(function () {// "E" es la columna en el excel
+                    $('row c[r^="F"]', sheet).each(function () {// "E" es la columna en el excel
                           $(this).attr('s', 64);
                    });
                 }
@@ -264,13 +274,13 @@ $(document).ready(function(){
                 title: function(){return '<h4>'+$("#dialog_llista_comptes").attr("title")+'</h4>'},
                 text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
                 autoPrint: true,
-                exportOptions: { columns: '0,1,2,4,5'}
+                exportOptions: { columns: '0,1,2,3,4,5'}
             },{
                 extend: 'excel',
                 filename: function(){return $("#dialog_llista_comptes").attr("title")},
                 text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
-                    columns: '0,1,2,4,5',
+                    columns: '0,1,2,3,4,5',
                     format: {
                         body: function(data, row, column, node) {
                             if(column==3 || column==4 || column==5)
@@ -282,18 +292,24 @@ $(document).ready(function(){
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
                     $('row c[r^="D"]', sheet).each(function () {
                           $(this).attr('s', 64);
-                   });
+                    });
+                    $('row c[r^="E"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
+                    $('row c[r^="F"]', sheet).each(function () {
+                          $(this).attr('s', 64);
+                    });
                 }
             },{
                 extend: 'pdf',
                 title: function(){return $("#dialog_llista_comptes").attr("title")},
                 text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>',
-                exportOptions: { columns: '0,1,2,4,5'}
+                exportOptions: { columns: '0,1,2,3,4,5'}
             },{
                 extend: 'csv',
                 filename: function(){return $("#dialog_llista_comptes").attr("title")},
                 text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>',
-                exportOptions: { columns: '0,1,2,4,5'}
+                exportOptions: { columns: '0,1,2,3,4,5'}
             }],
             scrollY:        '70vh',
             scrollCollapse: true,
@@ -393,12 +409,12 @@ $(document).ready(function(){
                 extend: 'print',
                 header: true,
                 footer: true,
-                title: function(){return '<h4>'+$("#dialog_llista_compromes_compte").attr("title")+'</h4>'},
+                title: function(){return '<h4>'+$("#dialog_llista_compromes_compte").attr("title")+" - "+"Personal"+'</h4>'},
                 text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
                 autoPrint: true
             },{
                 extend: 'excel',
-                filename: function(){return $("#dialog_llista_compromes_compte").attr("title")},
+                filename: function(){return $("#dialog_llista_compromes_comptes").attr("title")+" - "+"Personal"},
                 text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
                     columns: ':visible',
@@ -420,11 +436,11 @@ $(document).ready(function(){
                 }
             },{
                 extend: 'pdf',
-                title: function(){return $("#dialog_llista_compromes_compte").attr("title")},
+                title: function(){return $("#dialog_llista_compromes_comptes").attr("title")+" - "+"Personal"},
                 text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
             },{
                 extend: 'csv',
-                filename: function(){return $("#dialog_llista_compromes_compte").attr("title")},
+                filename: function(){return $("#dialog_llista_compromes_comptes").attr("title")+" - "+"Personal"},
                 text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
             }],
             scrollY:        '70vh',
@@ -457,18 +473,18 @@ $(document).ready(function(){
                 extend: 'print',
                 header: true,
                 footer: true,
-                title: function(){return '<h4>'+$("#dialog_llista_compromes_albaranes_compte").attr("title")+'</h4>'},
+                title: function(){return '<h4>'+$("#dialog_llista_compromes_albaranes_compte").attr("title")+" - "+"Albaran"+'</h4>'},
                 text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
                 autoPrint: true
             },{
                 extend: 'excel',
-                filename: function(){return $("#dialog_llista_compromes_albaranes_compte").attr("title")},
+                filename: function(){return $("#dialog_llista_compromes_comptes").attr("title")+" - "+"Albaran"},
                 text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
-                    columns: ':visible',
+                    columns: '0,1,2,4',
                     format: {
                         body: function(data, row, column, node) {
-                            if(column==4)
+                            if(column==3)
                                 data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             return data;
                         }
@@ -481,12 +497,14 @@ $(document).ready(function(){
                 }
             },{
                 extend: 'pdf',
-                title: function(){return $("#dialog_llista_compromes_albaranes_compte").attr("title")},
-                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+                title: function(){return $("#dialog_llista_compromes_compte").attr("title")+" - "+"Albaran"},
+                text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>',
+                exportOptions: { columns: '0,1,2,4'}
             },{
                 extend: 'csv',
-                filename: function(){return $("#dialog_llista_compromes_albaranes_compte").attr("title")},
-                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+                filename: function(){return $("#dialog_llista_compromes_compte").attr("title")+" - "+"Albaran"},
+                text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>',
+                exportOptions: { columns: '0,1,2,4'}
             }],
             scrollY:        '70vh',
             scrollCollapse: true,
@@ -516,18 +534,18 @@ $(document).ready(function(){
                 extend: 'print',
                 header: true,
                 footer: true,
-                title: function(){return '<h4>'+$("#dialog_llista_compromes_pedidos_compte").attr("title")+'</h4>'},
+                title: function(){return '<h4>'+$("#dialog_llista_compromes_comptes").attr("title")+" - "+"Comandes"+'</h4>'},
                 text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
                 autoPrint: true
             },{
                 extend: 'excel',
-                filename: function(){return $("#dialog_llista_compromes_pedidos_compte").attr("title")},
+                filename: function(){return $("#dialog_llista_compromes_comptes").attr("title")+" - "+"Comandes"},
                 text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
-                    columns: ':visible',
+                    columns: '0,1,2,4',
                     format: {
                         body: function(data, row, column, node) {
-                            if(column==4)
+                            if(column==3)
                                 data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             return data;
                         }
@@ -540,11 +558,11 @@ $(document).ready(function(){
                 }
             },{
                 extend: 'pdf',
-                title: function(){return $("#dialog_llista_compromes_pedidos_compte").attr("title")},
+                title: function(){return $("#dialog_llista_compromes_comptes").attr("title")+" - "+"Comandes"},
                 text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
             },{
                 extend: 'csv',
-                filename: function(){return $("#dialog_llista_compromes_pedidos_compte").attr("title")},
+                filename: function(){return $("#dialog_llista_compromes_comptes").attr("title")+" - "+"Comandes"},
                 text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
             }],
             scrollY:        '70vh',
@@ -713,7 +731,7 @@ $(document).ready(function(){
                 filename: function(){return $("#dialog_lineas_albaran").attr("title")},
                 text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
-                    columns: ':visible',
+                    columns: '0,1,2,3,4',
                     format: {
                         body: function(data, row, column, node) {
                             if(column==2)
@@ -823,7 +841,7 @@ $(document).ready(function(){
                         columns: '0,1,2,4,6',
                         format: {
                             body: function(data, row, column, node) {
-                                if(column==1 || column==2 || column==4 || column==6)
+                                if(column==1 || column==2 || column==3 || column==4)
                                     data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                                 return data;
                             }
@@ -836,10 +854,10 @@ $(document).ready(function(){
                         $('row c[r^="C"]', sheet).each(function () {
                               $(this).attr('s', 64);
                         });
-                        $('row c[r^="E"]', sheet).each(function () {
+                        $('row c[r^="D"]', sheet).each(function () {
                               $(this).attr('s', 64);
                         });
-                        $('row c[r^="G"]', sheet).each(function () {
+                        $('row c[r^="E"]', sheet).each(function () {
                               $(this).attr('s', 64);
                         });
                     }
@@ -1150,12 +1168,12 @@ $(document).ready(function(){
                 extend: 'print',
                 header: true,
                 footer: true,
-                title: function(){ return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();}, //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
+                title: function(){ return "Ingressos de "+$("#nombre_del_proyecto").text();}, //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
                 text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
                 autoPrint: true
             },{
                 extend: 'excel',
-                filename: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                filename: function(){return "Ingressos de "+$("#nombre_del_proyecto").text();},
                 text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
                     format: {
@@ -1176,13 +1194,12 @@ $(document).ready(function(){
                 }
             },{
                 extend: 'pdf',
-                title: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                title: function(){return "Ingressos de "+$("#nombre_del_proyecto").text();},
                 footer: true,
-
                 text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
             },{
                 extend: 'csv',
-                filename: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                filename: function(){return "Ingressos de "+$("#nombre_del_proyecto").text();},
                 footer: true,
                 text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
             }],
@@ -1256,7 +1273,7 @@ $(document).ready(function(){
                 extend: 'print',
                 header: true,
                 footer: true,
-                title: function(){ return "Ingressos i despeses de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();}, //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
+                title: function(){ return "Ingressos i despeses de "+$("#nombre_del_proyecto").text();}, //function(dt, node, config){return '<h4>'+$($.fn.dataTable).node().prev("h3").html()+'</h4>'},
                 text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
                 autoPrint: true,
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
@@ -1273,7 +1290,7 @@ $(document).ready(function(){
                 }
             },{
                 extend: 'excel',
-                filename: function(){return "Ingressos i despeses de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                filename: function(){return "Ingressos i despeses de "+$("#nombre_del_proyecto").text();},
                 text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
                     columns: ':visible',
@@ -1302,7 +1319,7 @@ $(document).ready(function(){
                 }
             },{
                 extend: 'pdf',
-                title: function(){return "Ingressos i despeses de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                title: function(){return "Ingressos i despeses de "+$("#nombre_del_proyecto").text();},
                 footer: true,
                 text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
@@ -1319,7 +1336,7 @@ $(document).ready(function(){
                 }
             },{
                 extend: 'csv',
-                filename: function(){return "Ingressos i despeses de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
+                filename: function(){return "Ingressos i despeses de "+$("#nombre_del_proyecto").text();},
                 footer: true,
                 text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
@@ -1518,10 +1535,10 @@ $(document).ready(function(){
                 filename: function(){return "Partides de "+$(".ui-accordion-content-active").find(".nombre_del_responsable").html();},
                 text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
                 exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
-                    columns: '0,1,2,3,5',
+                    columns: '0,1,2,3,5,7',
                     format: {
-                        body: function(data, row, column, node) {
-                            if(column==2 || column==3 || column==5 || column==7)
+                        body: function(data, row, column, node) {//las columnas se basan en el total de "columns",si en columns hay 0,2,4 en este format el column 2 equivale a la 4
+                            if(column==2 || column==3 || column==4 || column==5)
                                 data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
                             return data;
                         }
@@ -1534,10 +1551,10 @@ $(document).ready(function(){
                     $('row c[r^="D"]', sheet).each(function () {// "B" es la columna en el excel
                           $(this).attr('s', 64);
                     });
-                    $('row c[r^="F"]', sheet).each(function () {
+                    $('row c[r^="E"]', sheet).each(function () {
                           $(this).attr('s', 64);
                     });
-                    $('row c[r^="H"]', sheet).each(function () {
+                    $('row c[r^="F"]', sheet).each(function () {
                           $(this).attr('s', 64);
                     });
                 }
@@ -2060,7 +2077,7 @@ function compromes_llista_comptes(){
                 type: "post",
                 data: form.serialize()+"&id_projecte="+id_prj,
                 success: function(result) {
-                     console.log(result);
+                     //console.log(result);
                 }
 
     });
