@@ -1866,7 +1866,7 @@ def AfegirUsuarisXarxaSenseAssignar(request):  # AJAX PARA LOS USUARIOS XARXA QU
         # nom_creaf = resquest.POST["nom_creaf"]
         u = TUsuarisXarxa.objects.create(id_usuari=id,nom_xarxa=nom_usuari)
         u.save()
-        return True
+        return HttpResponse('')
     except:
         return HttpResponse('Error.', status=401)
 # # OBTENER LOS DATOS DE UNA FACTURA
