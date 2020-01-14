@@ -1874,3 +1874,8 @@ def AfegirUsuarisXarxaSenseAssignar(request):  # AJAX PARA LOS USUARIOS XARXA QU
 # def DatosFactura(request): # AJAX PARA LAS JUSTIFICACIONES DE LA CABECERA
 #     resultado=contabilitat_ajax.AjaxDatosFactura(request)
 #     return HttpResponse(resultado, content_type='application/json;')
+
+@login_required(login_url='/menu/')
+def ListPciCabecera(request,id_organisme): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA (PCI CABECERA)
+    resultado=contabilitat_ajax.AjaxListPciCabecera(request,id_organisme)
+    return HttpResponse(resultado, content_type='application/json;')

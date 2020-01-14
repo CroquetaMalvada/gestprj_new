@@ -187,6 +187,9 @@ $("#compromes").click(function(){
 /////ACTUALIZAR LOS SELECTS
 
 function actualizar_organismes_select(){
+        $(".select_id_organisme").each(function(){
+            $(this).html("<option>CARREGANT...</option>");
+        });
         $.ajax({
                     url: '/llista_organismes_select/',
 //                    type: form.attr('method'),
@@ -198,7 +201,13 @@ function actualizar_organismes_select(){
                             html=html+"<option value='"+this.id+"'>"+this.nom+"</option>";
                         });
                         $(".select_id_organisme").each(function(){
-                            $(this).html(html);
+                            if($(this).attr("id")=="filtre_financadors"){//Este es solo para el select de la pagina principal de comptabilitat
+                                $(this).html("<option value='default' selected='selected'>*Opcional*--ORGANISME FINANÇADOR--</option>"+html);
+                                //$("#filtre_financadors").prepend($("<option value='default' selected='selected'>--ESCOLLIR ORGANISME FINANÇADOR--</option>"));
+                            }else{
+                                $(this).html(html);
+                            }
+
                         });
                         //$("#select_id_organisme").html(html);
 

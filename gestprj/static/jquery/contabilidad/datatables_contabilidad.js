@@ -60,45 +60,50 @@ $(document).ready(function(){
                 {'data': 'Codi'},
                 {'data': 'Estat'},
                 {'data': 'Acronim'},
-                {'data': 'Id_resp'}
+                {'data': 'Id_resp'},
+                {'data': 'Id_orgs_fin'}
             ],
             initComplete:function(){
                 ////por defecto se muestran los proyectos abiertos
                 nomes_oberts();
             },
-            scrollY:        '70vh',
+            scrollY:        '40vh',
             scrollCollapse: true,
             paging:         false,
             autowidth:      true,
             overflow:       "auto",
             order:          [[ 1, "asc" ]],
             columnDefs:[
-                {"visible":false,"targets":[4]},
+                {"visible":false,"targets":[4,5]},
                 {"width": "5%","className":"dt-center", "targets": [0] }
             ],
-            dom: 'Bfrtip',
-            buttons:[{
-                text: '<span class="glyphicon glyphicon-check" aria-hidden="true" title="Mostrar només els projectes seleccionats.">  Només Seleccionats</span>',
-                action: function(){nomes_seleccionats();}
-            },{
-                text: '<span class="glyphicon glyphicon-plus-sign" aria-hidden="true" title="Mostrar tots els projectes oberts.">  Només Oberts</span>',
-                action: function () {nomes_oberts();}
-            },{
-                text: '<span class="glyphicon glyphicon-minus-sign" aria-hidden="true" title="Mostrar tots els projectes tancats.">  Només Tancats</span>',
-                action: function () {nomes_tancats();}
-            },{
-                text: '<span class="glyphicon glyphicon-asterisk" aria-hidden="true" title="Mostrar tots els projectes.">  Mostrar Tots</span>',
-                action: function () {mostrar_tots();}
-            },{
-                text: '<span class="glyphicon glyphicon-ok" aria-hidden="true" title="Selecciona tots els projectes oberts.">  Seleccionar Oberts</span>',
-                action: function () {seleccionar_oberts();}
-            },{
-                text: '<span class="glyphicon glyphicon-remove" aria-hidden="true" title="Selecciona tots els projectes tancats.">  Seleccionar Tancats</span>',
-                action: function () {seleccionar_tancats();}
-            },{
-                text: '<span class="glyphicon glyphicon-ban-circle" aria-hidden="true" title="Desselecciona tots els projectes.">  Cap</span>',
-                action: function () {cap();}
-            }],
+            //dom: 'Bfrtip',
+//            buttons:[{
+//                text: '<span class="glyphicon glyphicon-check" aria-hidden="true" title="Mostrar només els projectes seleccionats.">  Veure Seleccionats</span>',
+//                action: function(){nomes_seleccionats();}
+//            },{
+//                text: '<span class="glyphicon glyphicon-plus-sign" aria-hidden="true" title="Mostrar tots els projectes oberts.">  Veure Oberts</span>',
+//                action: function () {nomes_oberts();}
+//            },{
+//                text: '<span class="glyphicon glyphicon-minus-sign" aria-hidden="true" title="Mostrar tots els projectes tancats.">  Veure Tancats</span>',
+//                action: function () {nomes_tancats();}
+//            },{
+//                text: '<p class="insert_linebreak"></p>',
+//            },{
+//                text: '<span class="glyphicon glyphicon-asterisk" aria-hidden="true" title="Mostrar tots els projectes.">  Veure Tots</span>',
+//                action: function () {mostrar_tots();}
+//            },{
+//                text: '<span class="glyphicon glyphicon-ok" aria-hidden="true" title="Selecciona tots els projectes oberts.">  Seleccionar Oberts</span>',
+//                action: function () {seleccionar_oberts();}
+//            },{
+//                text: '<span class="glyphicon glyphicon-remove" aria-hidden="true" title="Selecciona tots els projectes tancats.">  Seleccionar Tancats</span>',
+//                action: function () {seleccionar_tancats();}
+//            },{
+//                text: '<p class="insert_linebreak"></p>',
+//            },{
+//                text: '<span class="glyphicon glyphicon-ban-circle" aria-hidden="true" title="Desselecciona tots els projectes.">  Treure Seleccions </span>',
+//                action: function () {cap();}
+//            }],
             fnInitComplete:function(){
                 var tabla=$(this).DataTable();
                 tabla.rows().every(function(rowidx,tableloop,rowloop){
@@ -115,14 +120,20 @@ $(document).ready(function(){
                     $(tabla.cell(rowidx,0).node()).find(":checkbox").val(resp+"-"+prj);
                     //
 
+
+                    ///añadir saltos de lineas y elemento html donde los diferentes botones
+//                    $(".insert_linebreak").each(function(){
+//                        $(this).closest("a").replaceWith("</br>");
+//                    });
                 });
-                nomes_oberts();
+                //nomes_oberts();
                 cargar_cookies();
+                actualizar_organismes_select();
+                $("#div_filtres").removeClass("disabledbutton");
             },
             language: opciones_idioma
         });
    }
-
    if($("#table_llista_responsables_cont")){//RESPONSABLES
 //        alert(llista_responsables);
        table_responsables = $("#table_llista_responsables_cont").DataTable({
@@ -2057,7 +2068,41 @@ function cap() {
         $(this).find(":checkbox").prop("checked",false);
     });
 }
+////////FILTRE DE ORGANISMES FINANÇADORS
+function filtrar_per_financador() {
+    id_org=parseInt($("#filtre_financadors").val());
+     var orgarray ="";
+    //$("#table_llista_projectes_cont tbody>tr").each(function() { //loop over each row
+    table_projectes.rows().every(function(rowindex){
+        //alert($(this).find("td:eq(4)").text());
+        //console.log(JSON.parse("["+$(this).find("td:eq(4)").text()+"]"));
+        //console.log(table_projectes.cell(rowindex,5).data());
+        orgarray = JSON.parse("["+table_projectes.cell(rowindex,5).data()+"]");
+//        console.log(id_org);
+//        console.log(orgarray);
+//        console.log($.inArray(id_org,orgarray));
+//        console.log("-------")
+        if($.inArray(id_org,orgarray)!=-1) { //SI devuelve -1 es que no ha encontrado el id en el array
+            $(table_projectes.row(rowindex).node()).show();
+        }else{
+            $(table_projectes.row(rowindex).node()).hide();
+        }
+    });
 
+}
+
+$(document).on("change", "#filtre_financadors",function(){
+    if($("#filtre_financadors").val()=="default"){
+        table_projectes.rows().every(function(rowindex){
+            $(table_projectes.row(rowindex).node()).show();
+        });
+    }else{
+        filtrar_per_financador();
+    }
+});
+
+
+/////////////////////////////
 function marcar_boton(){
 
 }

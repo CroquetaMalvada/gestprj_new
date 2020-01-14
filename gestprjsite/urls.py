@@ -81,6 +81,7 @@ urlpatterns = patterns('',
     url('^llista_ConceptesPres/', views.ListConceptesPress),# para los select con el nombre de las partidas
     url('^llista_justificacions_cabecera/(?P<fecha_min>.+)/(?P<fecha_max>.+)/$', views.ListJustificacionsCabecera),# justificaciones en edicio en la cabecera
     url('^llista_projectes_responsable_consultar/', views.ListProjectesResponsableCabecera),# para la cabecera
+    url('^llista_pci_consultar/(?P<id_organisme>.+)/$', views.ListPciCabecera),# para la cabecera
     url('^llista_usuaris_xarxa_sense_assignar/', views.ListUsuarisXarxaSenseAssignar),# para la cabecera
     url('^afegir_usuari_xarxa_sense_assignar/', views.AfegirUsuarisXarxaSenseAssignar),# para la cabecera
 
