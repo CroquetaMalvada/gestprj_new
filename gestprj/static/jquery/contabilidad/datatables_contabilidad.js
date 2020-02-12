@@ -126,10 +126,13 @@ $(document).ready(function(){
 //                        $(this).closest("a").replaceWith("</br>");
 //                    });
                 });
-                //nomes_oberts();
+                nomes_oberts();
                 cargar_cookies();
                 actualizar_organismes_select();
                 $("#div_filtres").removeClass("disabledbutton");
+                $("#div_filtres_resp").removeClass("disabledbutton");
+                $("#div_opcions_comptabilitat").removeClass("disabledbutton");
+                $("#loading1").hide();
             },
             language: opciones_idioma
         });
@@ -798,6 +801,7 @@ $(document).ready(function(){
                     dataSrc: function(json){
                         if(!jQuery.isEmptyObject(json)){
                             var inf=$(".ui-accordion-content-active").find(".info_cuentas_no_asignadas");
+                            $("#loading2").show();
                             if(json["cuentas_no_asignadas"].length>0){
                                 $(inf).html("<span class='glyphicon glyphicon-warning-sign' aria-hidden='true' style='color:red'></span> Falten per assignar els següents comptes:<br>")
                                 $.each(json["cuentas_no_asignadas"][0]["comptes"],function(){
@@ -805,8 +809,12 @@ $(document).ready(function(){
                                 });
                                 $(inf).append("<br><br><div class='col-md-12'>Hi ha un compromés de: <font color='red'>"+parseFloat(json["cuentas_no_asignadas"][0]["compromes"]).toFixed(2)+"€</font> en aquests comptes.<b>S'afegirà als resultats i es restarà de 'Saldo'</b></div>")
                                 sum_compromes_no_asignat=parseFloat(json["cuentas_no_asignadas"][0]["compromes"]);
+                                activar_desactivar_pestanyes_prj(true);
+                                $("#loading2").hide();
                             }
                             //alert("carga json con "+sum_compromes_no_asignat);
+
+
                             return json["partidas"];
                         }else{
                             return "";
@@ -1909,8 +1917,14 @@ $(document).ready(function(){
 function cargar_ajax_prj(elemento){
 
     // ESTAT PRESSUPOSTARI ////////////
-    if($(elemento).find(".table_estat_pressupostari")){ /// este es el unico que necesita un each ya que puede tener varios periodos
-        $(elemento).find(".table_estat_pressupostari").each(function(){
+    if($(elemento).find(".table_estat_pressupostari").length>0){ // si existen tablas con esa clase:
+        console.log(elemento.find(".table_estat_pressupostari").length);
+        ///deshabilitar pestañas y mostrar un loading
+        activar_desactivar_pestanyes_prj(false);
+        $(".ui-accordion-content-active").find(".info_cuentas_no_asignadas").html("");
+        $("#loading2").show();
+        //
+        $(elemento).find(".table_estat_pressupostari").each(function(){/// este es el unico que necesita un each ya que puede tener varios periodos
             var tabla=$(this).DataTable();
             var mensaje=$(this).find(".dataTables_empty");
             mensaje.html("Carregant...");
@@ -1920,7 +1934,7 @@ function cargar_ajax_prj(elemento){
     }
 
     // RESUM ESTAT PROJECTES PER RESPONSABLE
-    if($(elemento).find(".table_resum_estat_prj_resp")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+    if($(elemento).find(".table_resum_estat_prj_resp").length>0){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
         $(elemento).find(".table_resum_estat_prj_resp").each(function(){
             var tabla=$(this).DataTable();
             var mensaje=$(this).find(".dataTables_empty");
@@ -1930,8 +1944,8 @@ function cargar_ajax_prj(elemento){
         });
     }
 
-    // ESTAT PRESSUPOSTARI
-    if($(elemento).find(".table_fitxa_major_prj")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+    // ?????
+    if($(elemento).find(".table_fitxa_major_prj").length>0){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
         $(elemento).find(".table_fitxa_major_prj").each(function(){
             var tabla=$(this).DataTable();
             var mensaje=$(this).find(".dataTables_empty");
@@ -1942,7 +1956,7 @@ function cargar_ajax_prj(elemento){
     }
 
     // RESUM PER PARTIDES(RESUM FITXA MAJOR PROJECTES PER COMPTES)
-    if($(elemento).find(".table_resum_fitxa_major_prj")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+    if($(elemento).find(".table_resum_fitxa_major_prj").length>0){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
         $(elemento).find(".table_resum_fitxa_major_prj").each(function(){
             var tabla=$(this).DataTable();
             var mensaje=$(this).find(".dataTables_empty");
@@ -1953,7 +1967,7 @@ function cargar_ajax_prj(elemento){
     }
 
     // RESUM ESTAT CANON PER RESPONSABLES
-    if($(elemento).find(".table_resum_estat_canon")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+    if($(elemento).find(".table_resum_estat_canon").length>0){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
         $(elemento).find(".table_resum_estat_canon").each(function(){
             var tabla=$(this).DataTable();
             var mensaje=$(this).find(".dataTables_empty");
@@ -1964,7 +1978,7 @@ function cargar_ajax_prj(elemento){
     }
 
     // LLISTA DE DESPESES
-    if($(elemento).find(".table_llista_despeses")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+    if($(elemento).find(".table_llista_despeses").length>0){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
         $(elemento).find(".table_llista_despeses").each(function(){
             var tabla=$(this).DataTable();
             var mensaje=$(this).find(".dataTables_empty");
@@ -1975,7 +1989,7 @@ function cargar_ajax_prj(elemento){
     }
 
     // LLISTA DE INGRESSOS
-    if($(elemento).find(".table_llista_ingressos")){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
+    if($(elemento).find(".table_llista_ingressos").length>0){ /// no hace falta quitar el each ya que nos sirve para el this o por si alguna vez se añaden mas tablas como esta(poco probable)
         $(elemento).find(".table_llista_ingressos").each(function(){
             var tabla=$(this).DataTable();
             var mensaje=$(this).find(".dataTables_empty");
@@ -2126,4 +2140,17 @@ function compromes_llista_comptes(){
                 }
 
     });
+}
+
+function activar_desactivar_pestanyes_prj(activar){/// permite que al cargar todos los datos se habiliten las pestañas
+    if(activar){
+        $(".ui-accordion-header").each(function(){
+               $(this).removeClass("ui-state-disabled");
+        });
+    }else{
+        $(".ui-accordion-header").each(function(){
+               $(this).addClass("ui-state-disabled");
+        });
+    }
+
 }

@@ -1,5 +1,5 @@
 {% extends "gestprj/base.html" %}
-
+{% load staticfiles %}
 {% block contenido %}
 <!--<h1 align="center">Estat Pressupostari</h1>-->
     <!--*Importando datos antiguos(<2009),es normal que ciertos periodos aparezcan vacíos*-->
@@ -106,7 +106,10 @@
                                     <!--{% endfor %}-->
                                 </tbody>
                         </table>
-                        <div class="info_cuentas_no_asignadas"></div>
+                        <img id="loading2" src="{% static 'imagenes/loading2.gif' %}" hidden/>
+                        <div class="info_cuentas_no_asignadas">
+
+                        </div>
                 </div>
             {% endfor %}
         </div>

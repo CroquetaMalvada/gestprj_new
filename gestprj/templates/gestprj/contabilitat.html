@@ -1,5 +1,5 @@
 {% extends "gestprj/base.html" %}
-
+{% load staticfiles %}
 {% block contenido %}
 <!--<script>-->
     <!--var llista_responsables="{{ llista_responsables|safe }}";-->
@@ -23,7 +23,7 @@
     <form id="formulario_projectes_cont" action="/cont_dades/" method="post"><!-- Mantener fuera de la tabla!!-->
         {% for group in user.groups.all %}
             {% if group.name == 'Admins gestprj' or group.name == 'Mods gestprj' %}
-                <div class="col-md-3 col-md-offset-0" style="background:white">
+                <div class="col-md-3 col-md-offset-0 disabledbutton" style="background:white" id="div_filtres_resp">
                     <table id="table_llista_responsables_cont" class="table table-striped table-bordered datatable"
                            width="100%">
                         <h3>Selecciò per responsable</h3>
@@ -114,9 +114,11 @@
 
 
             </table>
+            <br>
+            <img id="loading1" src="{% static 'imagenes/loading.gif' %}"/>
         </div>
 
-        <div class="col-md-3 col-md-offset-0 text-left" style="background:white">
+        <div id="div_opcions_comptabilitat" class="col-md-3 col-md-offset-0 text-left disabledbutton" style="background:white">
             <br>
             <h4>Fitxes</h4>
             <input name="opcio_cont" type="radio" value="1" checked/>Fitxa Dades Projecte<br>
