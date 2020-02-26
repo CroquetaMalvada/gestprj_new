@@ -7,6 +7,8 @@ var usuaris_creaf_cabecera;
 var usuaris_externs_cabecera;
 var responsables_cabecera;
 var pci_cabecera;
+var grups_pci_cabecera;
+var organismes_grup_pci;
 var permisos_usuaris_consultar;
 
 
@@ -581,7 +583,235 @@ $(document).ready(function(){
             });
 
         ///////////////////////////////////////////////////////
+        /////////////////////////////////////
+        /////////////GRUPS PCI
+        grups_pci_cabecera = $("#table_grups_pci_cabecera").children("table").DataTable({
+                ajax: {
+                    url: '/json_vacio_results/',
+                    dataSrc: 'results'
+                },
+                columns:[
+                    {'data': 'url'},
+                    {'data': 'id_grup'},
+                    {'data': 'nom_grup'},
+                    {"render": function(){return '<a class="btn btn-info editar_grup_pci_cabecera" title="Editar" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>';}},
+                    {"render": function(){return '<a class="btn btn-danger eliminar_grup_pci_cabecera" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
+                ],
+                columnDefs:[
+                    {"visible":false,"targets":[0,1]}
+                ],
 
+//                dom: 'Bfrtip',
+//                buttons:[{
+//                    extend: 'print',
+//                    header: true,
+//                    footer: true,
+//                    title: function(){return '<h4>'+$("#table_pci_cabecera").attr("title")+'    ('+$("#id_organisme_pci option:selected").text()+')</h4>'},
+//                    text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+//                    autoPrint: true
+//                },{
+//                    extend: 'excel',
+//                    filename: function(){return $("#table_pci_cabecera").attr("title")},
+//                    text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+//                    exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+//                        format: {
+//                            body: function(data, row, column, node) {
+//                                if(column==3 || column==4 || column==5 || column==6  )
+//                                    data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+//                                return data;
+//                            }
+//                        }
+//                    },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+//                       var sheet = xlsx.xl.worksheets['sheet1.xml'];
+//                       $('row c[r^="D"]', sheet).each(function () {
+//                              $(this).attr('s', 64);
+//                       });
+//                       $('row c[r^="E"]', sheet).each(function () {
+//                              $(this).attr('s', 64);
+//                       });
+//                       $('row c[r^="F"]', sheet).each(function () {
+//                              $(this).attr('s', 64);
+//                       });
+//                       $('row c[r^="G"]', sheet).each(function () {
+//                              $(this).attr('s', 64);
+//                       });
+//                    }
+//                },{
+//                    extend: 'pdf',
+//                    title: function(){return $("#table_pci_cabecera").attr("title")},
+//                    text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+//                },{
+//                    extend: 'csv',
+//                    filename: function(){return $("#table_pci_cabecera").attr("title")},
+//                    text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+//                }],
+                order:          [[ 0, "asc" ]],
+                scrollY:        '80vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
+            });
+
+        organismes_grup_pci = $("#table_editar_organisme_grup_pci").children("table").DataTable({
+                ajax: {
+                    url: '/json_vacio_results/',
+                    dataSrc: 'results'
+                },
+                columns:[
+                    {'data': 'url'},
+                    {'data': 'id_grup'},
+                    {'data': 'id_organisme'},
+                    {'data': 'nom_organisme'},
+                    {"render": function(){return '<a class="btn btn-danger eliminar_organisme_grup_pci_cabecera" title="Eliminar" href="#"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>';}}
+                ],
+                columnDefs:[
+                    {"visible":false,"targets":[0,1,2]}
+                ],
+                order:          [[ 0, "asc" ]],
+                scrollY:        '80vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
+            });
+
+
+        ///AL CREAR UN GRUP PCI DESDE CERO
+        $("#editar_grups_pci").click(function(){
+            $("#formulario_editar_grup_pci").trigger("reset");
+            $("#formulario_editar_grup_pci").attr("action","/gestor_GrupsPci/");
+            $("#formulario_editar_grup_pci").attr("method","POST");
+            mostrar_dialog_cabecera("table_editar_grup_pci_cabecera");
+            $("#button_cancelar_formulario_editar_grup_pci").show();
+            $("#button_tornar_formulario_editar_grup_pci").hide();
+            $("#table_editar_organisme_grup_pci").hide();
+        });
+
+       /// AJAX CREAR GRUP PCI
+        $("#formulario_editar_grup_pci").submit(function(e){
+            var form = $(this);
+            if(validar_form(form)){
+                $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+        //                    headers: { 'X-HTTP-Method-Override':  }, //no todos los navegadores aceptan DELETE o PUT,con esto se soluciona
+                            data: form.serialize(),
+                            success: function(result) {
+                                //mostrar_dialog_cabecera("table_grups_pci_cabecera");
+                                grups_pci_cabecera.ajax.reload();
+                                actualizar_grups_pci_select();
+                                $("#table_editar_organisme_grup_pci").show();
+                                $("#id_grup_pci_afegir").val(result["id_grup"]);
+
+                                $("#button_cancelar_formulario_editar_grup_pci").hide();
+                                $("#button_tornar_formulario_editar_grup_pci").show();
+                            }
+
+                });
+            }
+            e.preventDefault(); //para no ejecutar el actual submit del form
+        });
+
+        ///// EDITAR GRUP PCI
+        $(document).on( 'click', '.editar_grup_pci_cabecera', function (){
+            var form = $("#formulario_editar_grup_pci");
+            //alert(grups_pci_cabecera.row(".selected").data()["url"]);
+            $("#formulario_editar_grup_pci").attr("action",grups_pci_cabecera.row(".selected").data()["url"]);
+            $("#formulario_editar_grup_pci").attr("method","PUT");
+            $.get(grups_pci_cabecera.row(".selected").data()["url"],function( data ){
+                form.children("[name='nom_grup']").val(data["nom_grup"]);
+                form.children("[name='descripcio']").val(data["descripcio"]);
+                $("#id_grup_pci_afegir").val(data["id_grup"]);
+                ////////
+                organismes_grup_pci.clear();
+                organismes_grup_pci.draw();
+                organismes_grup_pci.ajax.url("/llista_organismes_grup_pci/"+$("#id_grup_pci_afegir").val());
+                organismes_grup_pci.ajax.reload();
+            }).done(function( data ){});
+
+            //actualizar_organismes_select();
+            $("#button_cancelar_formulario_editar_grup_pci").hide();
+            $("#button_tornar_formulario_editar_grup_pci").show();
+            mostrar_dialog_cabecera("table_editar_grup_pci_cabecera");
+            actualizar_grups_pci_select();
+            $("#table_editar_organisme_grup_pci").show();
+
+        });
+        ///////////// ELIMINAR UN GRUP PCI
+        $(document).on( 'click', '.eliminar_grup_pci_cabecera', function (){
+             $.confirm({
+                title: 'Confirmació',
+                content: "Segur que vols eliminar aquest element?",
+                confirmButton: 'Si',
+                cancelButton: 'No',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                closeIcon: false,
+                confirm: function(){
+                    $.ajax({
+                        type: "DELETE",
+                        url: grups_pci_cabecera.row(".selected").data()["url"],
+                        success: function(result) {
+                             grups_pci_cabecera.$('tr.selected').hide("highlight",{color:"green"},function(){
+                                grups_pci_cabecera.ajax.reload();
+                                actualizar_grups_pci_select();
+                             });
+                        }
+                    });
+                },
+                cancel: function(){
+                }
+            });
+
+        });
+        ////////////////////////////ASIGNAR ORGANISMO AL GRUPO PCI
+        $("#afegir_organisme_a_grup_pci").click(function(){
+            $.ajax({
+                    type: "POST",
+                    data: {"csrfmiddlewaretoken":$("#token_grup_pci_afegir").children("input").val(),"id_grup":$("#id_grup_pci_afegir").val(),"id_organisme":$("#select_organisme_pci").val()},
+                    url: "/afegir_organisme_grup_pci/",
+                    success: function(result) {
+                        organismes_grup_pci.clear();
+                        organismes_grup_pci.draw();
+                        organismes_grup_pci.ajax.url("/llista_organismes_grup_pci/"+$("#id_grup_pci_afegir").val());
+                        organismes_grup_pci.ajax.reload();
+                    }
+                });
+        });
+
+        ///////////////////////////ELIMINAR UN ORGANISMO DEL GRUP PCI
+        $(document).on( 'click', '.eliminar_organisme_grup_pci_cabecera', function (){
+             $.confirm({
+                title: 'Confirmació',
+                content: "Segur que vols eliminar aquest element?",
+                confirmButton: 'Si',
+                cancelButton: 'No',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                closeIcon: false,
+                confirm: function(){
+                    $.ajax({
+                        type: "DELETE",
+                        url: organismes_grup_pci.row(".selected").data()["url"],
+                        success: function(result) {
+                             organismes_grup_pci.$('tr.selected').hide("highlight",{color:"green"},function(){
+                                organismes_grup_pci.ajax.reload();
+                             });
+                        }
+                    });
+                },
+                cancel: function(){
+                }
+            });
+
+        });
+
+
+
+        ///////////////////////////////////////////////////////
 
         ////// PERMISOS USUARIS PROJECTES CONSULTAR
         $(document).on( 'click', '.editar_permis_usuari_consultar', function (){
@@ -625,7 +855,7 @@ $(document).ready(function(){
         });
 
         ///CREAR UNO
-            $("#editar_permisos_usuaris_consultar_crear_cabecera").click(function(){
+        $("#editar_permisos_usuaris_consultar_crear_cabecera").click(function(){
             $("#formulario_permisos_usuaris_consultar_cabecera").trigger("reset");
             $("#formulario_permisos_usuaris_consultar_cabecera").attr("action","/gestor_PermisosUsuarisConsultar/");
             $("#formulario_permisos_usuaris_consultar_cabecera").attr("method","POST");
@@ -778,16 +1008,26 @@ function dialog_projectes_per_responsable_cabecera(){
 
 ///// DIALOG CABECERA "CONSULTES > PCI" *la declaracion de la tabla mas atras
 function dialog_pci_cabecera(){
-    actualizar_organismes_select();
+    actualizar_grups_pci_select();
     mostrar_dialog_cabecera("table_pci_cabecera");
 }
-function buscar_pci_organisme(){
+function buscar_pci_organisme(){ /// consultes > PCI
     //alert($("#id_organisme_pci").val());
     pci_cabecera.clear();
     pci_cabecera.draw();
-    pci_cabecera.ajax.url("/llista_pci_consultar/"+$("#id_organisme_pci").val());
+    pci_cabecera.ajax.url("/llista_pci_consultar/"+$("#id_grup_pci_select").val());
     pci_cabecera.ajax.reload();
 }
+///// DIALOG CABECERA "EDICIO > GRUPS PCI" *la declaracion de la tabla mas atras
+function dialog_grups_pci_cabecera(){
+    grups_pci_cabecera.clear();
+    grups_pci_cabecera.draw();
+    grups_pci_cabecera.ajax.url("/llista_grups_pci_consultar/");
+    grups_pci_cabecera.ajax.reload();
+    actualizar_organismes_select();
+    mostrar_dialog_cabecera("table_grups_pci_cabecera");
+}
+
 
 function dialog_organismes_cabecera(){
     organismes_cabecera.clear();

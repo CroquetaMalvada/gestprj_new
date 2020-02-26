@@ -149,7 +149,7 @@ def AjaxListProjectesCont(request):
             acronim = projecte['acronim']
             id_resp = str(projecte['id_resp__id_resp'])
             codi_resp = str(projecte['id_resp__codi_resp'])
-            entitats_financadores=""
+            grups_pci=""
 
             if len(codi_prj) < 3:
                 if len(codi_prj) < 2:
@@ -164,14 +164,21 @@ def AjaxListProjectesCont(request):
             else:
                 codi = codi_resp + codi
 
-            #Organismos financiadores del proyecto
+            #Grupos PCI del proyecto que contienen Organismos financiadores
+            # for fin in Financadors.objects.filter(id_projecte=str(projecte['id_projecte'])).values("id_organisme"):
+            #     if entitats_financadores=="":# para el primer elemento
+            #         entitats_financadores=str(fin["id_organisme"])
+            #     else:
+            #         entitats_financadores = entitats_financadores + "," + str(fin["id_organisme"])
+            financadors = Financadors.objects.filter(id_projecte=str(projecte['id_projecte'])).values("id_organisme")
+            grups_fin = Organismes_GrupsPci.objects.filter(id_organisme__in=financadors).values("id_grup").distinct()
 
-            for fin in Financadors.objects.filter(id_projecte=str(projecte['id_projecte'])).values("id_organisme"):
-                if entitats_financadores=="":# para el primer elemento
-                    entitats_financadores=str(fin["id_organisme"])
+            for grup in grups_fin:
+                if grups_pci=="":# para el primer elemento
+                    grups_pci=str(grup["id_grup"])
                 else:
-                    entitats_financadores = entitats_financadores + "," + str(fin["id_organisme"])
-            resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp, 'Id_orgs_fin':entitats_financadores})
+                    grups_pci = grups_pci + "," + str(grup["id_grup"])
+            resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp, 'Id_orgs_fin':grups_pci})
         resultado = json.dumps(resultado)
         return resultado
 
@@ -921,11 +928,15 @@ def ListPciCabecera(request): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINAN
     return HttpResponse(resultado, content_type='application/json;')
 
 @login_required(login_url='/menu/')
-def AjaxListPciCabecera(request,id_organisme): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA
+def AjaxListPciCabecera(request,id_grup): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA
 
     #pillamos los proyectos abiertos(se ve que en el gestor antiguo es lo que hace)
     #id_organisme=request.POST["id_organisme"]
-    projectes = Financadors.objects.filter(id_organisme=id_organisme).values("id_projecte","id_projecte__id_resp__codi_resp","id_projecte__codi_prj","id_projecte__acronim") #los proyectos totales
+    organismes_grup = Organismes_GrupsPci.objects.filter(id_grup=id_grup).values("id_organisme").distinct()
+    #financadors = Financadors.objects.filter(id_projecte=str(projecte['id_projecte'])).values("id_organisme")
+
+
+    projectes = Financadors.objects.filter(id_organisme__in=organismes_grup).values("id_projecte","id_projecte__id_resp__codi_resp","id_projecte__codi_prj","id_projecte__acronim") #los proyectos totales
     resultado=[]
     cursor = connections['contabilitat'].cursor()
 
@@ -1890,4 +1901,13 @@ def AjaxLineasPedidoDetalles(request, num_apunte): # OJO en la captura que me ha
         "obs":obs
     }
 
+    return resultado
+
+def AjaxListGrupsPciSelect():
+    grups = GrupsPci.objects.all().order_by('nom_grup')
+    resultado=[]
+    for g in grups:
+        resultado.append({'id_grup':str(g.id_grup),'nom_grup': g.nom_grup})
+
+    resultado = json.dumps(resultado)
     return resultado

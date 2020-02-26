@@ -62,39 +62,43 @@
                     <div  class="col-md-6 col-md-offset-0" align="left">
                         <h4><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> | Opcions de visualització:</h4>
                         <div class="row">
-                            <a onclick="nomes_oberts()" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true" title="Mostrar tots els projectes oberts.">  Projectes Oberts</span></a>
+                            <a onclick="nomes_oberts()" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true" title="Mostrar tots els projectes oberts."> Mostrar Projectes Oberts</span></a>
                         </div>
                         </br>
                         <div class="row">
-                            <a onclick="nomes_tancats()" class="btn btn-danger"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true" title="Mostrar tots els projectes tancats.">  Projectes Tancats</span></a>
+                            <a onclick="nomes_tancats()" class="btn btn-danger"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true" title="Mostrar tots els projectes tancats."> Mostrar Projectes Tancats</span></a>
                         </div>
                         </br>
                         <div class="row">
-                            <a onclick="nomes_seleccionats()" class="btn btn-info"><span class="glyphicon glyphicon-check" aria-hidden="true" title="Mostrar només els projectes seleccionats.">  Projectes Seleccionats</span></a>
+                            <a onclick="nomes_seleccionats()" class="btn btn-info"><span class="glyphicon glyphicon-check" aria-hidden="true" title="Mostrar només els projectes seleccionats."> Mostrar Projectes Seleccionats</span></a>
                         </div>
                         </br>
                         <div class="row">
-                            <a onclick="mostrar_tots()" class="btn btn-warning"><span class="glyphicon glyphicon-asterisk" aria-hidden="true" title="Mostrar tots els projectes.">  Tots els Projectes</span></a>
+                            <a onclick="mostrar_tots()" class="btn btn-warning"><span class="glyphicon glyphicon-asterisk" aria-hidden="true" title="Mostrar tots els projectes."> Mostrar Tots els Projectes</span></a>
                         </div>
                         </br>
                     </div>
                     <div class="col-md-6 col-md-offset-0" align="right">
                         <h4><span class="glyphicon glyphicon-hand-up" aria-hidden="true"></span> | Opcions de selecció:</h4>
                         <div class="row">
-                            <a onclick="seleccionar_oberts()" class="btn btn-success"><span class="glyphicon glyphicon-ok" aria-hidden="true" title="Selecciona tots els projectes oberts.">  Projectes Oberts</span></a>
+                            <a onclick="seleccionar_oberts()" class="btn btn-success"><span class="glyphicon glyphicon-ok" aria-hidden="true" title="Selecciona tots els projectes oberts."> Seleccionar Projectes Oberts</span></a>
                         </div>
                         </br>
                         <div class="row">
-                            <a onclick="seleccionar_tancats()" class="btn btn-danger"><span class="glyphicon glyphicon-remove" aria-hidden="true" title="Selecciona tots els projectes tancats.">  Projectes Tancats</span></a>
+                            <a onclick="seleccionar_tancats()" class="btn btn-danger"><span class="glyphicon glyphicon-remove" aria-hidden="true" title="Selecciona tots els projectes tancats."> Seleccionar Projectes Tancats</span></a>
                         </div>
                         </br>
                         <div class="row">
-                            <a onclick="cap()" class="btn btn-info"><span class="glyphicon glyphicon-ban-circle" aria-hidden="true" title="Desselecciona tots els projectes.">  Desseleccionar Projectes </span></a>
+                            <a onclick="cap()" class="btn btn-warning"><span class="glyphicon glyphicon-ban-circle" aria-hidden="true" title="Desselecciona tots els projectes.">  Desseleccionar Projectes </span></a>
                         </div>
                         </br>
-                        <div class="row">
-                            <select id="filtre_financadors" class='select_id_organisme'  style="max-width:300px;"></select>
-                        </div>
+                        {% for group in user.groups.all %}
+                            {% if group.name == 'Admins gestprj' or group.name == 'Mods gestprj' %}
+                                <div class="row">
+                                    <select id="filtre_grup_pci" class='select_id_pci'  style="max-width:300px;"></select>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
                 <thead>

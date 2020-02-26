@@ -50,6 +50,9 @@ router.register(r'gestor_CompromesPersonal',views.GestComprometidoPersonal)
 
 router.register(r'gestor_PermisosUsuarisConsultar',views.GestPrjUsuaris)
 
+router.register(r'gestor_GrupsPci',views.GestGrupsPci)
+router.register(r'gestor_OrganismeGrupPci',views.GestOrganismeGrupPci)
+
 router.register(r'projectes_rest',views.ProjectesViewSet)
 
 
@@ -71,6 +74,7 @@ urlpatterns = patterns('',
     url('^llista_usuaris_xarxa_select/', views.ListUsuarisXarxaSelect),# para el select con los usuarios de red
     url('^llista_usuaris_externs_select/', views.ListUsuarisExternsSelect),# para el select con los usuarios en coordinat per altres
     url('^llista_responsables_select/', views.ListResponsablesSelect),# para el select con los usuarios de red
+    url('^llista_grups_pci_select/', views.ListGrupsPciSelect),# para los select con el nombre de los organismos
 
     url('^llista_Organismes/', views.ListTOrganismes.as_view()),# para la datatable de organismes cabecera
     url('^llista_Usuaris_creaf/', views.ListUsuarisCreaf.as_view()),# para la datatable de personal creaf cabecera
@@ -81,7 +85,10 @@ urlpatterns = patterns('',
     url('^llista_ConceptesPres/', views.ListConceptesPress),# para los select con el nombre de las partidas
     url('^llista_justificacions_cabecera/(?P<fecha_min>.+)/(?P<fecha_max>.+)/$', views.ListJustificacionsCabecera),# justificaciones en edicio en la cabecera
     url('^llista_projectes_responsable_consultar/', views.ListProjectesResponsableCabecera),# para la cabecera
-    url('^llista_pci_consultar/(?P<id_organisme>.+)/$', views.ListPciCabecera),# para la cabecera
+    url('^llista_pci_consultar/(?P<id_grup>.+)/$', views.ListPciCabecera),# para la cabecera
+    url('^llista_grups_pci_consultar/', views.ListGrupsPci.as_view()),# para la datatable de grups pci cabecera
+    url('^llista_organismes_grup_pci/(?P<id_grup>.+)/$', views.ListOrganismesGrupPci.as_view()),# para la cabecera
+    url('^afegir_organisme_grup_pci/', views.AfegirOrganismeGrupPci),# para la cabecera
     url('^llista_usuaris_xarxa_sense_assignar/', views.ListUsuarisXarxaSenseAssignar),# para la cabecera
     url('^afegir_usuari_xarxa_sense_assignar/', views.AfegirUsuarisXarxaSenseAssignar),# para la cabecera
 
@@ -133,7 +140,7 @@ urlpatterns = patterns('',
     url(r'^thanks/$', TemplateView.as_view(template_name="gestprj/thanks.html"), name='thanks'),
     url(r'^menu/$', TemplateView.as_view(template_name="gestprj/menu.html"), name='menu'),
 
-    url(r'^contabilitat/$', views.list_projectes_cont, name='contabilitat'),
+    url(r'^comptabilitat/$', views.list_projectes_cont, name='comptabilitat'),
     url(r'^json_vacio/$', views.json_vacio, name='cont_json_vacio'),
     url(r'^json_vacio_results/$', views.json_vacio_results, name='json vacio pero para datasrc results'),
     url(r'^cont_dades/$', views.cont_dades, name='cont_dades'),

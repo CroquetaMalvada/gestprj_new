@@ -129,6 +129,7 @@ $(document).ready(function(){
                 nomes_oberts();
                 cargar_cookies();
                 actualizar_organismes_select();
+                actualizar_grups_pci_select();
                 $("#div_filtres").removeClass("disabledbutton");
                 $("#div_filtres_resp").removeClass("disabledbutton");
                 $("#div_opcions_comptabilitat").removeClass("disabledbutton");
@@ -2084,7 +2085,7 @@ function cap() {
 }
 ////////FILTRE DE ORGANISMES FINANÇADORS
 function filtrar_per_financador() {
-    id_org=parseInt($("#filtre_financadors").val());
+    id_org=parseInt($("#filtre_grup_pci").val());
      var orgarray ="";
     //$("#table_llista_projectes_cont tbody>tr").each(function() { //loop over each row
     table_projectes.rows().every(function(rowindex){
@@ -2105,8 +2106,8 @@ function filtrar_per_financador() {
 
 }
 
-$(document).on("change", "#filtre_financadors",function(){
-    if($("#filtre_financadors").val()=="default"){
+$(document).on("change", "#filtre_grup_pci",function(){
+    if($("#filtre_grup_pci").val()=="default"){
         table_projectes.rows().every(function(rowindex){
             $(table_projectes.row(rowindex).node()).show();
         });

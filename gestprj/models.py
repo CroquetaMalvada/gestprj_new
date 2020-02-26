@@ -509,6 +509,31 @@ class CompromesPersonal(models.Model):
         managed = True # !!!
         db_table = 'COMPROMES_PERSONAL'
 
+########################## AFEGIT 18-02-2020
+
+class GrupsPci(models.Model):
+    id_grup = models.AutoField(db_column='id_grup', primary_key=True)  # Field name made lowercase.
+    nom_grup = models.TextField(db_column='nom_grup', blank=True)  # Field name made lowercase.
+    descripcio = models.TextField(db_column='descripcio', blank=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'GRUPS_PCI'
+
+
+class Organismes_GrupsPci(models.Model):
+    id = models.AutoField(db_column='id', primary_key=True)  # Field name made lowercase.
+
+    #FOREIGN KEYS
+    id_grup = models.ForeignKey(GrupsPci,db_column='id_grup',on_delete=models.CASCADE)
+    id_organisme = models.ForeignKey(TOrganismes, db_column='ID_ORGANISME',on_delete=models.CASCADE)
+
+    class Meta:
+        managed = False
+        db_table = 'ORGANISMES_EN_GRUPS_PCI'
+
+
+
 
 #
 #

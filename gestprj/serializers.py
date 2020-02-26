@@ -232,3 +232,17 @@ class GestComprometidoPersonalSerializer(serializers.ModelSerializer): # OJO el 
     class Meta:
         model = CompromesPersonal
         fields = ('url', 'id_projecte', 'compte', 'descripcio', 'cost', 'data_inici', 'data_fi')
+
+# GRUPS PCI
+class GestGrupsPciSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GrupsPci
+        fields =('url','id_grup','nom_grup','descripcio')
+
+# ORGANISMES EN GRUPS PCI
+class GestOrganismesGrupPciSerializer(serializers.ModelSerializer):
+    nom_organisme = serializers.CharField(source='id_organisme.nom_organisme', read_only=True)
+
+    class Meta:
+        model = Organismes_GrupsPci
+        fields =('url','id_grup','id_organisme','nom_organisme')

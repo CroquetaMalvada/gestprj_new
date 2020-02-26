@@ -179,6 +179,7 @@ $("#compromes").click(function(){
         if($("#formulario_nou_projecte").length){
             actualizar_conceptes_press_select();
             actualizar_organismes_select();
+            actualizar_grups_pci_select();
             actualizar_usuaris_externs_select();
         }
     }
@@ -215,6 +216,7 @@ function actualizar_organismes_select(){
 
         });
 }
+
 
 function actualizar_conceptes_press_select(){
         $.ajax({
@@ -336,6 +338,35 @@ function actualizar_projectes_select(){
                         });
                         $(".select_id_projecte").each(function(){
                             $(this).html(html);
+                        });
+                        //$("#select_id_organisme").html(html);
+
+                    }
+
+        });
+}
+
+function actualizar_grups_pci_select(){
+        $(".select_id_pci").each(function(){
+            $(this).html("<option>CARREGANT...</option>");
+        });
+        $.ajax({
+                    url: '/llista_grups_pci_select/',
+//                    type: form.attr('method'),
+//                    data: form.serialize(),
+                    datatype:'json',
+                    success: function(result) {
+                        var html="";
+                        $(result).each(function(){
+                            html=html+"<option value='"+this.id_grup+"'>"+this.nom_grup+"</option>";
+                        });
+                        $(".select_id_pci").each(function(){
+                            if($(this).attr("id")=="filtre_grup_pci"){//Este es solo para el select de la pagina principal de comptabilitat
+                                $(this).html("<option value='default' selected='selected'>*Opcional*--GRUP PCI--</option>"+html);
+                            }else{
+                                $(this).html(html);
+                            }
+
                         });
                         //$("#select_id_organisme").html(html);
 

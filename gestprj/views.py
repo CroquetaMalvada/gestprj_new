@@ -68,7 +68,7 @@ def index(request):
 
 
 @login_required(login_url='/menu/')
-@user_passes_test(es_admin,login_url='/contabilitat/')
+@user_passes_test(es_admin,login_url='/comptabilitat/')
 def list_projectes(request): # poner ajax para funciones_datatables,pero no es nada urgente
     # llista_projectes = TUsuarisXarxa.objects.all()
     # usuarixarxa = usuari_xarxa_a_user(request)
@@ -780,7 +780,7 @@ def json_vacio_results(request):
 @login_required(login_url='/menu/')
 def list_projectes_cont(request): #simplemente carga la template
     context = { 'titulo': "COMPTABILITAT"} # 'llista_projectes': llista_projectes ,
-    return render(request, 'gestprj/contabilitat.html', context)
+    return render(request, 'gestprj/comptabilitat.html', context)
 
 #AJAX PARA RELLENAR RESPONSABLES
 @login_required(login_url='/menu/')
@@ -1875,7 +1875,63 @@ def AfegirUsuarisXarxaSenseAssignar(request):  # AJAX PARA LOS USUARIOS XARXA QU
 #     resultado=contabilitat_ajax.AjaxDatosFactura(request)
 #     return HttpResponse(resultado, content_type='application/json;')
 
+############################################################ PCI
+
 @login_required(login_url='/menu/')
-def ListPciCabecera(request,id_organisme): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA (PCI CABECERA)
-    resultado=contabilitat_ajax.AjaxListPciCabecera(request,id_organisme)
+def ListPciCabecera(request,id_grup): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA (PCI CABECERA)
+    resultado=contabilitat_ajax.AjaxListPciCabecera(request,id_grup)
     return HttpResponse(resultado, content_type='application/json;')
+
+class ListGrupsPci(generics.ListAPIView): # AJAX PARA LOS GRUPOS PCI
+    serializer_class = GestGrupsPciSerializer
+
+    def get_queryset(self):
+        return GrupsPci.objects.all()
+
+class GestGrupsPci(viewsets.ModelViewSet):  # gestionar grups pci
+    queryset = GrupsPci.objects.all()
+    serializer_class = GestGrupsPciSerializer
+
+############ ORGANISMOS DE DICHO GRUPO PCI
+class ListOrganismesGrupPci(generics.ListAPIView): # AJAX PARA LOS ORGANISMOS DE UN GRUPO PCI
+    serializer_class = GestOrganismesGrupPciSerializer
+
+    def get_queryset(self):
+        _id_grup = self.kwargs['id_grup']
+        return Organismes_GrupsPci.objects.filter(id_grup=_id_grup)
+
+class GestOrganismeGrupPci(viewsets.ModelViewSet):  # gestionar ORGANISMOS GRUPO PCI
+    queryset = Organismes_GrupsPci.objects.all()
+    serializer_class = GestGrupsPci
+
+
+
+@login_required(login_url='/menu/')
+def AfegirOrganismeGrupPci(request): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA (PCI CABECERA)
+    try:
+        id_grup= GrupsPci.objects.get(id_grup=request.POST["id_grup"])
+        id_organisme=TOrganismes.objects.get(id_organisme=request.POST["id_organisme"])
+        # nom_creaf = resquest.POST["nom_creaf"]
+        u = Organismes_GrupsPci.objects.create(id_grup=id_grup,id_organisme=id_organisme)
+        u.save()
+        return HttpResponse('')
+    except:
+        return HttpResponse('Error.', status=401)
+
+# ORGANISMES #################
+def ListGrupsPciSelect(request): # AJAX
+    resultado = contabilitat_ajax.AjaxListGrupsPciSelect()
+    return HttpResponse(resultado, content_type='application/json;')
+
+# @login_required(login_url='/menu/')
+# def ListOrganismesGrupPci(request,id_grup):  # ORGANISMOS DE UN GRUPO PCI
+#     resultado = []
+#     #usuarios_no_asignados = TUsuarisCreaf.objects.exclude(id_usuari__in=TUsuarisXarxa.objects.all().values_list('id_usuari',flat=True))
+#
+#     organismes_grup = Organismes_GrupsPci.objects.all(id_grup=id_grup).values("id_organisme","id_organisme__nom_organisme")
+#     for organisme in organismes_grup:
+#         resultado.append({"id_organisme":organisme.id_organisme,"nom_organisme": organisme.id_organisme__nom_organisme})
+#
+#     resultado = json.dumps(resultado)
+#     return HttpResponse(resultado, content_type='application/json;')
+#
