@@ -85,7 +85,7 @@ urlpatterns = patterns('',
     url('^llista_ConceptesPres/', views.ListConceptesPress),# para los select con el nombre de las partidas
     url('^llista_justificacions_cabecera/(?P<fecha_min>.+)/(?P<fecha_max>.+)/$', views.ListJustificacionsCabecera),# justificaciones en edicio en la cabecera
     url('^llista_projectes_responsable_consultar/', views.ListProjectesResponsableCabecera),# para la cabecera
-    url('^llista_pci_consultar/(?P<id_grup>.+)/$', views.ListPciCabecera),# para la cabecera
+    url('^llista_pci_consultar/(?P<id_grup>.+)/(?P<fecha_min_pci>.+)/(?P<fecha_max_pci>.+)/$', views.ListPciCabecera),# para la cabecera
     url('^llista_grups_pci_consultar/', views.ListGrupsPci.as_view()),# para la datatable de grups pci cabecera
     url('^llista_organismes_grup_pci/(?P<id_grup>.+)/$', views.ListOrganismesGrupPci.as_view()),# para la cabecera
     url('^afegir_organisme_grup_pci/', views.AfegirOrganismeGrupPci),# para la cabecera

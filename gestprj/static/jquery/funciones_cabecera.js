@@ -13,8 +13,14 @@ var permisos_usuaris_consultar;
 
 
 $(document).ready(function(){
+    $("#data_min_pci").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false, changeMonth: true, changeYear: true, yearRange: "1997:c", defaultDate: new Date(1997, 0, 1)});//minDate: (new Date(1997, 1 - 1 , 1)), maxDate: 0
+    $("#data_max_pci").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false, changeMonth: true, changeYear: true, yearRange: "1997:c", defaultDate: new Date() });
+    //asignarles un valor por defecto
+    $("#data_min_pci").datepicker("setDate", new Date(1997, 0, 1));
+    $("#data_max_pci").datepicker("setDate", new Date());
     ////////// DATATABLES DE LA OPCION "EDICIO" !!!!!!!!
     if(Admin==1){
+
         //////////ORGANISMES
         organismes_cabecera= $("#table_organismes_cabecera").children("table").DataTable({
                 ajax: {
@@ -1015,7 +1021,7 @@ function buscar_pci_organisme(){ /// consultes > PCI
     //alert($("#id_organisme_pci").val());
     pci_cabecera.clear();
     pci_cabecera.draw();
-    pci_cabecera.ajax.url("/llista_pci_consultar/"+$("#id_grup_pci_select").val());
+    pci_cabecera.ajax.url("/llista_pci_consultar/"+$("#id_grup_pci_select").val()+"/"+$("#data_min_pci").val()+"/"+$("#data_max_pci").val());
     pci_cabecera.ajax.reload();
 }
 ///// DIALOG CABECERA "EDICIO > GRUPS PCI" *la declaracion de la tabla mas atras

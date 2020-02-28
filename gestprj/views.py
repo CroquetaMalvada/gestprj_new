@@ -1878,8 +1878,8 @@ def AfegirUsuarisXarxaSenseAssignar(request):  # AJAX PARA LOS USUARIOS XARXA QU
 ############################################################ PCI
 
 @login_required(login_url='/menu/')
-def ListPciCabecera(request,id_grup): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA (PCI CABECERA)
-    resultado=contabilitat_ajax.AjaxListPciCabecera(request,id_grup)
+def ListPciCabecera(request,id_grup,fecha_min_pci,fecha_max_pci): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA (PCI CABECERA)
+    resultado=contabilitat_ajax.AjaxListPciCabecera(request,id_grup,fecha_min_pci,fecha_max_pci)
     return HttpResponse(resultado, content_type='application/json;')
 
 class ListGrupsPci(generics.ListAPIView): # AJAX PARA LOS GRUPOS PCI

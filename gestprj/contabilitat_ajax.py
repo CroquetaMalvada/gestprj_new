@@ -804,132 +804,135 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
     cursor.close()
     return resultado
 
+# @login_required(login_url='/menu/')
+# def ListPciCabecera(request): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA
+#
+#     #pillamos los proyectos abiertos(se ve que en el gestor antiguo es lo que hace)
+#     id_organisme=request.POST["id_organisme"]
+#     projectes = Projectes.objects.filter(centres_participants__id_organisme__in=id_organisme).values("id_projecte","id_resp__codi_resp","codi_prj","acronim") #los proyectos totales
+#     resultado=[]
+#     cursor = connections['contabilitat'].cursor()
+#
+#     for proyecto in projectes:
+#         cod_responsable = proyecto.split("-")[0]
+#         id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
+#         cod_projecte = proyecto.split("-")[1]
+#         projecte = Projectes.objects.get(codi_prj=cod_projecte,
+#                                          id_resp=id_resp)  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
+#         nom_resp = Responsables.objects.get(codi_resp=cod_responsable).id_usuari.nom_usuari
+#         ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
+#         if len(cod_responsable) < 2:
+#             cod_responsable = "0" + str(cod_responsable)
+#         if len(cod_projecte) < 3:
+#             if len(cod_projecte) < 2:
+#                 cod_projecte = "00" + str(cod_projecte)
+#             else:
+#                 cod_projecte = "0" + str(cod_projecte)
+#         #####
+#         codigo_entero = cod_responsable + cod_projecte
+#         #####
+#
+#         ##### Cuentas:
+#         # CANON I IVA
+#         concedit = 0
+#         for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
+#             concedit = round(concedit + float(importe.import_concedit), 2)
+#         # vienen en la tabla:
+#         # vienen en la tabla:
+#
+#         percen_iva = round(0.0, 4)
+#         if projecte.percen_iva:
+#             percen_iva = round(projecte.percen_iva, 4)
+#
+#         percen_canon_creaf = round(0.0, 4)
+#         if projecte.percen_canon_creaf:
+#             percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+#
+#         canon_oficial = round(0.0, 4)
+#         if projecte.canon_oficial:
+#             canon_oficial = round(projecte.canon_oficial, 2)
+#
+#         iva = concedit - (concedit / (1 + percen_iva / 100))
+#         canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+#         net_disponible = concedit - iva - canon
+#
+#         # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
+#
+#         if concedit == 0:  # para evitar problemas con la division si es 0
+#             percen_canon_oficial = 0.0000
+#         else:
+#             percen_canon_oficial = ((canon_oficial / concedit) * (100 * (1 + percen_iva / 100)))
+#
+#         if percen_canon_oficial > percen_canon_creaf:
+#             canon_max = percen_canon_oficial
+#         else:
+#             canon_max = percen_canon_creaf
+#
+#         canon_total = round((concedit - iva) * (canon_max / 100))
+#         concedit = round(concedit, 2)
+#         iva = round(iva, 2)
+#         canon = round(canon, 2)
+#         net_disponible = round(net_disponible, 2)
+#
+#         #############
+#         # Obtener el comprometido#
+#         compromes_prj=AjaxListCompromesProjecte(request,projecte.id_projecte,codigo_entero)
+#         compromes=compromes_prj["compromes"]
+#         #
+#         ### consulta SQL
+#
+#         cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
+#                        "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND CUENTAS.CUENTA LIKE '7%%' AND CUENTAS.CUENTA NOT LIKE '79%%' AND TIPAPU='N' AS ingressos," #AND CONVERT(date,FECHA,121)<=%s))
+#                        "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '6%%' OR CUENTAS.CUENTA LIKE '2%%') AND CUENTAS.CUENTA NOT LIKE '6296%%' AND TIPAPU='N' AS despeses,"#AND CONVERT(date,FECHA,121)<=%s))
+#                        "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '79%%' OR CUENTAS.CUENTA LIKE '6296%%') AND TIPAPU='N' AS canon",#AND CONVERT(date,FECHA,121)<=%s))
+#                        (codigo_entero, codigo_entero, codigo_entero))#fecha_max
+#
+#         projectfetch = dictfetchall(cursor)  # un cursor.description tambien sirve
+#
+#         if projectfetch[0]["ingressosD"] is None:
+#             projectfetch[0]["ingressosD"] = 0
+#         if projectfetch[0]["ingressosH"] is None:
+#             projectfetch[0]["ingressosH"] = 0
+#         if projectfetch[0]["despesesD"] is None:
+#             projectfetch[0]["despesesD"] = 0
+#         if projectfetch[0]["despesesH"] is None:
+#             projectfetch[0]["despesesH"] = 0
+#         if projectfetch[0]["canonD"] is None:
+#             projectfetch[0]["canonD"] = 0
+#         if projectfetch[0]["canonH"] is None:
+#             projectfetch[0]["canonH"] = 0
+#
+#         ingressosD = float(projectfetch[0]["ingressosD"])
+#         ingressosH = float(projectfetch[0]["ingressosH"])
+#         despesesD = float(projectfetch[0]["despesesD"])
+#         despesesH = float(projectfetch[0]["despesesH"])
+#         canonD = float(projectfetch[0]["canonD"])
+#         canonH = float(projectfetch[0]["canonH"])
+#
+#         # Calculamos algunos campos a partir de lo obtenido de contabilidad
+#         ingressos = round(ingressosH - ingressosD, 2)
+#         despeses = round(despesesD - despesesH, 2)  # OJO! que los que en los que estan tancats las despesas suelen coincir con el net_disponible,pero siempre es despesesD-H
+#         canon_aplicat = round(canonD - canonH, 2)
+#         disponible_caixa = round(ingressos - despeses - canon_aplicat, 2)
+#         disponible_real = round(concedit - iva - canon_total - despeses-compromes, 2)  # OJO esta ok,solo que como algunos importes salen x100 tiene un valor elevado.
+#         pendent = round(abs(concedit - iva - ingressos), 2)
+#
+#         resultado.append(
+#             {"codi": codigo_entero, "nom": projecte.acronim, "concedit": concedit, "canon_total": canon_total,
+#              "ingressos": ingressos, "pendent": pendent, "despeses": despeses, "canon_aplicat": canon_aplicat,
+#              "disponible_real": disponible_real, "compromes":compromes, "id_projecte":int(projecte.id_projecte)})
+#     resultado = json.dumps(resultado)
+#     # Cerramos el cursor
+#     cursor.close()
+#     resultado = json.dumps(resultado)
+#     return HttpResponse(resultado, content_type='application/json;')
+
 @login_required(login_url='/menu/')
-def ListPciCabecera(request): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA
+def AjaxListPciCabecera(request,id_grup,fecha_min_pci,fecha_max_pci): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA
 
-    #pillamos los proyectos abiertos(se ve que en el gestor antiguo es lo que hace)
-    id_organisme=request.POST["id_organisme"]
-    projectes = Projectes.objects.filter(centres_participants__id_organisme__in=id_organisme).values("id_projecte","id_resp__codi_resp","codi_prj","acronim") #los proyectos totales
-    resultado=[]
-    cursor = connections['contabilitat'].cursor()
 
-    for proyecto in projectes:
-        cod_responsable = proyecto.split("-")[0]
-        id_resp = Responsables.objects.get(codi_resp=cod_responsable).id_resp
-        cod_projecte = proyecto.split("-")[1]
-        projecte = Projectes.objects.get(codi_prj=cod_projecte,
-                                         id_resp=id_resp)  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
-        nom_resp = Responsables.objects.get(codi_resp=cod_responsable).id_usuari.nom_usuari
-        ##### poner 0 en los codigos si son demasiado cortos para tener x tamano
-        if len(cod_responsable) < 2:
-            cod_responsable = "0" + str(cod_responsable)
-        if len(cod_projecte) < 3:
-            if len(cod_projecte) < 2:
-                cod_projecte = "00" + str(cod_projecte)
-            else:
-                cod_projecte = "0" + str(cod_projecte)
-        #####
-        codigo_entero = cod_responsable + cod_projecte
-        #####
-
-        ##### Cuentas:
-        # CANON I IVA
-        concedit = 0
-        for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
-            concedit = round(concedit + float(importe.import_concedit), 2)
-        # vienen en la tabla:
-        # vienen en la tabla:
-
-        percen_iva = round(0.0, 4)
-        if projecte.percen_iva:
-            percen_iva = round(projecte.percen_iva, 4)
-
-        percen_canon_creaf = round(0.0, 4)
-        if projecte.percen_canon_creaf:
-            percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
-
-        canon_oficial = round(0.0, 4)
-        if projecte.canon_oficial:
-            canon_oficial = round(projecte.canon_oficial, 2)
-
-        iva = concedit - (concedit / (1 + percen_iva / 100))
-        canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
-        net_disponible = concedit - iva - canon
-
-        # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
-
-        if concedit == 0:  # para evitar problemas con la division si es 0
-            percen_canon_oficial = 0.0000
-        else:
-            percen_canon_oficial = ((canon_oficial / concedit) * (100 * (1 + percen_iva / 100)))
-
-        if percen_canon_oficial > percen_canon_creaf:
-            canon_max = percen_canon_oficial
-        else:
-            canon_max = percen_canon_creaf
-
-        canon_total = round((concedit - iva) * (canon_max / 100))
-        concedit = round(concedit, 2)
-        iva = round(iva, 2)
-        canon = round(canon, 2)
-        net_disponible = round(net_disponible, 2)
-
-        #############
-        # Obtener el comprometido#
-        compromes_prj=AjaxListCompromesProjecte(request,projecte.id_projecte,codigo_entero)
-        compromes=compromes_prj["compromes"]
-        #
-        ### consulta SQL
-
-        cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND CUENTAS.CUENTA LIKE '7%%' AND CUENTAS.CUENTA NOT LIKE '79%%' AND TIPAPU='N' AS ingressos," #AND CONVERT(date,FECHA,121)<=%s))
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '6%%' OR CUENTAS.CUENTA LIKE '2%%') AND CUENTAS.CUENTA NOT LIKE '6296%%' AND TIPAPU='N' AS despeses,"#AND CONVERT(date,FECHA,121)<=%s))
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '79%%' OR CUENTAS.CUENTA LIKE '6296%%') AND TIPAPU='N' AS canon",#AND CONVERT(date,FECHA,121)<=%s))
-                       (codigo_entero, codigo_entero, codigo_entero))#fecha_max
-
-        projectfetch = dictfetchall(cursor)  # un cursor.description tambien sirve
-
-        if projectfetch[0]["ingressosD"] is None:
-            projectfetch[0]["ingressosD"] = 0
-        if projectfetch[0]["ingressosH"] is None:
-            projectfetch[0]["ingressosH"] = 0
-        if projectfetch[0]["despesesD"] is None:
-            projectfetch[0]["despesesD"] = 0
-        if projectfetch[0]["despesesH"] is None:
-            projectfetch[0]["despesesH"] = 0
-        if projectfetch[0]["canonD"] is None:
-            projectfetch[0]["canonD"] = 0
-        if projectfetch[0]["canonH"] is None:
-            projectfetch[0]["canonH"] = 0
-
-        ingressosD = float(projectfetch[0]["ingressosD"])
-        ingressosH = float(projectfetch[0]["ingressosH"])
-        despesesD = float(projectfetch[0]["despesesD"])
-        despesesH = float(projectfetch[0]["despesesH"])
-        canonD = float(projectfetch[0]["canonD"])
-        canonH = float(projectfetch[0]["canonH"])
-
-        # Calculamos algunos campos a partir de lo obtenido de contabilidad
-        ingressos = round(ingressosH - ingressosD, 2)
-        despeses = round(despesesD - despesesH, 2)  # OJO! que los que en los que estan tancats las despesas suelen coincir con el net_disponible,pero siempre es despesesD-H
-        canon_aplicat = round(canonD - canonH, 2)
-        disponible_caixa = round(ingressos - despeses - canon_aplicat, 2)
-        disponible_real = round(concedit - iva - canon_total - despeses-compromes, 2)  # OJO esta ok,solo que como algunos importes salen x100 tiene un valor elevado.
-        pendent = round(abs(concedit - iva - ingressos), 2)
-
-        resultado.append(
-            {"codi": codigo_entero, "nom": projecte.acronim, "concedit": concedit, "canon_total": canon_total,
-             "ingressos": ingressos, "pendent": pendent, "despeses": despeses, "canon_aplicat": canon_aplicat,
-             "disponible_real": disponible_real, "compromes":compromes, "id_projecte":int(projecte.id_projecte)})
-    resultado = json.dumps(resultado)
-    # Cerramos el cursor
-    cursor.close()
-    resultado = json.dumps(resultado)
-    return HttpResponse(resultado, content_type='application/json;')
-
-@login_required(login_url='/menu/')
-def AjaxListPciCabecera(request,id_grup): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA
-
+    fecha_min = datetime.strptime(fecha_min_pci, "%d-%m-%Y")
+    fecha_max = datetime.strptime(fecha_max_pci, "%d-%m-%Y")
     #pillamos los proyectos abiertos(se ve que en el gestor antiguo es lo que hace)
     #id_organisme=request.POST["id_organisme"]
     organismes_grup = Organismes_GrupsPci.objects.filter(id_grup=id_grup).values("id_organisme").distinct()
@@ -1009,10 +1012,10 @@ def AjaxListPciCabecera(request,id_grup): # AJAX PARA LOS PROYECTOS CON X ORGANI
         ### consulta SQL
 
         cursor.execute("SELECT ingressosD, ingressosH, despesesD, despesesH, canonD, canonH FROM "
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND CUENTAS.CUENTA LIKE '7%%' AND CUENTAS.CUENTA NOT LIKE '79%%' AND TIPAPU='N')) AS ingressos," #AND CONVERT(date,FECHA,121)<=%s)
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '6%%' OR CUENTAS.CUENTA LIKE '2%%') AND CUENTAS.CUENTA NOT LIKE '6296%%' AND TIPAPU='N')) AS despeses,"#AND CONVERT(date,FECHA,121)<=%s)
-                       "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '79%%' OR CUENTAS.CUENTA LIKE '6296%%') AND TIPAPU='N')) AS canon",#AND CONVERT(date,FECHA,121)<=%s)
-                       (codigo_entero, codigo_entero, codigo_entero))#fecha_max
+                       "(SELECT CONVERT(varchar,Sum(DEBE))AS ingressosD, CONVERT(varchar,Sum(HABER))AS ingressosH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND CUENTAS.CUENTA LIKE '7%%' AND CUENTAS.CUENTA NOT LIKE '79%%' AND TIPAPU='N'  AND CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s)) AS ingressos," #AND CONVERT(date,FECHA,121)<=%s)
+                       "(SELECT CONVERT(varchar,Sum(DEBE))AS despesesD, CONVERT(varchar,Sum(HABER))AS despesesH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '6%%' OR CUENTAS.CUENTA LIKE '2%%') AND CUENTAS.CUENTA NOT LIKE '6296%%' AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s)) AS despeses,"#AND CONVERT(date,FECHA,121)<=%s)
+                       "(SELECT CONVERT(varchar,Sum(DEBE))AS canonD, CONVERT(varchar,Sum(HABER))AS canonH FROM __ASIENTOS INNER JOIN CUENTAS ON __ASIENTOS.IDCUENTA=CUENTAS.IDCUENTA WHERE (CENTROCOSTE2='   '+%s AND (CUENTAS.CUENTA LIKE '79%%' OR CUENTAS.CUENTA LIKE '6296%%') AND TIPAPU='N' AND CONVERT(date,FECHA,121)<=%s AND CONVERT(date,FECHA,121)>=%s)) AS canon",#AND CONVERT(date,FECHA,121)<=%s)
+                       (codigo_entero, fecha_max, fecha_min, codigo_entero, fecha_max, fecha_min, codigo_entero, fecha_max, fecha_min))#fecha_max
 
         projectfetch = dictfetchall(cursor)  # un cursor.description tambien sirve
 
