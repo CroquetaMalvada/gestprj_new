@@ -63,10 +63,14 @@ $(document).ready(function(){
                 {'data': 'Id_resp'},
                 {'data': 'Id_orgs_fin'}
             ],
-            initComplete:function(){
-                ////por defecto se muestran los proyectos abiertos
-                nomes_oberts();
-            },
+//            initComplete:function(){
+//                ////por defecto se muestran los proyectos abiertos si es Administrador
+//                if($("#filtre_grup_pci").length){
+//                    nomes_oberts();
+//                }else{// si es un ip que se le muestren todos
+//                    mostrar_tots();
+//                }
+//            },
             scrollY:        '40vh',
             scrollCollapse: true,
             paging:         false,
@@ -126,7 +130,13 @@ $(document).ready(function(){
 //                        $(this).closest("a").replaceWith("</br>");
 //                    });
                 });
-                nomes_oberts();
+                ////por defecto se muestran los proyectos abiertos si es Administrador
+                if($("#filtre_grup_pci").length){
+                    nomes_oberts();
+                }else{// si es un ip que se le muestren todos
+                    mostrar_tots();
+                }
+                //
                 cargar_cookies();
                 actualizar_organismes_select();
                 actualizar_grups_pci_select();

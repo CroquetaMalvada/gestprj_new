@@ -178,6 +178,7 @@ def AjaxListProjectesCont(request):
                     grups_pci=str(grup["id_grup"])
                 else:
                     grups_pci = grups_pci + "," + str(grup["id_grup"])
+            ####
             resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp, 'Id_orgs_fin':grups_pci})
         resultado = json.dumps(resultado)
         return resultado
@@ -192,7 +193,7 @@ def AjaxListProjectesCont(request):
         #     responsable = "josepanotni"
         # else:
         if responsable is not None:
-            llista_projectes = Projectes.objects.filter(id_resp__id_resp=responsable.id_resp).values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp')
+            llista_projectes = Projectes.objects.filter(id_resp__id_resp=responsable.id_resp).values('id_projecte','codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp')
         else:
             llista_projectes = []
 
@@ -201,7 +202,7 @@ def AjaxListProjectesCont(request):
         for permiso in PrjUsuaris.objects.all():
             nom_xarxa = TUsuarisXarxa.objects.get(id_usuari_xarxa=permiso.id_usuari_xarxa.id_usuari_xarxa).nom_xarxa
             if (request.user.username == nom_xarxa):
-                projectes=list(Projectes.objects.filter(id_projecte=permiso.id_projecte.id_projecte).values('codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp'))
+                projectes=list(Projectes.objects.filter(id_projecte=permiso.id_projecte.id_projecte).values('id_projecte','codi_prj','id_resp__codi_resp','id_estat_prj__desc_estat_prj','acronim','id_resp__id_resp'))
                 llista_projectes.append(projectes[0])
 
         # Comprobar si el investigador esta colaborando en otros proyectos *Ojo esto esta comentado porque de momento todos los permisos se asignan manualmente
@@ -218,6 +219,7 @@ def AjaxListProjectesCont(request):
             acronim = projecte['acronim']
             id_resp = str(projecte['id_resp__id_resp'])
             codi_resp = str(projecte['id_resp__codi_resp'])
+            grups_pci = ""
 
             if len(codi_prj) < 3:
                 if len(codi_prj) < 2:
@@ -232,7 +234,23 @@ def AjaxListProjectesCont(request):
             else:
                 codi = codi_resp + codi
 
-            resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp})
+            # Grupos PCI del proyecto que contienen Organismos financiadores
+            # for fin in Financadors.objects.filter(id_projecte=str(projecte['id_projecte'])).values("id_organisme"):
+            #     if entitats_financadores=="":# para el primer elemento
+            #         entitats_financadores=str(fin["id_organisme"])
+            #     else:
+            #         entitats_financadores = entitats_financadores + "," + str(fin["id_organisme"])
+            financadors = Financadors.objects.filter(id_projecte=str(projecte['id_projecte'])).values("id_organisme")
+            grups_fin = Organismes_GrupsPci.objects.filter(id_organisme__in=financadors).values("id_grup").distinct()
+
+            for grup in grups_fin:
+                if grups_pci == "":  # para el primer elemento
+                    grups_pci = str(grup["id_grup"])
+                else:
+                    grups_pci = grups_pci + "," + str(grup["id_grup"])
+            ######
+
+            resultado.append({'Codi': codi, 'Estat': estat, 'Acronim': acronim, 'Id_resp': id_resp, 'Id_orgs_fin':grups_pci})
         resultado = json.dumps(resultado)
         return resultado
 
