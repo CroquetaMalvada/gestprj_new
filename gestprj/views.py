@@ -1831,8 +1831,13 @@ def ListProjectesResponsableCabecera(request): # AJAX PARA LOS PROYECTOS POR RES
 
     for inv in investigadores:
         proyectos = [] # los proyectos de ese investigador
-        nom_investigador=Responsables.objects.get(codi_resp=inv).id_usuari.nom_usuari
-        id_investigador = str(Responsables.objects.get(codi_resp=inv).id_usuari.id_usuari)
+        if inv==94:#####Excepcion para el caso de SEVERO y el Retana
+            nom_investigador="Javier Retana(SEVERO)";
+        else:
+            nom_investigador=Responsables.objects.get(codi_resp=inv).id_usuari.nom_usuari
+
+
+        #id_investigador = str(Responsables.objects.get(codi_resp=inv).id_usuari.id_usuari)
         for projecte in projectes:
             if inv==projecte["id_resp__codi_resp"]:
                 codi=str(projecte["id_resp__codi_resp"])+"-"+str(projecte["codi_prj"])
