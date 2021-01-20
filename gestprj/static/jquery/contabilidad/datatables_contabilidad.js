@@ -2070,7 +2070,7 @@ function mostrar_tots() {
 
 function seleccionar_oberts() {
     $("#table_llista_projectes_cont tbody>tr").each(function() {
-        if($(this).find("td:eq(2)").text() == "Obert") {
+        if($(this).find("td:eq(2)").text() == "Obert" && $(this).is(":visible")) {
             $(this).find(":checkbox").prop("checked",true);
         }else{
             $(this).find(":checkbox").prop("checked",false);
@@ -2080,7 +2080,7 @@ function seleccionar_oberts() {
 
 function seleccionar_tancats() {
     $("#table_llista_projectes_cont tbody>tr").each(function() {
-        if($(this).find("td:eq(2)").text() == "Tancat") {
+        if($(this).find("td:eq(2)").text() == "Tancat" && $(this).is(":visible")) {
             $(this).find(":checkbox").prop("checked",true);
         }else{
             $(this).find(":checkbox").prop("checked",false);
@@ -2090,7 +2090,9 @@ function seleccionar_tancats() {
 
 function cap() {
     $("#table_llista_projectes_cont tbody>tr").each(function() {
-        $(this).find(":checkbox").prop("checked",false);
+        if($(this).is(":visible")){
+            $(this).find(":checkbox").prop("checked",false);
+        }
     });
 }
 ////////FILTRE DE ORGANISMES FINANÇADORS
