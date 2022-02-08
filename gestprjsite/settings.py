@@ -14,6 +14,7 @@ import os
 import ldap
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
 from django.http import HttpResponseRedirect
+from django.conf.global_settings import DATETIME_INPUT_FORMATS
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -26,12 +27,11 @@ SECRET_KEY = 'f8z-u^p(n9+dq8w#p1s*v553x1wb9bl#g=j#k)xodey%u($)3!'
 
 TEMPLATE_DEBUG = True
 
-
-
+SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
 # Application definition
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
+    #'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -44,20 +44,46 @@ INSTALLED_APPS = (
     # 'debug_toolbar',
 )
 
-REST_FRAMEWORK = {
-    'PAGE_SIZE': 1000000,
-}
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(SETTINGS_PATH, 'gestprj/templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
-MIDDLEWARE_CLASSES = (
+# REST_FRAMEWORK = {
+#     'PAGE_SIZE': 1000000,
+# }
+
+# MIDDLEWARE_CLASSES = (
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     #'django.middleware.security.SecurityMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+# )
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    #'django.middleware.security.SecurityMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 
 ROOT_URLCONF = 'gestprjsite.urls'
@@ -73,15 +99,27 @@ WSGI_APPLICATION = 'gestprjsite.wsgi.application'
 
 LANGUAGE_CODE = 'es-es'
 
-DATE_FORMAT = 'd-m-Y'
+#Para que funcionene las nuevas fechas con el datetimefield en models(parece que no hace gran cosa ya que el models lo sigue devolviendo con tiempo...)
+USE_L10N=False
+USE_TZ = False
+DATETIME_INPUT_FORMATS = ('%d-%m-%Y',)
+DATETIME_FORMAT = "%d-%m-%Y"
+
+REST_FRAMEWORK = {
+    'DATETIME_FORMAT': "%d-%m-%Y",
+    'DATETIME_INPUT_FORMAT': "%d-%m-%Y",
+}
+#
+DATE_FORMAT = '%d-%m-%Y'
+DATE_INPUT_FORMATS = "%d-%m-%Y"
 
 TIME_ZONE = 'UTC' #Ojo que este son 2 horas menos,por si miro algun log o insert en la bdd
 
-USE_I18N = True
+USE_I18N = False
 
 # USE_L10N = True Deshabilitado porque mostraba las fechas en formato ingles
 
-USE_TZ = True
+#USE_TZ = True
 
 
 CACHES = {
@@ -97,4 +135,4 @@ CACHES = {
 STATIC_URL = '/static/'
 
 # MUY IMPORTANTE!!!!
-from settings_local import *
+from .settings_local import *

@@ -31,6 +31,10 @@ from calendar import monthrange
 from decimal import *
 import json
 
+from openpyxl import  Workbook, load_workbook
+from openpyxl.writer.excel import save_virtual_workbook #util para el httpresponse
+import unicodecsv as csv # instalado con el pip ya que el csv a secas no incluye unicode
+
 # #funcion para comprovar si el usuario es admin o investigador
 # def not_in_student_group(user):
 #     """Use with a ``user_passes_test`` decorator to restrict access to
@@ -507,9 +511,11 @@ class ListDesglossament(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.kwargs['id_partida'] is None:
+            #return Response(GestDesglossamentSerializer(Desglossaments.objects.all(), many=True).data)
             return Desglossaments.objects.all()
         else:
             _id_partida = self.kwargs['id_partida']
+            #return Response(GestDesglossamentSerializer(Desglossaments.objects.filter(id_partida=_id_partida), many=True).data)
             return Desglossaments.objects.filter(id_partida=_id_partida)
 
 
@@ -584,8 +590,8 @@ class GestComprometidoPersonal(viewsets.ModelViewSet):
 #     #     for periode in PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']).values('data_inicial',
 #     #                                                                                                'data_final',
 #     #                                                                                                'id_periodicitat'):
-#     #         data_min_periode = datetime.strptime(str(periode['data_inicial']), "%Y-%m-%d")
-#     #         data_max_periode = datetime.strptime(str(periode['data_final']), "%Y-%m-%d")
+#     #         data_min_periode = datetime.strptime(str(periode['data_inicial'].date()), "%Y-%m-%d")
+#     #         data_max_periode = datetime.strptime(str(periode['data_final'].date()), "%Y-%m-%d")
 #     #         id_periodicitat = periode['id_periodicitat']
 #     #         periodes.append(
 #     #             {"id_periode": id_periodicitat, "num_periode": num_periodes, "data_min": str(data_min_periode),
@@ -881,22 +887,22 @@ def cont_dades(request):
 
         percen_iva = round(0.0, 4)
         if projecte.percen_iva:
-            percen_iva = round(projecte.percen_iva, 4)
+            percen_iva = round(float(projecte.percen_iva), 4)
 
         percen_canon_creaf = round(0.0, 4)
         if projecte.percen_canon_creaf:
-            percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+            percen_canon_creaf = round(float(projecte.percen_canon_creaf), 4)
 
         canon_oficial = round(0.0, 4)
         if projecte.canon_oficial:
-            canon_oficial = round(projecte.canon_oficial, 2)
+            canon_oficial = round(float(projecte.canon_oficial), 2)
 
         # calculados a mano
         if concedit == 0:  # para evitar problemas con la division si es 0
             percen_canon_oficial = 0.00
         else:
             percen_canon_oficial = round(((canon_oficial / concedit) * (100 * (1 + percen_iva / 100))), 4)
-        canon_creaf = round(((concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))), 2)
+        canon_creaf = round(((concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))), 2)
         diferencia_per = round((percen_canon_oficial - percen_canon_creaf), 4)
         diferencia_eur = round((canon_oficial - canon_creaf), 2)
         iva = round(((concedit * percen_iva) / (100 * (1 + percen_iva / 100))), 2)
@@ -1011,7 +1017,7 @@ def cont_estat_pres(request):
 
             percen_iva = 0
             if projecte['percen_iva']:
-                percen_iva = round(projecte['percen_iva'], 2)
+                percen_iva = round(float(projecte['percen_iva']), 2)
             projecte['percen_iva'] = percen_iva
 
             percen_canon_creaf = 0
@@ -1025,7 +1031,7 @@ def cont_estat_pres(request):
             projecte['canon_oficial'] = canon_oficial
 
             iva = concedit - (concedit / (1 + percen_iva / 100))
-            canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+            canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100)) #Ojo Ahora con Python3 el round no siempre pasa a float
             net_disponible = concedit - iva - canon
 
             concedit = round(concedit, 2)
@@ -1040,8 +1046,8 @@ def cont_estat_pres(request):
                 for periode in PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']).values('data_inicial','data_final','id_periodicitat'):
                     # data_min_periode = periode['data_inicial']
                     # data_max_periode = periode['data_final']
-                    data_min_periode = datetime.strptime(str(periode['data_inicial']), "%Y-%m-%d").strftime('%d-%m-%Y')
-                    data_max_periode = datetime.strptime(str(periode['data_final']), "%Y-%m-%d").strftime('%d-%m-%Y')
+                    data_min_periode = datetime.strptime(str(periode['data_inicial'].date()), "%Y-%m-%d").strftime('%d-%m-%Y')
+                    data_max_periode = datetime.strptime(str(periode['data_final'].date()), "%Y-%m-%d").strftime('%d-%m-%Y')
                     id_periodicitat = periode['id_periodicitat']
                     periodes.append({"id_periode":id_periodicitat,"num_periode":num_periodes,"data_min":str(data_min_periode),"data_max":str(data_max_periode)})
                     num_periodes += 1
@@ -1125,7 +1131,7 @@ def cont_despeses(request):
 
             percen_iva = 0
             if projecte['percen_iva']:
-                percen_iva = round(projecte['percen_iva'], 2)
+                percen_iva = round(float(projecte['percen_iva']), 2)
             projecte['percen_iva'] = percen_iva
 
             percen_canon_creaf = 0
@@ -1139,7 +1145,7 @@ def cont_despeses(request):
             projecte['canon_oficial'] = canon_oficial
 
             iva = concedit - (concedit / (1 + percen_iva / 100))
-            canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+            canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
             net_disponible = concedit - iva - canon
 
             concedit = round(concedit, 2)
@@ -1152,8 +1158,8 @@ def cont_despeses(request):
             if PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']):#Si hay periodos(el __lte es menor que o igual)
                 #OJO!!! poner ", data_inicial__mte=fecha_min, data_final__lte=fecha_max"?
                 for periode in PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']).values('data_inicial','data_final','id_periodicitat'):
-                    data_min_periode = datetime.strptime(str(periode['data_inicial']), "%Y-%m-%d")
-                    data_max_periode = datetime.strptime(str(periode['data_final']), "%Y-%m-%d")
+                    data_min_periode = datetime.strptime(str(periode['data_inicial'].date()), "%Y-%m-%d")
+                    data_max_periode = datetime.strptime(str(periode['data_final'].date()), "%Y-%m-%d")
                     id_periodicitat = periode['id_periodicitat']
                     periodes.append({"id_periode":id_periodicitat,"num_periode":num_periodes,"data_min":str(data_min_periode),"data_max":str(data_max_periode)})
                     num_periodes += 1
@@ -1208,7 +1214,7 @@ def cont_ingresos(request):
 
             percen_iva = 0
             if projecte['percen_iva']:
-                percen_iva = round(projecte['percen_iva'], 2)
+                percen_iva = round(float(projecte['percen_iva']), 2)
             projecte['percen_iva'] = percen_iva
 
             percen_canon_creaf = 0
@@ -1222,7 +1228,7 @@ def cont_ingresos(request):
             projecte['canon_oficial'] = canon_oficial
 
             iva = concedit - (concedit / (1 + percen_iva / 100))
-            # canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+            # canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
             net_disponible = concedit - iva # OJO que este no usa el CANON
 
             concedit = round(concedit, 2)
@@ -1235,8 +1241,8 @@ def cont_ingresos(request):
             if PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']):  # Si hay periodos(el __lte es menor que o igual)
                 # OJO!!! poner ", data_inicial__mte=fecha_min, data_final__lte=fecha_max"?
                 for periode in PeriodicitatPres.objects.filter(id_projecte=projecte['id_projecte']).values('data_inicial', 'data_final', 'id_periodicitat'):
-                    data_min_periode = datetime.strptime(str(periode['data_inicial']), "%Y-%m-%d")
-                    data_max_periode = datetime.strptime(str(periode['data_final']), "%Y-%m-%d")
+                    data_min_periode = datetime.strptime(str(periode['data_inicial'].date()), "%Y-%m-%d")
+                    data_max_periode = datetime.strptime(str(periode['data_final'].date()), "%Y-%m-%d")
                     id_periodicitat = periode['id_periodicitat']
                     periodes.append({"id_periode": id_periodicitat, "num_periode": num_periodes, "data_min": str(data_min_periode),"data_max": str(data_max_periode)})
                     num_periodes += 1
@@ -1326,15 +1332,15 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
 
                 percen_iva = round(0.0, 4)
                 if projecte.percen_iva:
-                    percen_iva = round(projecte.percen_iva, 4)
+                    percen_iva = round(float(projecte.percen_iva), 4)
 
                 percen_canon_creaf = round(0.0, 4)
                 if projecte.percen_canon_creaf:
-                    percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+                    percen_canon_creaf = round(float(projecte.percen_canon_creaf), 4)
 
                 canon_oficial = round(0.0, 4)
                 if projecte.canon_oficial:
-                    canon_oficial = round(projecte.canon_oficial, 2)
+                    canon_oficial = round(float(projecte.canon_oficial), 2)
 
                 # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
 
@@ -1350,7 +1356,7 @@ def cont_resum_estat_prj(request): # Ojo este es el unico que no usa AJAX ya que
                     canon_max = percen_canon_creaf
 
                 iva = concedit - (concedit / (1 + percen_iva / 100))
-                canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+                canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
                 net_disponible = concedit - iva - canon
 
                 canon_total = round((concedit - iva) * (canon_max / 100))
@@ -1587,7 +1593,7 @@ def cont_resum_fitxa_major_prj(request): #RESUM PER PARTIDES
 
             percen_iva = 0
             if projecte['percen_iva']:
-                percen_iva = round(projecte['percen_iva'], 2)
+                percen_iva = round(float(projecte['percen_iva']), 2)
             projecte['percen_iva'] = percen_iva
 
             percen_canon_creaf = 0
@@ -1601,7 +1607,7 @@ def cont_resum_fitxa_major_prj(request): #RESUM PER PARTIDES
             projecte['canon_oficial'] = canon_oficial
 
             iva = concedit - (concedit / (1 + percen_iva / 100))
-            canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+            canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
             net_disponible = concedit - iva - canon
 
             concedit = round(concedit, 2)
@@ -1661,7 +1667,7 @@ def cont_fitxa_major_prj(request): # INGRESSOS I DESPESES (FITXA MAJOR PRJ)
 
             percen_iva = 0
             if projecte['percen_iva']:
-                percen_iva = round(projecte['percen_iva'], 2)
+                percen_iva = round(float(projecte['percen_iva']), 2)
             projecte['percen_iva'] = percen_iva
 
             percen_canon_creaf = 0
@@ -1675,7 +1681,7 @@ def cont_fitxa_major_prj(request): # INGRESSOS I DESPESES (FITXA MAJOR PRJ)
             projecte['canon_oficial'] = canon_oficial
 
             iva = concedit - (concedit / (1 + percen_iva / 100))
-            canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+            canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
             net_disponible = concedit - iva - canon
 
             concedit = round(concedit, 2)
@@ -1815,7 +1821,322 @@ def cont_comptes_no_assignats(request):
 @login_required(login_url='/menu/')
 def ListJustificacionsCabecera(request,fecha_min,fecha_max): # AJAX PARA LAS JUSTIFICACIONES DE LA CABECERA
     resultado=contabilitat_ajax.AjaxListJustificacionsCabecera(request,fecha_min,fecha_max)
-    return HttpResponse(resultado, content_type='application/json;')
+    return HttpResponse(resultado, content_type='application/json;')\
+
+
+
+@login_required(login_url='/menu/')
+def GenerarInformePeriode(request): # AJAX PARA GENERAR INFORME DE PROYECTOS DURANTE PERIODO (para Agusti)
+
+    projectes = Projectes.objects.all().values("id_projecte","id_resp__codi_resp","codi_prj","acronim","data_inici_prj","data_fi_prj","codi_oficial","titol","acronim","resum","percen_iva","percen_canon_creaf","canon_oficial","id_categoria","resolucio")#.filter(data_fi_prj__gte=datetime.strptime(request.POST["data_ini"], "%d-%m-%Y"), data_fi_prj__lte= datetime.strptime(request.POST["data_fi"], "%d-%m-%Y"))
+    resultado = []
+    for projecte in projectes:
+        data_inici = ""
+        if(projecte['data_inici_prj'] != "" and projecte['data_inici_prj'] is not None):
+            data_inici = datetime.strptime(str(projecte['data_inici_prj'].date()), "%Y-%m-%d").strftime('%d-%m-%Y')
+        data_final = ""
+        if (projecte['data_fi_prj'] != "" and projecte['data_fi_prj'] is not None):
+            data_final = datetime.strptime(str(projecte['data_fi_prj'].date()), "%Y-%m-%d").strftime('%d-%m-%Y')
+        cod_responsable = str(projecte["id_resp__codi_resp"])
+        id_usuari_resp = Responsables.objects.get(codi_resp=cod_responsable).id_usuari.id_usuari
+        nom_resp = TUsuarisCreaf.objects.get(id_usuari=id_usuari_resp).nom_usuari
+        cod_projecte = str(projecte["codi_prj"])
+        cod_oficial = str(projecte["codi_prj"])
+        titol = projecte["titol"]
+        acronim = projecte["acronim"]
+        resum = projecte["resum"]
+        percen_iva =  projecte["percen_iva"]
+        percen_canon_creaf = projecte["percen_canon_creaf"]
+        canon_oficial = projecte["canon_oficial"]
+        id_projecte = projecte["id_projecte"]
+        id_categoria = projecte["id_categoria"]
+        #projecte = Projectes.objects.get(codi_prj=cod_projecte,id_resp=id_resp)  # OJO!puede haber codi_prj duplicados en la bdd pero solo sacaremos un proyecto ya que es id_resp+codi_rpj
+
+        if len(cod_responsable) < 2:
+            cod_responsable = "0" + str(cod_responsable)
+        if len(cod_projecte) < 3:
+            if len(cod_projecte) < 2:
+                cod_projecte = "00" + str(cod_projecte)
+            else:
+                cod_projecte = "0" + str(cod_projecte)
+
+        #####
+        centres_participants = CentresParticipants.objects.filter(id_projecte=id_projecte)
+        participants_creaf = PersonalCreaf.objects.filter(id_projecte=id_projecte)
+        participants_externs = PersonalExtern.objects.filter(id_projecte=id_projecte)
+
+        financadors = Financadors.objects.filter(id_projecte=id_projecte)
+        receptors = Receptors.objects.filter(id_projecte=id_projecte)
+
+        # CANON I IVA
+        concedit = 0
+        for importe in Financadors.objects.filter(id_projecte=id_projecte):
+            concedit = round(concedit + float(importe.import_concedit), 2)
+        # vienen en la tabla:
+
+        if percen_iva:
+            percen_iva = round(float(percen_iva), 4)
+        else:
+            percen_iva = round(0.0, 4)
+
+        if percen_canon_creaf:
+            percen_canon_creaf = round(float(percen_canon_creaf), 4)
+        else:
+            percen_canon_creaf = round(0.0, 4)
+
+        if canon_oficial:
+            canon_oficial = round(float(canon_oficial), 2)
+        else:
+            canon_oficial = round(0.0, 4)
+        # calculados a mano
+        if concedit == 0:  # para evitar problemas con la division si es 0
+            percen_canon_oficial = 0.00
+        else:
+            percen_canon_oficial = round(((canon_oficial / concedit) * (100 * (1 + percen_iva / 100))), 4)
+        canon_creaf = round(((concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))), 2)
+        diferencia_per = round((percen_canon_oficial - percen_canon_creaf), 4)
+        diferencia_eur = round((canon_oficial - canon_creaf), 2)
+        iva = round(((concedit * percen_iva) / (100 * (1 + percen_iva / 100))), 2)
+
+        canoniva = {"percen_iva": percen_iva, "percen_canon_creaf": percen_canon_creaf, "canon_oficial": canon_oficial,
+                    "percen_canon_oficial": percen_canon_oficial, "canon_creaf": canon_creaf,
+                    "diferencia_per": diferencia_per, "diferencia_eur": diferencia_eur, "iva": iva}
+        ####
+
+        # DESPESES
+        despeses = []
+        despesa_total_concedit = 0
+        despesa_total_iva = 0
+        despesa_total_canon = 0
+        despesa_total_net = 0
+        for despesa in Renovacions.objects.filter(id_projecte=id_projecte):
+            import_concedit = float(despesa.import_concedit)
+            despesa_total_concedit = round(despesa_total_concedit + import_concedit,2)
+            iva = round(((import_concedit * percen_iva) / (100 * (1 + percen_iva / 100))), 2)
+            despesa_total_iva = round(despesa_total_iva + iva,2)
+            canon = round(((import_concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))), 2)
+            despesa_total_canon = round(despesa_total_canon + canon,2)
+            net = round((import_concedit - iva - canon), 2)
+            despesa_total_net = round(despesa_total_net + net,2)
+            despeses.append(
+                {"data_inici": despesa.data_inici, "data_fi": despesa.data_fi, "concedit": import_concedit, "iva": iva,
+                 "canon": canon, "net": net})
+            # concedit = round(concedit + float(importe.import_concedit),2)
+
+            ####
+        #
+        # # PRESSUPOST
+        # partides = []
+        # max_periodes = 0;
+        # # al suma de cada periodo
+        # totals = [0, 0, 0, 0, 0, 0, 0, 0]
+        # total_import = 0
+        # partida_total = 0
+        #
+        # # primero vemos cual es el max de periodos que tiene una de als partidas
+        # for partida in Pressupost.objects.filter(id_projecte=projecte.id_projecte):
+        #     n_periodes = 0
+        #     for periode in PeriodicitatPartida.objects.filter(id_partida=partida.id_partida):
+        #         n_periodes = n_periodes + 1
+        #         if n_periodes > max_periodes:
+        #             max_periodes = n_periodes
+        # ######
+        #
+        # # Despues ponesmos los periodos en cada partida,usamos el max anterior para rellenar con 0 en caso de que haya menos periodos que el maximo
+        # for partida in Pressupost.objects.filter(id_projecte=projecte.id_projecte):
+        #     periodes = []
+        #     total_periode = 0
+        #
+        #     for index, periode in enumerate(PeriodicitatPartida.objects.filter(id_partida=partida.id_partida)):
+        #         total_periode = total_periode + periode.import_field
+        #         totals[index] = totals[index] + periode.import_field
+        #         periodes.append({"importe": periode.import_field})
+        #
+        #     if len(periodes) < max_periodes:
+        #         for dif in range((max_periodes - len(periodes))):
+        #             periodes.append({"importe": 0.00})
+        #
+        #     totals[max_periodes] = totals[max_periodes] + total_periode
+        #
+        #     ######
+        #
+        #     # Si no hay periodos,comprovar si las propias partidas tienen importe:
+        #     if not periodes:
+        #         total_import = total_import + partida.import_field
+        #         partides.append({"concepte": partida.id_concepte_pres.desc_concepte, "import": partida.import_field})
+        #     else:
+        #         partides.append(
+        #             {"concepte": partida.id_concepte_pres.desc_concepte, "periodes": periodes, "total": total_periode})
+        #
+        #         ######
+        #         ########
+
+        es_competitiu = "No competitiu"
+        if id_categoria == 2 or id_categoria == 3: #la categoria 3 es la de 'altres convocatories publiques', que tambien cuenta como competitivo
+            es_competitiu = "Competitiu ("+TCategoriaPrj.objects.get(id_categoria=id_categoria).desc_categoria+" )"
+        else:
+            es_competitiu =  "No competitiu ("+TCategoriaPrj.objects.get(id_categoria=id_categoria).desc_categoria+" )"
+
+        # tam_periodes = round(max_periodes/8) #lo dividimos entre 8 para el boostrap,ya que quedan col-md-8 como tamano maximo(hay 2 divs que ocupan 2,el concepto y el total)
+        resultado.append({"dades_prj": projecte, "codi_resp": cod_responsable, "codi_prj": cod_projecte, "nom_resp": nom_resp, "data_inici": data_inici, "data_final": data_final, "titol":titol, "acronim":acronim, "resum":resum,
+                          'centres_participants': centres_participants, 'participants_creaf': participants_creaf,
+                          'participants_externs': participants_externs, 'financadors': financadors,
+                          'receptors': receptors, 'canoniva': canoniva, 'despeses': despeses,
+                          'total_concedit': despesa_total_concedit, 'total_iva': despesa_total_iva,
+                          'total_canon': despesa_total_canon, 'total_net': despesa_total_net, 'es_competitiu':es_competitiu,'resolucio':projecte["resolucio"]})
+        # , 'partides': partides,
+        #                   'totals_pres': totals, 'max_periodes': range(max_periodes),
+        #                   'total_import_pres': total_import})
+
+    if request.POST["tipo"]=="1":
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.append([u'Codi projecte', u'Codi responsable', u'Acronim', u'Titol', u'Nom responsable', u"Data inici", u'Data final', u'Competitiu/No competitiu', u'Resolucio',u'Concedit Total', u'Total IVA', u'Total Canon', u'Total Net', u'Resum'])
+        #Rellenarlo de datos
+        for prj in resultado:
+            worksheet.append([prj["codi_prj"],prj["codi_resp"],prj["acronim"],prj["titol"],prj["nom_resp"],str(prj["data_inici"]),str(prj["data_final"]),prj["es_competitiu"],prj["resolucio"],prj["total_concedit"],prj["total_iva"],prj["total_canon"],prj["total_net"],prj["resum"]])
+        response = HttpResponse(content=save_virtual_workbook(workbook), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=InformeProjectesPeriode_'+str(request.POST["data_ini"])+'_a_'+str(request.POST["data_fi"])+'.xlsx'
+        return response
+    else:
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="InformeProjectesPeriode_'+str(request.POST["data_ini"])+'_a_'+str(request.POST["data_fi"])+'.csv"'
+
+        writer = csv.writer(response, delimiter=str(";"), dialect='excel')  # quoting=csv.QUOTE_ALL,writer = csv.writer(resultado, delimiter=str(';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+        response.write(u'\ufeff'.encode('utf8'))  # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+        writer.writerow([u'Codi projecte', u'Codi responsable', u'Acronim', u'Titol', u'Nom responsable', u"Data inici", u'Data final', u'Competitiu/No competitiu', u'Resolucio',u'Concedit Total', u'Total IVA', u'Total Canon', u'Total Net', u'Resum'])
+        for prj in resultado:
+            writer.writerow([prj["codi_prj"],prj["codi_resp"],prj["acronim"],prj["titol"],prj["nom_resp"],str(prj["data_inici"]),str(prj["data_final"]),prj["es_competitiu"],prj["resolucio"],prj["total_concedit"],prj["total_iva"],prj["total_canon"],prj["total_net"],prj["resum"]])
+        return response
+    # resultado=contabilitat_ajax.AjaxListJustificacionsCabecera(request,fecha_min,fecha_max)
+    # return HttpResponse(resultado, content_type='application/json;')
+
+@login_required(login_url='/menu/')
+def GenerarInformeFinancadorsPeriode(request): # AJAX PARA GENERAR INFORME DE LA FINANCIACION DE PROYECTOS EN X PERIODO(para Agusti)
+
+    projectes = Projectes.objects.filter(data_fi_prj__gte=datetime.strptime(request.POST["data_ini"], "%d-%m-%Y"), data_fi_prj__lte= datetime.strptime(request.POST["data_fi"], "%d-%m-%Y")).values("id_projecte","id_resp__codi_resp","codi_prj","acronim","data_inici_prj","data_fi_prj","codi_oficial","titol","acronim","resum","percen_iva","percen_canon_creaf","canon_oficial","id_categoria","resolucio")
+    resultado = []
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="InformeFinancadorsProjectesPeriode_' + str(
+        request.POST["data_ini"]) + '_a_' + str(request.POST["data_fi"]) + '.csv"'
+
+    writer = csv.writer(response, delimiter=str(";"),
+                        dialect='excel')  # quoting=csv.QUOTE_ALL,writer = csv.writer(resultado, delimiter=str(';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+    response.write(u'\ufeff'.encode('utf8'))  # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+    writer.writerow([u'Codi projecte',u'Codi responsable', u'Organisme Financador', u'Import Concedit'])
+    for projecte in projectes:
+        financadors = Financadors.objects.filter(id_projecte=projecte["id_projecte"]).values("id_organisme__nom_organisme","import_concedit")
+        # cod_responsable = str(projecte["id_resp__codi_resp"])
+        # cod_projecte = str(projecte["codi_prj"])
+        #
+        # if len(cod_responsable) < 2:
+        #     cod_responsable = "0" + str(cod_responsable)
+        # if len(cod_projecte) < 3:
+        #     if len(cod_projecte) < 2:
+        #         cod_projecte = "00" + str(cod_projecte)
+        #     else:
+        #         cod_projecte = "0" + str(cod_projecte)
+        for financador in financadors:
+            writer.writerow([projecte["codi_prj"],projecte["id_resp__codi_resp"],financador["id_organisme__nom_organisme"],financador["import_concedit"]])
+
+    return response
+
+
+@login_required(login_url='/menu/')
+def GenerarInformeReceptorsPeriode(request): # AJAX PARA GENERAR INFORME DE LOS RECEPTORES DE PROYECTOS EN X PERIODO(para Agusti)
+
+    projectes = Projectes.objects.filter(data_fi_prj__gte=datetime.strptime(request.POST["data_ini"], "%d-%m-%Y"), data_fi_prj__lte= datetime.strptime(request.POST["data_fi"], "%d-%m-%Y")).values("id_projecte","id_resp__codi_resp","codi_prj","acronim","data_inici_prj","data_fi_prj","codi_oficial","titol","acronim","resum","percen_iva","percen_canon_creaf","canon_oficial","id_categoria","resolucio")
+    resultado = []
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="InformeReceptorsProjectesPeriode_' + str(
+        request.POST["data_ini"]) + '_a_' + str(request.POST["data_fi"]) + '.csv"'
+
+    writer = csv.writer(response, delimiter=str(";"),
+                        dialect='excel')  # quoting=csv.QUOTE_ALL,writer = csv.writer(resultado, delimiter=str(';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+    response.write(u'\ufeff'.encode('utf8'))  # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+    writer.writerow([u'Codi projecte',u'Codi responsable', u'Organisme Receptor', u'Import Rebut'])
+    for projecte in projectes:
+        receptors = Receptors.objects.filter(id_projecte=projecte["id_projecte"]).values("id_organisme__nom_organisme","import_rebut")
+        # cod_responsable = str(projecte["id_resp__codi_resp"])
+        # cod_projecte = str(projecte["codi_prj"])
+        #
+        # if len(cod_responsable) < 2:
+        #     cod_responsable = "0" + str(cod_responsable)
+        # if len(cod_projecte) < 3:
+        #     if len(cod_projecte) < 2:
+        #         cod_projecte = "00" + str(cod_projecte)
+        #     else:
+        #         cod_projecte = "0" + str(cod_projecte)
+        for receptor in receptors:
+            writer.writerow([projecte["codi_prj"],projecte["id_resp__codi_resp"],receptor["id_organisme__nom_organisme"],receptor["import_rebut"]])
+
+    return response
+
+@login_required(login_url='/menu/')
+def GenerarInformeJustificacionsInternesPeriode(request): # AJAX PARA GENERAR INFORME DE LOS RECEPTORES DE PROYECTOS EN X PERIODO(para Agusti)
+
+    projectes = Projectes.objects.filter(data_fi_prj__gte=datetime.strptime(request.POST["data_ini"], "%d-%m-%Y"), data_fi_prj__lte= datetime.strptime(request.POST["data_fi"], "%d-%m-%Y")).values("id_projecte","id_resp__codi_resp","codi_prj","acronim","data_inici_prj","data_fi_prj","codi_oficial","titol","acronim","resum","percen_iva","percen_canon_creaf","canon_oficial","id_categoria","resolucio")
+    resultado = []
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="InformeJustificacionsInternesProjectesPeriode_' + str(
+        request.POST["data_ini"]) + '_a_' + str(request.POST["data_fi"]) + '.csv"'
+
+    writer = csv.writer(response, delimiter=str(";"),
+                        dialect='excel')  # quoting=csv.QUOTE_ALL,writer = csv.writer(resultado, delimiter=str(';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+    response.write(u'\ufeff'.encode('utf8'))  # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+    writer.writerow([u'Codi projecte',u'Codi responsable', u'Data Assentament', u'Numero Assentament', u'Descripcio', u'Import'])
+    for projecte in projectes:
+        justificacions = JustificInternes.objects.filter(id_projecte=projecte["id_projecte"]).values("data_assentament","id_assentament","desc_justif","import_field")
+        # cod_responsable = str(projecte["id_resp__codi_resp"])
+        # cod_projecte = str(projecte["codi_prj"])
+        #
+        # if len(cod_responsable) < 2:
+        #     cod_responsable = "0" + str(cod_responsable)
+        # if len(cod_projecte) < 3:
+        #     if len(cod_projecte) < 2:
+        #         cod_projecte = "00" + str(cod_projecte)
+        #     else:
+        #         cod_projecte = "0" + str(cod_projecte)
+        for justificacio in justificacions:
+            writer.writerow([projecte["codi_prj"],projecte["id_resp__codi_resp"],justificacio["data_assentament"],justificacio["id_assentament"],justificacio["desc_justif"],justificacio["import_field"]])
+
+    return response
+
+
+@login_required(login_url='/menu/')
+def GenerarInformeConcessionsPeriode(request): # AJAX PARA GENERAR INFORME DE LOS RECEPTORES DE PROYECTOS EN X PERIODO(para Agusti)
+
+    projectes = Projectes.objects.filter(data_fi_prj__gte=datetime.strptime(request.POST["data_ini"], "%d-%m-%Y"), data_fi_prj__lte= datetime.strptime(request.POST["data_fi"], "%d-%m-%Y")).values("id_projecte","id_resp__codi_resp","codi_prj","acronim","data_inici_prj","data_fi_prj","codi_oficial","titol","acronim","resum","percen_iva","percen_canon_creaf","canon_oficial","id_categoria","resolucio")
+    resultado = []
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="InformeConcessionsRenovacionsProjectesPeriode_' + str(
+        request.POST["data_ini"]) + '_a_' + str(request.POST["data_fi"]) + '.csv"'
+
+    writer = csv.writer(response, delimiter=str(";"),
+                        dialect='excel')  # quoting=csv.QUOTE_ALL,writer = csv.writer(resultado, delimiter=str(';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+    response.write(u'\ufeff'.encode('utf8'))  # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+    writer.writerow([u'Codi projecte',u'Codi responsable',u'Data Inici', u'Data Fi', u'Import Concedit'])
+    for projecte in projectes:
+        renovacions = Renovacions.objects.filter(id_projecte=projecte["id_projecte"]).values("data_inici","data_fi","import_concedit")
+        # cod_responsable = str(projecte["id_resp__codi_resp"])
+        # cod_projecte = str(projecte["codi_prj"])
+        #
+        # if len(cod_responsable) < 2:
+        #     cod_responsable = "0" + str(cod_responsable)
+        # if len(cod_projecte) < 3:
+        #     if len(cod_projecte) < 2:
+        #         cod_projecte = "00" + str(cod_projecte)
+        #     else:
+        #         cod_projecte = "0" + str(cod_projecte)
+        for renovacio in renovacions:
+            writer.writerow([projecte["codi_prj"],projecte["id_resp__codi_resp"],renovacio["data_inici"],renovacio["data_fi"],renovacio["import_concedit"]])
+
+    return response
+
 
 @login_required(login_url='/menu/')
 def ListProjectesResponsableCabecera(request): # AJAX PARA LOS PROYECTOS POR RESPONSABLES DE LA CABECERA

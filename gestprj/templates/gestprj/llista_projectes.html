@@ -24,9 +24,9 @@
             {% for projecte in llista_projectes %}
                 <tr>
                     {% if projecte.id_estat_prj.desc_estat_prj == "Tancat" %}
-                    <td style="background:#DC4040">{{ projecte.id_estat_prj }}</td>
+                    <td style="background:#DC4040">{{ projecte.id_estat_prj.desc_estat_prj }}</td>
                     {% else %}
-                    <td style="background:#61E66F">{{ projecte.id_estat_prj }}</td>
+                    <td style="background:#61E66F">{{ projecte.id_estat_prj.desc_estat_prj }}</td>
                     {% endif %}
                     <td>{{ projecte.acronim }}</td>
                     <td>{{ projecte.codigo_entero }}</td>

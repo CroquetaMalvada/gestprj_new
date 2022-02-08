@@ -66,7 +66,6 @@ var opciones_idioma = {
 }
 
 $(document).ready(function(){
-
 //    $(".number").each(function(){
 //        $(this).val()=formatnumber( $(this).val(), separador_miles, separador_decimales, 2 );
 //    });
@@ -190,7 +189,7 @@ function crear_datatable(tipo){
         return $("#table_centres_participants").DataTable({//contiene los centros que participan en este projecto(solo deberia ejecutarse al cargar un proyecto)
                 ajax: {
                     url: '/show_centresPart/'+id_prj+"/",
-                    dataSrc: 'results',
+                    dataSrc: "",
                 },
                 columns:[
                 {'data': 'url'},
@@ -214,7 +213,7 @@ function crear_datatable(tipo){
         return $("#table_participants_organismes").children("table").DataTable({
             ajax: {
                 url: '/show_TOrganismes/'+id_prj+"/",
-                dataSrc: 'results'
+                dataSrc: ""
             },
             columns:[
                 {'data': 'url'},
@@ -254,7 +253,7 @@ function crear_datatable(tipo){
         return $("#table_personal_creaf").DataTable({
             ajax: {
                 url: '/show_Personal_creaf_prj/'+id_prj+"/",
-                dataSrc: 'results'
+                dataSrc: ""
             },
             columns:[
                 {'data': 'url'},
@@ -284,7 +283,7 @@ function crear_datatable(tipo){
         return $("#table_usuaris_creaf").children("table").DataTable({
             ajax: {
                 url: '/show_Personal_creaf/'+id_prj+"/",
-                dataSrc: 'results'
+                dataSrc: ""
             },
             columns:[
                 {'data': 'url'},
@@ -309,7 +308,7 @@ function crear_datatable(tipo){
         return $("#table_personal_extern").DataTable({
             ajax: {
                 url: '/show_Personal_extern_prj/'+id_prj+"/",
-                dataSrc: 'results'
+                dataSrc: ""
             },
             columns:[
                 {'data': 'url'},
@@ -333,7 +332,7 @@ function crear_datatable(tipo){
         return $("#table_usuaris_externs").children("table").DataTable({
             ajax: {
                 url: '/show_Personal_extern/'+id_prj+"/",
-                dataSrc: 'results'
+                dataSrc: ""
             },
             columns:[
                 {'data': 'url'},
@@ -358,7 +357,7 @@ function crear_datatable(tipo){
         return $("#table_justificacions_personal").children("table").DataTable({
             ajax: {
                 url: '/json_vacio_results/',
-                dataSrc: 'results'
+                dataSrc: ""
             },
             columns:[
                 {'data': 'url'},
@@ -397,7 +396,7 @@ function crear_datatable(tipo){
         return $("#table_organismes_fin").DataTable({
                     ajax: {
                         url: '/show_OrganismesFin/'+id_prj+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},
@@ -433,7 +432,7 @@ function crear_datatable(tipo){
         return $("#table_organismes_rec").DataTable({
                     ajax: {
                         url: '/show_OrganismesRec/'+id_prj+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},
@@ -469,7 +468,7 @@ function crear_datatable(tipo){
         return $("#table_justificacions_internes").DataTable({
                     ajax: {
                         url: '/show_justificInternes/'+id_prj+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},
@@ -507,7 +506,7 @@ function crear_datatable(tipo){
         return $("#table_renovacions").DataTable({
                     ajax: {
                         url: '/show_Renovacions/'+id_prj+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},
@@ -544,7 +543,7 @@ function crear_datatable(tipo){
         return $("#table_pressupost").DataTable({
                     ajax: {
                         url: '/show_Pressupost/'+id_prj+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},
@@ -594,7 +593,7 @@ function crear_datatable(tipo){
         return $("#table_periodicitat_pressupost").DataTable({
                     ajax: {
                         url: '/show_PeriodicitatPres/'+id_prj+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},
@@ -633,7 +632,7 @@ function crear_datatable(tipo){
         return $("#table_periodicitat_partida").DataTable({
                     ajax: {
                         url: '/show_PeriodicitatPartida/'+id_current_partida+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},
@@ -671,7 +670,7 @@ function crear_datatable(tipo){
         return $("#table_desglossament").DataTable({
                     ajax: {
                         url: '/show_Desglossament/'+id_current_partida+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},
@@ -704,7 +703,7 @@ function crear_datatable(tipo){
         return $("#table_justificacions_projecte").DataTable({
                     ajax: {
                         url: '/show_JustificacionsProjecte/'+id_prj+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},
@@ -738,7 +737,7 @@ function crear_datatable(tipo){
         return $("#table_auditories").DataTable({
                     ajax: {
                         url: '/show_Auditories/'+id_prj+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},
@@ -772,7 +771,7 @@ function crear_datatable(tipo){
         return $("#table_compromes_personal").DataTable({
                     ajax: {
                         url: '/show_compromes_personal/'+id_prj+"/",
-                        dataSrc: 'results'
+                        dataSrc: ""
                     },
                     columns:[
                         {'data': 'url'},

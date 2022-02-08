@@ -5,8 +5,8 @@ from gestprj.models import TCategoriaPrj
 from gestprj.models import Projectes
 from gestprj.models import CentresParticipants
 from gestprj.models import TCategoriaPrj
-from django.forms.extras.widgets import SelectDateWidget
-
+#from django.forms.extras.widgets import SelectDateWidget
+from django.forms.widgets import SelectDateWidget
 #
 # class UsuariXarxaForm(forms.ModelForm):
 #     id_usuari_xarxa = forms.DecimalField()

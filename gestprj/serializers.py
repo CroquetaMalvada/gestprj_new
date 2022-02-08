@@ -86,7 +86,7 @@ class PersonalExtern_i_organitzacioSerializer(serializers.ModelSerializer):
 
 # USUARIS EXTERNS #################
 class TUsuarisExternsSerializer(serializers.ModelSerializer): # info a obtener/mostrar
-    nom_organisme = serializers.CharField(source='id_organisme.nom_organisme', read_only=True)
+    nom_organisme = serializers.CharField(source='id_organisme.nom_organisme', read_only=True, allow_null=True)
 
     class Meta:
         model = TUsuarisExterns
@@ -100,7 +100,7 @@ class GestTUsuarisExternsSerializer(serializers.ModelSerializer): # datos necesa
 
 # RESPONSABLES ####################
 class ResponsablesSerializer(serializers.ModelSerializer): # info a obtener/mostrar
-    nom = serializers.CharField(source='id_usuari.nom_usuari', read_only=True)
+    nom = serializers.CharField(source='id_usuari.nom_usuari', read_only=True, allow_null=True)
 
     class Meta:
         model = Responsables
@@ -122,7 +122,7 @@ class GestResponsablesSerializer(serializers.ModelSerializer): # datos necesario
 #         fields = ('url','data_inici','data_fi','nom_feina','hores','cost_hora')
 
 class GestJustificPersonalSerializer(serializers.ModelSerializer): # info a obtener/mostrar
-    nom_feina = serializers.CharField(source='id_feina.desc_feina', read_only=True)
+    nom_feina = serializers.CharField(source='id_feina.desc_feina', read_only=True, allow_null=True)
 
     class Meta:
         model = JustificPersonal
@@ -136,14 +136,14 @@ class GestJustifInternesSerializer(serializers.ModelSerializer): # info a obtene
 # FINANCAMENT ######################
 
 class GestOrganismesFinSerializer(serializers.ModelSerializer): # info a obtener/mostrar
-    nom_organisme = serializers.CharField(source='id_organisme.nom_organisme', read_only=True)
+    nom_organisme = serializers.CharField(source='id_organisme.nom_organisme', read_only=True, allow_null=True)
     class Meta:
         model = Financadors
         fields = ('url','id_projecte','id_organisme','nom_organisme','import_concedit')
 
 # RECEPTORS #####################
 class GestOrganismesRecSerializer(serializers.ModelSerializer): # info a obtener/mostrar
-    nom_organisme = serializers.CharField(source='id_organisme.nom_organisme', read_only=True)
+    nom_organisme = serializers.CharField(source='id_organisme.nom_organisme', read_only=True, allow_null=True)
     class Meta:
         model = Receptors
         fields = ('url','id_projecte','id_organisme','nom_organisme','import_rebut')
@@ -165,8 +165,8 @@ class GestConceptesPressSerializer(serializers.ModelSerializer):
 # PRESSUPOST ######################
 
 class GestPressupostSerializer(serializers.ModelSerializer):
-    nom_partida = serializers.CharField(source='id_concepte_pres.desc_concepte', read_only=True)
-    id_part = serializers.DecimalField(max_digits=10, decimal_places=0, source='id_partida',read_only=True)
+    nom_partida = serializers.CharField(source='id_concepte_pres.desc_concepte', read_only=True, allow_null=True)
+    id_part = serializers.DecimalField(max_digits=10, decimal_places=0, source='id_partida',read_only=True, allow_null=True)
     class Meta:
         model = Pressupost
         fields =('url','id_part','id_projecte','id_concepte_pres','nom_partida','import_field')
@@ -174,15 +174,15 @@ class GestPressupostSerializer(serializers.ModelSerializer):
 # PERIODICITAT PRESSUPOST ############
 
 class GestPeriodicitatPresSerializer(serializers.ModelSerializer):
-    id_perio = serializers.DecimalField(max_digits=10, decimal_places=0, source='id_periodicitat',read_only=True)
+    id_perio = serializers.DecimalField(max_digits=10, decimal_places=0, source='id_periodicitat',read_only=True, allow_null=True)
     class Meta:
         model = PeriodicitatPres
         fields =('url','id_perio','id_projecte','data_inicial','data_final','etiqueta')
 # PERIODICITAT PARTIDA ############
 
 class GestPeriodicitatPartidaSerializer(serializers.ModelSerializer):
-    data_inicial_perio = serializers.DateField(source='id_periodicitat.data_inicial', read_only=True)
-    data_final_perio = serializers.DateField(source='id_periodicitat.data_final', read_only=True)
+    data_inicial_perio = serializers.DateTimeField(source='id_periodicitat.data_inicial', read_only=True, allow_null=True)
+    data_final_perio = serializers.DateTimeField(source='id_periodicitat.data_final', read_only=True, allow_null=True)
 
     class Meta:
         model = PeriodicitatPartida
@@ -190,7 +190,7 @@ class GestPeriodicitatPartidaSerializer(serializers.ModelSerializer):
 
 # DESGLOSSAMENT ############
 class GestDesglossamentSerializer(serializers.ModelSerializer):
-    clau = serializers.CharField(source='id_compte.clau_compte', read_only=True)
+    clau = serializers.CharField(source='id_compte.clau_compte', read_only=True, allow_null=True)
     class Meta:
         model = Desglossaments
         fields =('url','id_partida','compte','id_compte','clau','desc_compte','import_field')

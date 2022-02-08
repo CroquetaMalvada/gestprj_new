@@ -25,7 +25,7 @@ $(document).ready(function(){
         organismes_cabecera= $("#table_organismes_cabecera").children("table").DataTable({
                 ajax: {
                     url: '/json_vacio_results/',
-                    dataSrc: 'results'
+                    dataSrc: ""
                 },
                 columns:[
                     {'data': 'url'},
@@ -48,7 +48,7 @@ $(document).ready(function(){
         usuaris_creaf_cabecera = $("#table_usuaris_creaf_cabecera").children("table").DataTable({
                 ajax: {
                     url: '/json_vacio_results/',
-                    dataSrc: 'results'
+                    dataSrc: ""
                 },
                 columns:[
                     {'data': 'url'},
@@ -72,7 +72,7 @@ $(document).ready(function(){
         usuaris_externs_cabecera = $("#table_usuaris_externs_cabecera").children("table").DataTable({
                 ajax: {
                     url: '/json_vacio_results/',
-                    dataSrc: 'results'
+                    dataSrc: ""
                 },
                 columns:[
                     {'data': 'url'},
@@ -96,7 +96,7 @@ $(document).ready(function(){
         responsables_cabecera = $("#table_responsables_cabecera").children("table").DataTable({
                 ajax: {
                     url: '/json_vacio_results/',
-                    dataSrc: 'results'
+                    dataSrc: ""
                 },
                 columns:[
                     {'data': 'url'},
@@ -170,11 +170,62 @@ $(document).ready(function(){
                 language: opciones_idioma,
             });
 
+        ///////////// INFORME POJECTES PERIODE
+        informe_periode_cabecera = $("#table_informe_periode_cabecera").children("table").DataTable({
+                ajax: {
+                    url:'/json_vacio/',
+                    contentType: "application/json;",
+                    dataSrc: ''
+                },
+                columns:[
+                    {'data': 'data'},
+                    {'data': 'codi'},
+                    {'data': 'nom'},
+                    {'data': 'responsable'},
+                    {'data': 'periode'},
+                    {'data': 'observacions'}
+                ],
+                columnDefs: [
+                    { type: 'de_date', targets: 0 },
+                    {"width": "10%", targets:[0,1]},
+                    {"width": "20%","className":"dt-left", targets:[2,3,4,5]}
+                ],
+                dom: 'Bfrtip',
+                buttons:[{
+                    extend: 'print',
+                    header: true,
+                    footer: true,
+                    title: function(){return $("#table_justificacions_cabecera").attr("title");},
+                    text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                    autoPrint: true
+                },{
+                    extend: 'excel',
+                    filename: function(){return $("#table_justificacions_cabecera").attr("title");},
+                    text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>'
+                },{
+                    extend: 'pdf',
+                    title: function(){return $("#table_justificacions_cabecera").attr("title");},
+                    footer: true,
+                    text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+                },{
+                    extend: 'csv',
+                    filename: function(){return $("#table_justificacions_cabecera").attr("title");},
+                    footer: true,
+                    text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+                }],
+                scrollY:        '70vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
+            });
+
         /////////////PERMISOS USUARIOS CONSULTAR PROYECTOS
         permisos_usuaris_consultar = $("#table_permisos_usuaris_consultar").children("table").DataTable({
                 ajax: {
                     url: '/json_vacio_results/',
-                    dataSrc: 'results'
+                    dataSrc: ""
                 },
                 columns:[
                     {'data': 'url'},
@@ -594,7 +645,7 @@ $(document).ready(function(){
         grups_pci_cabecera = $("#table_grups_pci_cabecera").children("table").DataTable({
                 ajax: {
                     url: '/json_vacio_results/',
-                    dataSrc: 'results'
+                    dataSrc: ""
                 },
                 columns:[
                     {'data': 'url'},
@@ -663,7 +714,7 @@ $(document).ready(function(){
         organismes_grup_pci = $("#table_editar_organisme_grup_pci").children("table").DataTable({
                 ajax: {
                     url: '/json_vacio_results/',
-                    dataSrc: 'results'
+                    dataSrc: ""
                 },
                 columns:[
                     {'data': 'url'},
@@ -1009,6 +1060,50 @@ function dialog_projectes_per_responsable_cabecera(){
 
                 }
 
+    });
+}
+
+///// DIALOG CABECERA "CONSULTES > INFORME DE PROJECTES EN PERIODE"
+function dialog_informe_projectes_periode(tipo){
+    return $.confirm({
+            title:"Informe de projectes en període",
+            content:'Data inici:  <input id="data_min_informe_periode_cabecera" /><br>Data final: <input id="data_max_informe_periode_cabecera" /><br><h5>Generar en format:</h5><input type="radio" name="tipo_informe" value="1" checked>Xlsx( Excel )</input><br><input type="radio" name="tipo_informe" value="2">Csv</input>',
+            onOpen: function(){
+                $("#data_min_informe_periode_cabecera").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false, changeMonth: true, changeYear: true, yearRange: "1997:c", defaultDate: new Date(1997, 0, 1)});//minDate: (new Date(1997, 1 - 1 , 1)), maxDate: 0
+                $("#data_max_informe_periode_cabecera").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false, changeMonth: true, changeYear: true, yearRange: "1997:c", defaultDate: new Date() });
+                //asignarles un valor por defecto
+                $("#data_min_informe_periode_cabecera").datepicker("setDate", new Date(1997, 0, 1));
+                $("#data_max_informe_periode_cabecera").datepicker("setDate", new Date());
+            },
+            confirmButton: 'Generar',
+            cancelButton: 'Cancel·lar',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            confirm: function(){
+                $("#form_generar_informe_periode_cabecera_data_ini").attr("value",$("#data_min_informe_periode_cabecera").val());
+                $("#form_generar_informe_periode_cabecera_data_fin").attr("value",$("#data_max_informe_periode_cabecera").val());
+                $("#form_generar_informe_periode_cabecera_tipo").attr("value",$('input[name=tipo_informe]:checked').val());
+                //$("#form_generar_informe_periode_cabecera").attr("action", "/generar_informe_periode_cabecera/"+$("#data_min_informe_periode_cabecera").val()+"/"+$("#data_max_informe_periode_cabecera").val());
+                if(tipo==1){
+                    $("#form_generar_informe_periode_cabecera").attr("action","/generar_informe_periode_cabecera/");
+                }else if(tipo==2){
+                    $("#form_generar_informe_periode_cabecera").attr("action","/generar_informe_financadors_periode_cabecera/");
+                }else if(tipo==3){
+                    $("#form_generar_informe_periode_cabecera").attr("action","/generar_informe_receptors_periode_cabecera/");
+                }else if(tipo==4){
+                    $("#form_generar_informe_periode_cabecera").attr("action","/generar_informe_justificacions_internes_periode_cabecera/");
+                }else if(tipo==5){
+                    $("#form_generar_informe_periode_cabecera").attr("action","/generar_informe_concessions_periode_cabecera/");
+                }
+
+                $("#form_generar_informe_periode_cabecera").submit();
+//                var tabla=$("#table_justificacions_cabecera").children("table").DataTable()
+//                informe_periode_cabecera.ajax.url("/generar_informe_periode_cabecera/"+$("#data_min_informe_periode_cabecera").val()+"/"+$("#data_max_informe_periode_cabecera").val()).load();
+//                informe_periode_cabecera.ajax.reload();
+//                $("#table_informe_periode_cabecera").attr("title","Informe de projectes actius durant el període de "+$("#data_min_informe_periode_cabecera").val()+" a "+$("#data_max_informe_periode_cabecera").val());
+//                mostrar_dialog_cabecera("table_informe_periode_cabecera");
+
+            }
     });
 }
 

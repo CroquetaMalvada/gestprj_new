@@ -74,7 +74,7 @@ class TUsuarisXarxa(models.Model):
         managed = False
         db_table = 'T_USUARIS_XARXA'
 
-    def __unicode__( self ):
+    def __str__(self):#def __unicode__( self ):
         return "{0} - {1}".format( self.id_usuari_xarxa, self.nom_xarxa )
 
 
@@ -97,7 +97,7 @@ class TOrganismes(models.Model):
         managed = False
         db_table = 'T_ORGANISMES'
 
-    def __unicode__(self):
+    def __str__(self):#def __unicode__(self):
         return self.nom_organisme
 
 class TCategoriaPrj(models.Model):
@@ -109,7 +109,7 @@ class TCategoriaPrj(models.Model):
         managed = False
         db_table = 'T_CATEGORIA_PRJ'
 
-    def __unicode__(self):
+    def __str__(self):#def __unicode__(self):
         return self.desc_categoria
 
 class TEstatPrj(models.Model):
@@ -120,7 +120,7 @@ class TEstatPrj(models.Model):
         managed = False
         db_table = 'T_ESTAT_PRJ'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.desc_estat_prj
 
 class TUsuarisCreaf(models.Model):
@@ -162,13 +162,13 @@ class TUsuarisExterns(models.Model):
     e_mail2 = models.CharField(db_column='E_MAIL2', max_length=255, blank=True)  # Field name made lowercase.
 
     #FOREIGN KEYS
-    id_organisme = models.ForeignKey(TOrganismes,related_name="organisme_de",db_column='ID_ORGANISME')
+    id_organisme = models.ForeignKey(TOrganismes,related_name="organisme_de",db_column='ID_ORGANISME',on_delete=models.DO_NOTHING)
 
     class Meta:
         managed = False
         db_table = 'T_USUARIS_EXTERNS'
 
-    def __unicode__(self):
+    def __str__(self):#def __unicode__(self):
         return "{0} ---- {1}".format(self.nom_usuari_extern,self.id_organisme)
 
 
@@ -179,7 +179,7 @@ class PersonalExtern(models.Model):
     # id_usuari_extern = models.DecimalField(db_column='ID_USUARI_EXTERN', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
 
     #FOREIGN KEYS
-    id_usuari_extern = models.ForeignKey(TUsuarisExterns,related_name="usuari_extern_de",db_column='ID_USUARI_EXTERN')
+    id_usuari_extern = models.ForeignKey(TUsuarisExterns,related_name="usuari_extern_de",db_column='ID_USUARI_EXTERN',on_delete=models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -192,13 +192,13 @@ class Responsables(models.Model):
     id_resp = models.AutoField(db_column='ID_RESP', primary_key=True)  # Field name made lowercase.
     codi_resp = models.DecimalField(db_column='CODI_RESP', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
     # FOREIGN KEYS
-    id_usuari = models.ForeignKey(TUsuarisCreaf,related_name="usuari_de_responsable",db_column='ID_USUARI')  # Field name made lowercase.
+    id_usuari = models.ForeignKey(TUsuarisCreaf,related_name="usuari_de_responsable",db_column='ID_USUARI',on_delete=models.DO_NOTHING)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'RESPONSABLES'
 
-    def __unicode__( self ):
+    def __str__(self):#def __unicode__( self ):
         responsables = "{0} - {1}".format( self.codi_resp, self.id_usuari.nom_usuari )
         return responsables
 
@@ -220,7 +220,7 @@ class Projectes(models.Model):
     percen_canon_creaf = models.DecimalField(db_column='PERCEN_CANON_CREAF', max_digits=7, decimal_places=4, blank=True, null=True,default=0)  # Field name made lowercase.
     percen_iva = models.DecimalField(db_column='PERCEN_IVA', max_digits=7, decimal_places=4, blank=True, null=True,default=0)  # Field name made lowercase.
     es_docum_web = models.CharField(db_column='ES_DOCUM_WEB', max_length=1, blank=True)  # Field name made lowercase.
-    data_docum_web = models.DateField(db_column='DATA_DOCUM_WEB', blank=True, null=True)  # QUIZAS HAYA QUE USAR DATEFIELD!!!.
+    data_docum_web = models.DateTimeField(db_column='DATA_DOCUM_WEB', blank=True, null=True)  # QUIZAS HAYA QUE USAR DateTimeField!!!.
     # id_estat_prj = models.DecimalField(db_column='ID_ESTAT_PRJ', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
     es_coordinat = models.CharField(db_column='ES_COORDINAT', max_length=1, blank=True)  # Field name made lowercase.
     # id_usuari_extern = models.DecimalField(db_column='ID_USUARI_EXTERN', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
@@ -233,10 +233,10 @@ class Projectes(models.Model):
     centres_participants = models.ManyToManyField(TOrganismes, through='CentresParticipants')
 
     #FOREIGN KEYS
-    id_resp = models.ForeignKey(Responsables,related_name="responsable_de",db_column='ID_RESP')
-    id_categoria = models.ForeignKey(TCategoriaPrj,related_name="categoria_de",db_column='ID_CATEGORIA')
-    id_estat_prj = models.ForeignKey(TEstatPrj,related_name="estat_de",db_column='ID_ESTAT_PRJ')
-    id_usuari_extern = models.ForeignKey(TUsuarisExterns,related_name="extern_de",db_column='ID_USUARI_EXTERN',null=True, blank=True)
+    id_resp = models.ForeignKey(Responsables,related_name="responsable_de",db_column='ID_RESP',on_delete=models.DO_NOTHING)
+    id_categoria = models.ForeignKey(TCategoriaPrj,related_name="categoria_de",db_column='ID_CATEGORIA',on_delete=models.DO_NOTHING)
+    id_estat_prj = models.ForeignKey(TEstatPrj,related_name="estat_de",db_column='ID_ESTAT_PRJ',on_delete=models.DO_NOTHING)
+    id_usuari_extern = models.ForeignKey(TUsuarisExterns,related_name="extern_de",db_column='ID_USUARI_EXTERN',null=True, blank=True,on_delete=models.DO_NOTHING)
 
 
     class Meta:
@@ -252,8 +252,8 @@ class PersonalCreaf(models.Model):
     es_justificacio = models.CharField(db_column='ES_JUSTIFICACIO', max_length=1, blank=True)  # Field name made lowercase.
 
     #FOREIGN KEYS
-    id_projecte = models.ForeignKey(Projectes,related_name="projecte_de",db_column="ID_PROJECTE")
-    id_usuari = models.ForeignKey(TUsuarisCreaf,related_name="usuari_de",db_column="ID_USUARI")
+    id_projecte = models.ForeignKey(Projectes,related_name="projecte_de",db_column="ID_PROJECTE",on_delete=models.DO_NOTHING)
+    id_usuari = models.ForeignKey(TUsuarisCreaf,related_name="usuari_de",db_column="ID_USUARI",on_delete=models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -264,12 +264,12 @@ class Renovacions(models.Model):
     id_renovacio = models.AutoField(db_column='ID_RENOVACIO', primary_key=True)  # Field name made lowercase.
     # id_renovacio = models.DecimalField(db_column='ID_RENOVACIO', max_digits=10, decimal_places=0, blank=True, primary_key=True)  # Field name made lowercase.
     # id_projecte = models.DecimalField(db_column='ID_PROJECTE', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
-    data_inici = models.DateField(db_column='DATA_INICI', blank=True, null=True)  # Field name made lowercase.
-    data_fi = models.DateField(db_column='DATA_FI', blank=True, null=True)  # Field name made lowercase.
+    data_inici = models.DateTimeField(db_column='DATA_INICI', blank=True, null=True)  # Field name made lowercase.
+    data_fi = models.DateTimeField(db_column='DATA_FI', blank=True, null=True)  # Field name made lowercase.
     import_concedit = models.DecimalField(db_column='IMPORT_CONCEDIT', max_digits=17, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
 
     #FOREIGN KEYS
-    id_projecte = models.ForeignKey(Projectes,db_column="ID_PROJECTE")
+    id_projecte = models.ForeignKey(Projectes,db_column="ID_PROJECTE",on_delete=models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -279,8 +279,8 @@ class Renovacions(models.Model):
 class PrjUsuaris(models.Model):
     # id_prj_usuaris = models.DecimalField(db_column='ID_PRJ_USUARIS', max_digits=10, decimal_places=0, blank=True, primary_key=True)  # Field name made lowercase.
     id_prj_usuaris = models.AutoField(db_column='ID_PRJ_USUARIS', primary_key=True)  # Field name made lowercase.
-    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE')
-    id_usuari_xarxa = models.ForeignKey(TUsuarisXarxa,db_column='ID_USUARI_XARXA')
+    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE',on_delete=models.DO_NOTHING)
+    id_usuari_xarxa = models.ForeignKey(TUsuarisXarxa,db_column='ID_USUARI_XARXA',on_delete=models.DO_NOTHING)
 
 
     class Meta:
@@ -292,9 +292,9 @@ class CentresParticipants(models.Model):
     id_centre_part = models.AutoField(db_column='ID_CENTRE_PART',primary_key=True) #es necesario que el campo este como is identity en el servidor
     # id_centre_part = models.DecimalField(db_column='ID_CENTRE_PART', max_digits=10, decimal_places=0, blank=True, primary_key=True)  # Field name made lowercase.
     #id_projecte = models.DecimalField(db_column='ID_PROJECTE', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
-    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE')
+    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE',on_delete=models.DO_NOTHING)
     #id_organisme = models.DecimalField(db_column='ID_ORGANISME', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
-    id_organisme = models.ForeignKey(TOrganismes,db_column='ID_ORGANISME')
+    id_organisme = models.ForeignKey(TOrganismes,db_column='ID_ORGANISME',on_delete=models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -312,8 +312,8 @@ class TFeines(models.Model):
 class JustificPersonal(models.Model):
     id_justificacio = models.AutoField(db_column='ID_JUSTIFICACIO',primary_key=True)  # Field name made lowercase.
     # id_perso_creaf = models.DecimalField(db_column='ID_PERSO_CREAF', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
-    data_inici = models.DateField(db_column='DATA_INICI', blank=True, null=True)  # Field name made lowercase.
-    data_fi = models.DateField(db_column='DATA_FI', blank=True, null=True)  # Field name made lowercase.
+    data_inici = models.DateTimeField(db_column='DATA_INICI', blank=True, null=True)  # Field name made lowercase.
+    data_fi = models.DateTimeField(db_column='DATA_FI', blank=True, null=True)  # Field name made lowercase.
     # id_feina = models.DecimalField(db_column='ID_FEINA', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
     hores = models.DecimalField(db_column='HORES', max_digits=17, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
     cost_hora = models.DecimalField(db_column='COST_HORA', max_digits=17, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
@@ -323,14 +323,14 @@ class JustificPersonal(models.Model):
         db_table = 'JUSTIFIC_PERSONAL'
 
     #FOREIGN KEYS
-    id_perso_creaf = models.ForeignKey(PersonalCreaf,db_column='ID_PERSO_CREAF')
-    id_feina = models.ForeignKey(TFeines,db_column='ID_FEINA')
+    id_perso_creaf = models.ForeignKey(PersonalCreaf,db_column='ID_PERSO_CREAF',on_delete=models.DO_NOTHING)
+    id_feina = models.ForeignKey(TFeines,db_column='ID_FEINA',on_delete=models.DO_NOTHING)
 
 class JustificInternes(models.Model):
     id_justific_internes = models.AutoField(db_column='ID_JUSTIFIC_INTERNES', primary_key=True)  # Field name made lowercase.
     # id_justific_internes = models.DecimalField(db_column='ID_JUSTIFIC_INTERNES', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
     # id_projecte = models.DecimalField(db_column='ID_PROJECTE', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
-    data_assentament = models.DateField(db_column='DATA_ASSENTAMENT', blank=True, null=True)  # Field name made lowercase.
+    data_assentament = models.DateTimeField(db_column='DATA_ASSENTAMENT', blank=True, null=True)  # Field name made lowercase.
     id_assentament = models.DecimalField(db_column='ID_ASSENTAMENT', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
     desc_justif = models.CharField(db_column='DESC_JUSTIF', max_length=255, blank=True)  # Field name made lowercase.
     import_field = models.DecimalField(db_column='IMPORT', max_digits=17, decimal_places=2, blank=True, null=True)  # Field name made lowercase. Field renamed because it was a Python reserved word.
@@ -340,7 +340,7 @@ class JustificInternes(models.Model):
         db_table = 'JUSTIFIC_INTERNES'
 
     #FOREIGN KEYS
-    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE')
+    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE',on_delete=models.DO_NOTHING)
 
 class Financadors(models.Model):
     id_financadors = models.AutoField(db_column='ID_FINANCADORS', primary_key=True)  # Field name made lowercase.
@@ -353,8 +353,8 @@ class Financadors(models.Model):
         db_table = 'FINANCADORS'
 
     #FOREIGN KEYS
-    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE')
-    id_organisme = models.ForeignKey(TOrganismes,db_column='ID_ORGANISME')
+    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE',on_delete=models.DO_NOTHING)
+    id_organisme = models.ForeignKey(TOrganismes,db_column='ID_ORGANISME',on_delete=models.DO_NOTHING)
 
 class Receptors(models.Model):
     id_receptors = models.AutoField(db_column='ID_RECEPTORS', primary_key=True)  # Field name made lowercase.
@@ -367,8 +367,8 @@ class Receptors(models.Model):
         db_table = 'RECEPTORS'
 
     #FOREIGN KEYS
-    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE')
-    id_organisme = models.ForeignKey(TOrganismes,db_column='ID_ORGANISME')
+    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE',on_delete=models.DO_NOTHING)
+    id_organisme = models.ForeignKey(TOrganismes,db_column='ID_ORGANISME',on_delete=models.DO_NOTHING)
 
 class TConceptesPress(models.Model):
     id_concepte_pres = models.AutoField(db_column='ID_CONCEPTE_PRES', primary_key=True)  # Field name made lowercase.
@@ -388,8 +388,8 @@ class Pressupost(models.Model):
     import_field = models.DecimalField(db_column='IMPORT', max_digits=17, decimal_places=2, blank=True, null=True)  # Field name made lowercase. Field renamed because it was a Python reserved word.
 
     #FOREIGN KEYS
-    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE')
-    id_concepte_pres = models.ForeignKey(TConceptesPress,db_column='ID_CONCEPTE_PRES')
+    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE',on_delete=models.DO_NOTHING)
+    id_concepte_pres = models.ForeignKey(TConceptesPress,db_column='ID_CONCEPTE_PRES',on_delete=models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -399,12 +399,12 @@ class PeriodicitatPres(models.Model):
     id_periodicitat = models.AutoField(db_column='ID_PERIODICITAT', primary_key=True)  # Field name made lowercase.
     # id_periodicitat = models.DecimalField(db_column='ID_PERIODICITAT', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
     # id_projecte = models.DecimalField(db_column='ID_PROJECTE', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
-    data_inicial = models.DateField(db_column='DATA_INICIAL', blank=True, null=True)  # Field name made lowercase.
-    data_final = models.DateField(db_column='DATA_FINAL', blank=True, null=True)  # Field name made lowercase.
+    data_inicial = models.DateTimeField(db_column='DATA_INICIAL', blank=True, null=True)  # Field name made lowercase.
+    data_final = models.DateTimeField(db_column='DATA_FINAL', blank=True, null=True)  # Field name made lowercase.
     etiqueta = models.CharField(db_column='ETIQUETA', max_length=255, blank=True)  # Field name made lowercase.
 
     #FOREIGN KEYS
-    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE')
+    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE',on_delete=models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -418,8 +418,8 @@ class PeriodicitatPartida(models.Model):
     import_field = models.DecimalField(db_column='IMPORT', max_digits=17, decimal_places=2, blank=True, null=True)  # Field name made lowercase. Field renamed because it was a Python reserved word.
 
     #FOREIGN KEYS
-    id_partida = models.ForeignKey(Pressupost,db_column='ID_PARTIDA')
-    id_periodicitat = models.ForeignKey(PeriodicitatPres,db_column='ID_PERIODICITAT')
+    id_partida = models.ForeignKey(Pressupost,db_column='ID_PARTIDA',on_delete=models.DO_NOTHING)
+    id_periodicitat = models.ForeignKey(PeriodicitatPres,db_column='ID_PERIODICITAT',on_delete=models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -435,7 +435,7 @@ class ClausDiferenCompte(models.Model):
         managed = False
         db_table = 'CLAUS_DIFEREN_COMPTE'
 
-    def __unicode__( self ):
+    def __str__(self):#def __unicode__( self ):
         comptes= "{0} - {1}".format( self.clau_compte, self.desc_clau )
         return comptes
 
@@ -449,8 +449,8 @@ class Desglossaments(models.Model):
     import_field = models.DecimalField(db_column='IMPORT', max_digits=17, decimal_places=2, blank=True, null=True)  # Field name made lowercase. Field renamed because it was a Python reserved word.
 
     #FOREIGN KEYS
-    id_partida = models.ForeignKey(Pressupost,db_column='ID_PARTIDA')
-    id_compte = models.ForeignKey(ClausDiferenCompte,db_column='ID_COMPTE',null=True,blank=True)
+    id_partida = models.ForeignKey(Pressupost,db_column='ID_PARTIDA',on_delete=models.DO_NOTHING)
+    id_compte = models.ForeignKey(ClausDiferenCompte,db_column='ID_COMPTE',null=True,blank=True,on_delete=models.DO_NOTHING)
 
 
 
@@ -463,13 +463,13 @@ class JustificProjecte(models.Model):
     id_justificacio_prj = models.AutoField(db_column='ID_JUSTIFICACIO_PRJ', primary_key=True)  # Field name made lowercase.
     # id_justificacio_prj = models.DecimalField(db_column='ID_JUSTIFICACIO_PRJ', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
     # id_projecte = models.DecimalField(db_column='ID_PROJECTE', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
-    data_justificacio = models.DateField(db_column='DATA_JUSTIFICACIO', blank=True, null=True)  # Field name made lowercase.
-    data_inici_periode = models.DateField(db_column='DATA_INICI_PERIODE', blank=True, null=True)  # Field name made lowercase.
-    data_fi_periode = models.DateField(db_column='DATA_FI_PERIODE', blank=True, null=True)  # Field name made lowercase.
+    data_justificacio = models.DateTimeField(db_column='DATA_JUSTIFICACIO', blank=True, null=True)  # Field name made lowercase.
+    data_inici_periode = models.DateTimeField(db_column='DATA_INICI_PERIODE', blank=True, null=True)  # Field name made lowercase.
+    data_fi_periode = models.DateTimeField(db_column='DATA_FI_PERIODE', blank=True, null=True)  # Field name made lowercase.
     comentaris = models.TextField(db_column='COMENTARIS', blank=True)  # Field name made lowercase.
 
     #FOREIGN KEYS
-    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE')
+    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE',on_delete=models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -480,13 +480,13 @@ class AuditoriesProjecte(models.Model):
     id_auditoria_prj = models.AutoField(db_column='ID_AUDITORIA_PRJ', primary_key=True)  # Field name made lowercase.
     # id_auditoria_prj = models.DecimalField(db_column='ID_AUDITORIA_PRJ', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
     # id_projecte = models.DecimalField(db_column='ID_PROJECTE', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
-    data_auditoria = models.DateField(db_column='DATA_AUDITORIA', blank=True, null=True)  # Field name made lowercase.
-    data_inici_periode = models.DateField(db_column='DATA_INICI_PERIODE', blank=True, null=True)  # Field name made lowercase.
-    data_fi_periode = models.DateField(db_column='DATA_FI_PERIODE', blank=True, null=True)  # Field name made lowercase.
+    data_auditoria = models.DateTimeField(db_column='DATA_AUDITORIA', blank=True, null=True)  # Field name made lowercase.
+    data_inici_periode = models.DateTimeField(db_column='DATA_INICI_PERIODE', blank=True, null=True)  # Field name made lowercase.
+    data_fi_periode = models.DateTimeField(db_column='DATA_FI_PERIODE', blank=True, null=True)  # Field name made lowercase.
     comentaris = models.TextField(db_column='COMENTARIS', blank=True)  # Field name made lowercase.
 
     #FOREIGN KEYS
-    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE')
+    id_projecte = models.ForeignKey(Projectes,db_column='ID_PROJECTE',on_delete=models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -498,8 +498,8 @@ class CompromesPersonal(models.Model):
     compte = models.CharField(db_column='COMPTE',  max_length=15, blank=True, null=True)  # Field name made lowercase.
     descripcio = models.CharField(db_column='DESC', max_length=255, blank=True, null=True)  # Field name made lowercase.
     cost = models.DecimalField(db_column='COST', max_digits=17, decimal_places=2, blank=True, null=True)  # Field name made lowercase. Field renamed because it was a Python reserved word.
-    data_inici = models.DateField(db_column='DATA_INICI', blank=True, null=True)  # Field name made lowercase.
-    data_fi = models.DateField(db_column='DATA_fI', blank=True, null=True)  # Field name made lowercase.
+    data_inici = models.DateTimeField(db_column='DATA_INICI', blank=True, null=True)  # Field name made lowercase.
+    data_fi = models.DateTimeField(db_column='DATA_fI', blank=True, null=True)  # Field name made lowercase.
 
     #FOREIGN KEYS
     # id_projecte = models.DecimalField(db_column='ID_PROJECTE', max_digits=10, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
@@ -508,6 +508,9 @@ class CompromesPersonal(models.Model):
     class Meta:
         managed = True # !!!
         db_table = 'COMPROMES_PERSONAL'
+
+    def __str__(self):#def __unicode__(self):
+        return self.data_inici.date()
 
 ########################## AFEGIT 18-02-2020
 

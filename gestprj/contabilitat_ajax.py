@@ -74,7 +74,7 @@ def AjaxListUsuarisCreafSelect():
     return resultado
 
 def AjaxListUsuarisXarxaSelect():
-    usuarisCreaf = ADGroup("cn=CREAFEOUSERS,cn=Users,dc=creaf,dc=uab,dc=es").get_member_info()
+    #usuarisCreaf = ADGroup("cn=CREAFEOUSERS,cn=Users,dc=creaf,dc=uab,dc=es").get_member_info()
     usuarisXarxa = TUsuarisXarxa.objects.all().values("id_usuari_xarxa","nom_xarxa").order_by("nom_xarxa") # .values_list("nom_xarxa",flat=True) # .order_by("nom_xarxa")
 
     resultado=[]
@@ -529,18 +529,18 @@ def AjaxListDespesesDatos(request,fecha_min,fecha_max,codigo):
     ##### Cuentas:
     concedit = 0
     for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
-        concedit = concedit + importe.import_concedit
+        concedit = concedit + float(importe.import_concedit)
 
-    percen_iva = projecte.percen_iva
+    percen_iva = float(projecte.percen_iva)
     if percen_iva == None:
         percen_iva = 0
 
-    percen_canon_creaf = projecte.percen_canon_creaf
+    percen_canon_creaf = float(projecte.percen_canon_creaf)
     if percen_canon_creaf == None:
         percen_canon_creaf = 0
 
     iva = concedit - (concedit / (1 + percen_iva / 100))
-    canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+    canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
     net_disponible = concedit - iva - canon
 
     concedit = round(concedit, 2)
@@ -636,9 +636,9 @@ def AjaxListIngresosDatos(request,fecha_min,fecha_max,codigo):
     ##### Cuentas:
     concedit = 0
     for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
-        concedit = concedit + importe.import_concedit
+        concedit = concedit + float(importe.import_concedit)
 
-    percen_iva = projecte.percen_iva
+    percen_iva = float(projecte.percen_iva)
     if percen_iva == None:
         percen_iva = 0
 
@@ -720,18 +720,18 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
 
         percen_iva = round(0.0, 4)
         if projecte.percen_iva:
-            percen_iva = round(projecte.percen_iva, 4)
+            percen_iva = round(float(projecte.percen_iva), 4)
 
         percen_canon_creaf = round(0.0, 4)
         if projecte.percen_canon_creaf:
-            percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+            percen_canon_creaf = round(float(projecte.percen_canon_creaf), 4)
 
         canon_oficial = round(0.0, 4)
         if projecte.canon_oficial:
-            canon_oficial = round(projecte.canon_oficial, 2)
+            canon_oficial = round(float(projecte.canon_oficial), 2)
 
         iva = concedit - (concedit / (1 + percen_iva / 100))
-        canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+        canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
         net_disponible = concedit - iva - canon
 
         # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
@@ -739,7 +739,7 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
         if concedit == 0:  # para evitar problemas con la division si es 0
             percen_canon_oficial = 0.0000
         else:
-            percen_canon_oficial = ((canon_oficial / concedit) * (100 * (1 + percen_iva / 100)))
+            percen_canon_oficial = ((float(canon_oficial) / concedit) * (100 * (1 + percen_iva / 100)))
 
         if percen_canon_oficial > percen_canon_creaf:
             canon_max = percen_canon_oficial
@@ -760,8 +760,8 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
         #         fecha_actual = datetime.today().date()
         #
         #         coste = comp["cost"]
-        #         fecha_ini = comp["data_inici"]
-        #         fecha_fin = comp["data_fi"]
+        #         fecha_ini = comp["data_inici"].date()
+        #         fecha_fin = comp["data_fi"].date()
         #         dif = fecha_fin - fecha_ini
         #         duracion_total = dif.days
         #         fecha_calculo = datetime.today().date()  # para calcular la fecha calculo obtenemos el ultimo dia del mes anterior
@@ -860,18 +860,18 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
 #
 #         percen_iva = round(0.0, 4)
 #         if projecte.percen_iva:
-#             percen_iva = round(projecte.percen_iva, 4)
+#             percen_iva = round(float(projecte.percen_iva), 4)
 #
 #         percen_canon_creaf = round(0.0, 4)
 #         if projecte.percen_canon_creaf:
-#             percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+#             percen_canon_creaf = round(float(projecte.percen_canon_creaf), 4)
 #
 #         canon_oficial = round(0.0, 4)
 #         if projecte.canon_oficial:
-#             canon_oficial = round(projecte.canon_oficial, 2)
+#             canon_oficial = round(float(projecte.canon_oficial), 2)
 #
 #         iva = concedit - (concedit / (1 + percen_iva / 100))
-#         canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+#         canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
 #         net_disponible = concedit - iva - canon
 #
 #         # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
@@ -879,7 +879,7 @@ def AjaxListEstatPrjRespDatos(request,fecha_min,fecha_max,proyectos):
 #         if concedit == 0:  # para evitar problemas con la division si es 0
 #             percen_canon_oficial = 0.0000
 #         else:
-#             percen_canon_oficial = ((canon_oficial / concedit) * (100 * (1 + percen_iva / 100)))
+#             percen_canon_oficial = ((float(canon_oficial) / concedit) * (100 * (1 + percen_iva / 100)))
 #
 #         if percen_canon_oficial > percen_canon_creaf:
 #             canon_max = percen_canon_oficial
@@ -990,18 +990,18 @@ def AjaxListPciCabecera(request,id_grup,fecha_min_pci,fecha_max_pci): # AJAX PAR
 
         percen_iva = round(0.0, 4)
         if projecte.percen_iva:
-            percen_iva = round(projecte.percen_iva, 4)
+            percen_iva = round(float(projecte.percen_iva), 4)
 
         percen_canon_creaf = round(0.0, 4)
         if projecte.percen_canon_creaf:
-            percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+            percen_canon_creaf = round(float(projecte.percen_canon_creaf), 4)
 
         canon_oficial = round(0.0, 4)
         if projecte.canon_oficial:
-            canon_oficial = round(projecte.canon_oficial, 2)
+            canon_oficial = round(float(projecte.canon_oficial), 2)
 
         iva = concedit - (concedit / (1 + percen_iva / 100))
-        canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+        canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
         net_disponible = concedit - iva - canon
 
         # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
@@ -1009,14 +1009,14 @@ def AjaxListPciCabecera(request,id_grup,fecha_min_pci,fecha_max_pci): # AJAX PAR
         if concedit == 0:  # para evitar problemas con la division si es 0
             percen_canon_oficial = 0.0000
         else:
-            percen_canon_oficial = ((canon_oficial / concedit) * (100 * (1 + percen_iva / 100)))
+            percen_canon_oficial = ((float(canon_oficial) / concedit) * (100 * (1 + percen_iva / 100)))
 
         if percen_canon_oficial > percen_canon_creaf:
             canon_max = percen_canon_oficial
         else:
             canon_max = percen_canon_creaf
 
-        canon_total = round((concedit - iva) * (canon_max / 100))
+        canon_total = round((concedit - iva) * (float(canon_max) / 100))
         concedit = round(concedit, 2)
         iva = round(iva, 2)
         canon = round(canon, 2)
@@ -1107,18 +1107,18 @@ def AjaxListResumFitxaMajorPrjDatos(request,fecha_min,fecha_max,codigo):
     ##### Cuentas:
     concedit = 0
     for importe in Financadors.objects.filter(id_projecte=projecte.id_projecte):
-        concedit = concedit + importe.import_concedit
+        concedit = concedit + float(importe.import_concedit)
 
-    percen_iva = projecte.percen_iva
+    percen_iva = float(projecte.percen_iva)
     if percen_iva == None:
         percen_iva = 0
 
-    percen_canon_creaf = projecte.percen_canon_creaf
+    percen_canon_creaf = float(projecte.percen_canon_creaf)
     if percen_canon_creaf == None:
         percen_canon_creaf = 0
 
     iva = concedit - (concedit / (1 + percen_iva / 100))
-    canon = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+    canon = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
     net_disponible = concedit - iva - canon
     #####
 
@@ -1398,20 +1398,20 @@ def AjaxListResumEstatCanonDatos(request,fecha_min,fecha_max,codigo):
 
         percen_iva = round(0.0, 4)
         if projecte.percen_iva:
-            percen_iva = round(projecte.percen_iva, 4)
+            percen_iva = round(float(projecte.percen_iva), 4)
 
         percen_canon_creaf = round(0.0, 4)
         if projecte.percen_canon_creaf:
-            percen_canon_creaf = round(projecte.percen_canon_creaf, 4)
+            percen_canon_creaf = round(float(projecte.percen_canon_creaf), 4)
 
         canon_oficial = round(0.0, 4)
         if projecte.canon_oficial:
-            canon_oficial = round(projecte.canon_oficial, 2)
+            canon_oficial = round(float(projecte.canon_oficial), 2)
 
         if concedit == 0:  # para evitar problemas con la division si es 0
             percen_canon_oficial = 0.0
         else:
-            percen_canon_oficial = ((canon_oficial / concedit) * (100 * (1 + percen_iva / 100)))
+            percen_canon_oficial = ((float(canon_oficial) / concedit) * (100 * (1 + percen_iva / 100)))
 
         # Calculamos el canon mas grande entre el del creaf y el oficial,para luego calcular el canon total
         if percen_canon_oficial > percen_canon_creaf:
@@ -1421,7 +1421,7 @@ def AjaxListResumEstatCanonDatos(request,fecha_min,fecha_max,codigo):
 
         iva = ((concedit * percen_iva) / (100 * (1 + percen_iva / 100)))
         base_canon = concedit  # Ojo que no es correct,o esto son los ingresos
-        canon_creaf = (concedit * percen_canon_creaf) / (100 * (1 + percen_iva / 100))
+        canon_creaf = (concedit * float(percen_canon_creaf)) / (100 * (1 + percen_iva / 100))
         canon_total = (concedit - iva) * (canon_max / 100)
         # diferencia_per = (percen_canon_oficial-percen_canon_creaf)
         dif_canon = abs(
@@ -1554,8 +1554,8 @@ def AjaxListCompromesCompte(request,tipo_comp,id_projecte,codigo_entero,comptes)
                         fecha_actual = datetime.today().date()
 
                         coste = comp["cost"]
-                        fecha_ini = comp["data_inici"]
-                        fecha_fin = comp["data_fi"]
+                        fecha_ini = comp["data_inici"].date()
+                        fecha_fin = comp["data_fi"].date()
                         dif = fecha_fin - fecha_ini
                         duracion_total = dif.days
                         duracion_pendiente = 0

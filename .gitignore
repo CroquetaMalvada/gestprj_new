@@ -1,6 +1,6 @@
 gestprjsite/settings_local.py
 
-/static/
+/old_static/
 *.pyc
 
 .idea

@@ -32,7 +32,7 @@ $(document).ready(function(){
 //    usuaris_xarxa_cabecera = $("#table_usuaris_xarxa_cabecera").children("table").DataTable({
 //        ajax: {
 //            url: '/json_vacio_results/',
-//            dataSrc: 'results'
+//            dataSrc: ""
 //        },
 //        columns:[
 //            {'data': 'url'},
