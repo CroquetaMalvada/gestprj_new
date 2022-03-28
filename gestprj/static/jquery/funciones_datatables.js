@@ -107,7 +107,7 @@ function actu_import_pres_total(){//////////////// suma los importes de la parti
     });
     pressupost.rows().every(function(rowpress){
             $.get("/show_PeriodicitatPartida/"+pressupost.row(rowpress).data()["id_part"]+"/",function(data){
-                $.each(data["results"],function(index,obj){///si solo pongo data le paso un objeto en lugar e un array y por lo tanto la function no devuelve indice
+                $.each(data[""],function(index,obj){///si solo pongo data le paso un objeto en lugar e un array y por lo tanto la function no devuelve indice //quitado el results del data
 //                    console.log(periodicitat_pressupost.cell(index,5).data());
                       if(periodicitat_pressupost.cell(index,5).data()!=undefined){
                           var tot=parseFloat(periodicitat_pressupost.cell(index,5).data())+parseFloat(obj['import_field']);

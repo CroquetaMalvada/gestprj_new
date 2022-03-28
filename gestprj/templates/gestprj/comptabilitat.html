@@ -150,9 +150,9 @@
 
             <h4>Ingressos / Despeses</h4>
             <input name="opcio_cont" type="radio" value="3" />Seguiment Despeses Projectes<br>
+            <input name="opcio_cont" type="radio" value="4" />Seguiment Ingressos Projectes<br>
             {% for group in user.groups.all %}
                 {% if group.name == 'Admins gestprj' or group.name == 'Mods gestprj' %}
-            <input name="opcio_cont" type="radio" value="4" />Seguiment Ingressos Projectes *<br>
             <input name="opcio_cont" type="radio" value="10" />Comptes NO assignats a cap projecte *<br>
             <input name="opcio_cont" type="radio" value="5" />Ingressos i Despeses*<br>
                 {% endif %}
