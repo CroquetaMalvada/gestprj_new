@@ -129,9 +129,13 @@ class GestJustificPersonalSerializer(serializers.ModelSerializer): # info a obte
         fields = ('url','id_perso_creaf','data_inici','data_fi','nom_feina','id_feina','hores','cost_hora')
 # INTERNES
 class GestJustifInternesSerializer(serializers.ModelSerializer): # info a obtener/mostrar
+
     class Meta:
         model = JustificInternes
         fields = ('url','id_projecte' ,'data_assentament','id_assentament','desc_justif','import_field')
+
+    def get_data_assentament(self,obj):
+        return obj.created_at.strftime("%Y-%m-%d")
 
 # FINANCAMENT ######################
 

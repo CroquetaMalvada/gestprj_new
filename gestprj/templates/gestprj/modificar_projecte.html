@@ -1078,9 +1078,9 @@
               method="POST">
             {% csrf_token %}
             <!--Data inici<input type="checkbox" id="justificacio_personal_data_inici">-->
-            Data inici: <input name="data_inici"/>
+            Data inici: <input class="input_fecha" name="data_inici"/>
             <!--Data final<input type="checkbox" id="justificacio_personal_data_fi">-->
-            Data fi: <input name="data_fi"/>
+            Data fi: <input class="input_fecha" name="data_fi"/>
 
             Tipus de feina: <select name="id_feina">
             {% if tipus_feines == None %}
@@ -1175,7 +1175,7 @@
     <div id="editar_justif_interna" class="dialogcont" title="Editar justificació interna">
         <form id="formulario_justif_interna" action="/gestor_JustificInternes/" method="POST">
             {% csrf_token %}
-            Data assentament<input id="id_data_assentament" name="data_assentament"/><br>
+            Data assentament<input class="input_fecha" id="id_data_assentament" name="data_assentament"/><br>
             Número assentament<input name="id_assentament"/><br>
             Descripció<input name="desc_justif"/><br>
             Import<input name="import_field" class="numero" /><br>
@@ -1194,8 +1194,8 @@
     <div id="editar_renovacio" class="dialogcont" title="Editar renovació">
         <form id="formulario_renovacio" action="/gestor_Renovacions/" method="POST">
             {% csrf_token %}
-            Data inici<input id="data_renovacio_inici" name="data_inici"/><br>
-            Data final<input id="data_renovacio_fi" name="data_fi"/><br>
+            Data inici<input class="input_fecha" id="data_renovacio_inici" name="data_inici"/><br>
+            Data final<input class="input_fecha" id="data_renovacio_fi" name="data_fi"/><br>
             Concedit<input name="import_concedit" class="numero" /><br>
             <br>
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
@@ -1285,8 +1285,8 @@
         <form id="formulario_periodicitat_pressupost" action="/gestor_PeriodicitatPres/" method="POST">
             {% csrf_token %}
             Etiqueta<input id="etiqueta" name="etiqueta"/><br>
-            Data inici<input id="data_periodicitat_pressupost_inici" name="data_inicial"/><br>
-            Data final<input id="data_periodicitat_pressupost_fi" name="data_final"/><br>
+            Data inici<input class="input_fecha" id="data_periodicitat_pressupost_inici" name="data_inicial"/><br>
+            Data final<input class="input_fecha" id="data_periodicitat_pressupost_fi" name="data_final"/><br>
             <br>
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar
@@ -1350,9 +1350,9 @@
     <div id="editar_justificacio_projecte" class="dialogcont" title="Editar justificació projecte">
         <form id="formulario_justificacio_projecte" action="/gestor_JustificacionsProjecte/" method="POST">
             {% csrf_token %}
-            Data justificació<input id="data_justificacio_projecte" name="data_justificacio"/><br>
-            Data inici<input id="data_justificacio_projecte_inici" name="data_inici_periode"/><br>
-            Data final<input id="data_justificacio_projecte_final" name="data_fi_periode"/><br>
+            Data justificació<input class="input_fecha" id="data_justificacio_projecte" name="data_justificacio"/><br>
+            Data inici<input class="input_fecha" id="data_justificacio_projecte_inici" name="data_inici_periode"/><br>
+            Data final<input class="input_fecha" id="data_justificacio_projecte_final" name="data_fi_periode"/><br>
             Observacions<input name="comentaris"/><br>
             <br>
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
@@ -1369,9 +1369,9 @@
     <div id="editar_auditories" class="dialogcont" title="Editar justificació projecte">
         <form id="formulario_auditories" action="/gestor_Auditories/" method="POST">
             {% csrf_token %}
-            Data auditoria<input id="data_auditoria" name="data_auditoria"/><br>
-            Data inici<input id="data_auditoria_inici" name="data_inici_periode"/><br>
-            Data final<input id="data_auditoria_final" name="data_fi_periode"/><br>
+            Data auditoria<input class="input_fecha" id="data_auditoria" name="data_auditoria"/><br>
+            Data inici<input class="input_fecha" id="data_auditoria_inici" name="data_inici_periode"/><br>
+            Data final<input class="input_fecha" id="data_auditoria_final" name="data_fi_periode"/><br>
             Observacions<input name="comentaris"/><br>
             <br>
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
@@ -1403,8 +1403,8 @@
             <!--</select>-->
             Descripció<input type="text" name="descripcio"><br>
             Coste/mes<input name="cost" class="numero"><br>
-            Data inici<input id="data_compromes_inici" name="data_inici"/><br>
-            Data final<input id="data_compromes_fi" name="data_fi"/><br>
+            Data inici<input class="input_fecha" id="data_compromes_inici" name="data_inici"/><br>
+            Data final<input class="input_fecha" id="data_compromes_fi" name="data_fi"/><br>
 
             <button class="btn btn-success" type="submit" title="Guardar" href="#">
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar

@@ -1,10 +1,13 @@
 $(document).ready(function(){
 
-    $("#id_data_inici_prj").datepicker({ dateFormat: 'yy-mm-dd' , TimePicker: false});
-    $("#id_data_fi_prj").datepicker({ dateFormat: 'yy-mm-dd' , TimePicker: false });
-    $("#id_data_docum_web").datepicker({ dateFormat: 'yy-mm-dd' , TimePicker: false });
-    $("#formulario_editar_justificacio_personal").children("[name='data_inici']").datepicker({ dateFormat: 'yy-mm-dd' , TimePicker: false });
-    $("#formulario_editar_justificacio_personal").children("[name='data_fi']").datepicker({ dateFormat: 'yy-mm-dd' , TimePicker: false });
+    $("#id_data_inici_prj").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false});//'yy-mm-dd'
+    $("#id_data_fi_prj").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false });//'yy-mm-dd'
+    $("#id_data_docum_web").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false });//'yy-mm-dd'
+    $(".input_fecha").datepicker({ dateFormat: 'dd-mm-yy', TimePicker: false });
+    //$(".input_fecha").datepicker({ dateFormat: 'dd-mm-yy' ,altFormat: 'yy-mm-dd' , TimePicker: false,altField:"" });
+    //$("[name='data_inici']").datepicker({ dateFormat: 'yy-mm-dd' , TimePicker: false });
+    //$("#formulario_editar_justificacio_personal").children("[name='data_inici']").datepicker({ dateFormat: 'yy-mm-dd' , TimePicker: false });
+    //$("#formulario_editar_justificacio_personal").children("[name='data_fi']").datepicker({ dateFormat: 'yy-mm-dd' , TimePicker: false });
 
 //    $(".max2dec").on("change",function(){
 //        $(this).val( parseFloat($(this).val()).toFixed(2));

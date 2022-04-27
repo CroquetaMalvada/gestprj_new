@@ -102,12 +102,13 @@ LANGUAGE_CODE = 'es-es'
 #Para que funcionene las nuevas fechas con el datetimefield en models(parece que no hace gran cosa ya que el models lo sigue devolviendo con tiempo...)
 USE_L10N=False
 USE_TZ = False
-DATETIME_INPUT_FORMATS = ('%d-%m-%Y',)
+DATETIME_INPUT_FORMATS = ("%d-%m-%Y"),
 DATETIME_FORMAT = "%d-%m-%Y"
 
 REST_FRAMEWORK = {
-    'DATETIME_FORMAT': "%d-%m-%Y",
-    'DATETIME_INPUT_FORMAT': "%d-%m-%Y",
+    'DATETIME_INPUT_FORMATS': ["%d-%m-%Y"],# poner con []?
+    'DATETIME_FORMAT': "%d-%m-%Y"
+
 }
 #
 DATE_FORMAT = '%d-%m-%Y'
