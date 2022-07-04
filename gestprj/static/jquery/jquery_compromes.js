@@ -136,18 +136,25 @@ $(document).ready(function(){
 function calcular_compromes_personal(){
     compromes_personal.rows().every(function(rowidx){
         var fecha_actual=$.datepicker.formatDate('yy-mm-dd', new Date());
+        var partes_fecha;//para la fecha ini y la fin que estan en formato dd/mm/yyy
 
         var coste = compromes_personal.cell(rowidx,4).data();
-        var fecha_ini = new Date(compromes_personal.cell(rowidx,5).data());
-        var fecha_fin = new Date(compromes_personal.cell(rowidx,6).data());
+
+        partes_fecha = compromes_personal.cell(rowidx,5).data().split("-");
+        var fecha_ini = new Date(+partes_fecha[2], partes_fecha[1]-1, +partes_fecha[0]);
+
+        partes_fecha = compromes_personal.cell(rowidx,6).data().split("-");
+        var fecha_fin = new Date(+partes_fecha[2], partes_fecha[1]-1, +partes_fecha[0]);
+
         var dif = new Date(fecha_fin-fecha_ini);
         var duracion_total = dif / 1000 / 60 / 60 / 24; // en dias
         var duracion_pendiente = 0;
         var fecha_calculo = new Date(fecha_actual); //el ultimo dia del mes anterior
+
         fecha_calculo.setDate(1); //la ponemos al dia 1
         fecha_calculo.setHours(-1);// y le restamos una hora
-        fecha_calculo_string=$.datepicker.formatDate('yy-mm-dd',fecha_calculo)
-        fecha_calculo = new Date(fecha_calculo_string); //la formateamos
+        fecha_calculo_string=$.datepicker.formatDate('dd-mm-yy',fecha_calculo)
+        //fecha_calculo = new Date(fecha_calculo_string); //la formateamos
         if(fecha_calculo<fecha_ini){
             dif=new Date(fecha_fin - fecha_ini);
             if(""+fecha_ini==""+fecha_fin)//si ademas fecha fin e ini son iguales, seguramente se trate de una indemnizacion por tanto que la pendiente sea 1 dia
