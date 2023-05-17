@@ -1,5 +1,6 @@
 //VARIABLES GLOBALES
 var justificacions_cabecera;
+var auditories_cabecera;
 var Admin=0; // Se pone a 1 en la cabecera cuando se logina con permisos de admin,esto evita que se carguen ajax que el usuario normal no vaya a utilizar
 
 var organismes_cabecera;
@@ -159,6 +160,57 @@ $(document).ready(function(){
                 },{
                     extend: 'csv',
                     filename: function(){return $("#table_justificacions_cabecera").attr("title");},
+                    footer: true,
+                    text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+                }],
+                scrollY:        '70vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
+            });
+
+        ///////////// AUDITORIES
+        auditories_cabecera = $("#table_auditories_cabecera").children("table").DataTable({
+                ajax: {
+                    url:'/json_vacio/',
+                    contentType: "application/json;",
+                    dataSrc: ''
+                },
+                columns:[
+                    {'data': 'data'},
+                    {'data': 'codi'},
+                    {'data': 'nom'},
+                    {'data': 'responsable'},
+                    {'data': 'periode'},
+                    {'data': 'observacions'}
+                ],
+                columnDefs: [
+                    { type: 'de_date', targets: 0 },
+                    {"width": "10%", targets:[0,1]},
+                    {"width": "20%","className":"dt-left", targets:[2,3,4,5]}
+                ],
+                dom: 'Bfrtip',
+                buttons:[{
+                    extend: 'print',
+                    header: true,
+                    footer: true,
+                    title: function(){return $("#table_auditories_cabecera").attr("title");},
+                    text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                    autoPrint: true
+                },{
+                    extend: 'excel',
+                    filename: function(){return $("#table_auditories_cabecera").attr("title");},
+                    text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>'
+                },{
+                    extend: 'pdf',
+                    title: function(){return $("#table_auditories_cabecera").attr("title");},
+                    footer: true,
+                    text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+                },{
+                    extend: 'csv',
+                    filename: function(){return $("#table_auditories_cabecera").attr("title");},
                     footer: true,
                     text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
                 }],
@@ -1009,6 +1061,32 @@ function dialog_justificacions_cabecera(){
                 justificacions_cabecera.ajax.reload();
                 $("#table_justificacions_cabecera").attr("title","Justificacions de projectes de "+$("#data_min_justificacions_cabecera").val()+" a "+$("#data_max_justificacions_cabecera").val());
                 mostrar_dialog_cabecera("table_justificacions_cabecera");
+
+            }
+    });
+}
+
+function dialog_auditories_cabecera(){
+    return $.confirm({
+            title:"Auditories",
+            content:'Data inici:  <input id="data_min_auditories_cabecera" /><br>Data final: <input id="data_max_auditories_cabecera" />',
+            onOpen: function(){
+                $("#data_min_auditories_cabecera").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false, changeMonth: true, changeYear: true, yearRange: "1997:c", defaultDate: new Date(1997, 0, 1)});//minDate: (new Date(1997, 1 - 1 , 1)), maxDate: 0
+                $("#data_max_auditories_cabecera").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false, changeMonth: true, changeYear: true, yearRange: "1997:c", defaultDate: new Date() });
+                //asignarles un valor por defecto
+                $("#data_min_auditories_cabecera").datepicker("setDate", new Date(1997, 0, 1));
+                $("#data_max_auditories_cabecera").datepicker("setDate", new Date());
+            },
+            confirmButton: 'Buscar',
+            cancelButton: 'Cancel·lar',
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            confirm: function(){
+//                var tabla=$("#table_justificacions_cabecera").children("table").DataTable()
+                auditories_cabecera.ajax.url("/llista_auditories_cabecera/"+$("#data_min_auditories_cabecera").val()+"/"+$("#data_max_auditories_cabecera").val()).load();
+                auditories_cabecera.ajax.reload();
+                $("#table_auditories_cabecera").attr("title","Auditories de projectes de "+$("#data_min_auditories_cabecera").val()+" a "+$("#data_max_auditories_cabecera").val());
+                mostrar_dialog_cabecera("table_auditories_cabecera");
 
             }
     });

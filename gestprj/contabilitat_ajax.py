@@ -1490,6 +1490,15 @@ def AjaxListJustificacionsCabecera(request,fecha_min,fecha_max):
     resultado = json.dumps(resultado)
     return resultado
 
+def AjaxListAuditoriesCabecera(request,fecha_min,fecha_max):
+    resultado=[]
+    fecha_min = datetime.strptime(fecha_min, "%d-%m-%Y")
+    fecha_max = datetime.strptime(fecha_max, "%d-%m-%Y")
+    for auditoria in AuditoriesProjecte.objects.filter(data_auditoria__gte=fecha_min, data_auditoria__lte=fecha_max):
+        codigo_entero=str(auditoria.id_projecte.id_resp.codi_resp)+str("-")+str(auditoria.id_projecte.codi_prj)
+        resultado.append({"data":str(auditoria.data_auditoria),"codi":codigo_entero,"nom":auditoria.id_projecte.acronim,"responsable":auditoria.id_projecte.id_resp.id_usuari.nom_usuari,"periode":"Del "+str(auditoria.data_inici_periode)+" al "+str(auditoria.data_fi_periode),"observacions":auditoria.comentaris})
+    resultado = json.dumps(resultado)
+    return resultado
 
 ###################################################### FUNCIONES DE COMPROMETIDO
 

@@ -1823,6 +1823,10 @@ def ListJustificacionsCabecera(request,fecha_min,fecha_max): # AJAX PARA LAS JUS
     resultado=contabilitat_ajax.AjaxListJustificacionsCabecera(request,fecha_min,fecha_max)
     return HttpResponse(resultado, content_type='application/json;')\
 
+@login_required(login_url='/menu/')
+def ListAuditoriesCabecera(request,fecha_min,fecha_max): # AJAX PARA LAS JUSTIFICACIONES DE LA CABECERA
+    resultado=contabilitat_ajax.AjaxListAuditoriesCabecera(request,fecha_min,fecha_max)
+    return HttpResponse(resultado, content_type='application/json;')\
 
 
 @login_required(login_url='/menu/')
@@ -2150,6 +2154,7 @@ def ListProjectesResponsableCabecera(request): # AJAX PARA LOS PROYECTOS POR RES
         if int(projecte["id_resp__codi_resp"]) not in investigadores:
             investigadores[int(projecte["id_resp__codi_resp"])]=int(projecte["id_resp__codi_resp"])
 
+    investigadores = sorted(investigadores.values())
     for inv in investigadores:
         proyectos = [] # los proyectos de ese investigador
         if inv==94:#####Excepcion para el caso de SEVERO y el Retana

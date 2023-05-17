@@ -86,6 +86,7 @@ urlpatterns = [#patterns('',
     re_path('^llista_permisos_usuaris_consultar/', views.ListPermisosUsuarisConsultar.as_view()),# para la datatable de permisos usuaris cabecera
     re_path('^llista_ConceptesPres/', views.ListConceptesPress),# para los select con el nombre de las partidas
     re_path('^llista_justificacions_cabecera/(?P<fecha_min>.+)/(?P<fecha_max>.+)/$', views.ListJustificacionsCabecera),# justificaciones en edicio en la cabecera
+    re_path('^llista_auditories_cabecera/(?P<fecha_min>.+)/(?P<fecha_max>.+)/$', views.ListAuditoriesCabecera),# auditories en edicio en la cabecera
     re_path('^generar_informe_periode_cabecera/$', views.GenerarInformePeriode),
     re_path('^generar_informe_financadors_periode_cabecera/$', views.GenerarInformeFinancadorsPeriode),
     re_path('^generar_informe_receptors_periode_cabecera/$', views.GenerarInformeReceptorsPeriode),
