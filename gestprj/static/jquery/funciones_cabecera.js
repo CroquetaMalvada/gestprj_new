@@ -9,8 +9,10 @@ var usuaris_externs_cabecera;
 var responsables_cabecera;
 var pci_cabecera;
 var grups_pci_cabecera;
+var imputacio_ingressos;
 var organismes_grup_pci;
 var permisos_usuaris_consultar;
+var chivato_imputacio=false;//Sirve para que no de error al cargar el json vacio al cargar la pagina. Solo cambia al buscar la imputacio al pulsar el boton
 
 
 $(document).ready(function(){
@@ -19,6 +21,12 @@ $(document).ready(function(){
     //asignarles un valor por defecto
     $("#data_min_pci").datepicker("setDate", new Date(1997, 0, 1));
     $("#data_max_pci").datepicker("setDate", new Date());
+
+    $("#data_min_imputacio").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false, changeMonth: true, changeYear: true, yearRange: "1997:c", defaultDate: new Date(1997, 0, 1)});//minDate: (new Date(1997, 1 - 1 , 1)), maxDate: 0
+    $("#data_max_imputacio").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false, changeMonth: true, changeYear: true, yearRange: "1997:c", defaultDate: new Date() });
+    //asignarles un valor por defecto
+    $("#data_min_imputacio").datepicker("setDate", new Date(1997, 0, 1));
+    $("#data_max_imputacio").datepicker("setDate", new Date());
     ////////// DATATABLES DE LA OPCION "EDICIO" !!!!!!!!
     if(Admin==1){
 
@@ -922,6 +930,93 @@ $(document).ready(function(){
 
         ///////////////////////////////////////////////////////
 
+        /////////////////////////////////////
+        /////////////IMPUTACIÓ INGRESSOS
+        imputacio_ingressos = $("#table_imputacio_ingressos").children("table").DataTable({
+                ajax: {
+                    url: '/json_vacio/',
+                    dataSrc: function ( json ) {
+                        if(!chivato_imputacio){
+                            return 0;
+                        }else{
+                        console.log(json);
+                        if(json.chivato_error)
+                        {
+                            alert(json.msg_error);
+                        }
+                        return json.data;
+                        }
+                    }
+                },
+                "deferRender": 0,
+                columns:[
+                    {'data': 'responsable'},
+                    {'data': 'codi'},
+                    {'data': 'nom'},
+                    //{'data': 'codi_imputacio'},
+                    {'data': 'cobrat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                    {'data': 'despeses', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                    {'data': 'canon_aplicat', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) },
+                    {'data': 'saldo', render: $.fn.dataTable.render.number( separador_miles, separador_decimales, 2 ) }
+                ],
+//                columnDefs:[
+//                    {"visible":false,"targets":[0,1]}
+//                ],
+                dom: 'Bfrtip',
+                buttons:[{
+                    extend: 'print',
+                    header: true,
+                    footer: true,
+                    title: function(){return '<h4>'+$("#table_pci_cabecera").attr("title")+'    ('+$("#id_imputacio_select option:selected").text()+')</h4>'},
+                    text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                    autoPrint: true
+                },{
+                    extend: 'excel',
+                    filename: function(){return $("#table_imputacio_ingressos").attr("title")},
+                    text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                    exportOptions: { // Ojo! todo lo que hay en el exportoptions y en el customize sirve para que el excel importe correctamente el numero(co separador de decimales y millares) y lo interprete como tal
+                        format: {
+                            body: function(data, row, column, node) {
+                                if(column==4 || column==5 || column==6 || column==7  )
+                                    data=parseFloat(data.replace(/\./g,'').replace(separador_decimales,'.'));//quitamos los separadores de miles y dejamos que los de decimales sean "." para ello usamos el "/[caracter]/g sin embargo añadimos un '\' ya que el punto signiica todos los caracteres
+                                return data;
+                            }
+                        }
+                    },customize: function( xlsx ) {//como el numero ha pasado por ej de 1.245,15 a 1245.15 ahora esta funcion se encargara de decirle al excel que lo vuelva a transformar a 1.245,15
+                       var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                       $('row c[r^="E"]', sheet).each(function () {
+                              $(this).attr('s', 64);
+                       });
+                       $('row c[r^="F"]', sheet).each(function () {
+                              $(this).attr('s', 64);
+                       });
+                       $('row c[r^="G"]', sheet).each(function () {
+                              $(this).attr('s', 64);
+                       });
+                       $('row c[r^="H"]', sheet).each(function () {
+                              $(this).attr('s', 64);
+                       });
+                    }
+                },{
+                    extend: 'pdf',
+                    title: function(){return $("#table_imputacio_ingressos").attr("title")},
+                    text: '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"> PDF</span>'
+                },{
+                    extend: 'csv',
+                    filename: function(){return $("#table_imputacio_ingressos").attr("title")},
+                    text: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"> CSV</span>'
+                }],
+                order:          [[ 0, "asc" ]],
+                scrollY:        '50vh',
+                scrollCollapse: true,
+                paging:         false,
+                autowidth:      true,
+                overflow:       "auto",
+                language: opciones_idioma,
+            });
+
+        ///////////////////////////////////////////////////////
+
         ////// PERMISOS USUARIS PROJECTES CONSULTAR
         $(document).on( 'click', '.editar_permis_usuari_consultar', function (){
 
@@ -1173,7 +1268,6 @@ function dialog_informe_projectes_periode(tipo){
                 }else if(tipo==5){
                     $("#form_generar_informe_periode_cabecera").attr("action","/generar_informe_concessions_periode_cabecera/");
                 }
-
                 $("#form_generar_informe_periode_cabecera").submit();
 //                var tabla=$("#table_justificacions_cabecera").children("table").DataTable()
 //                informe_periode_cabecera.ajax.url("/generar_informe_periode_cabecera/"+$("#data_min_informe_periode_cabecera").val()+"/"+$("#data_max_informe_periode_cabecera").val()).load();
@@ -1206,8 +1300,24 @@ function dialog_grups_pci_cabecera(){
     actualizar_organismes_select();
     mostrar_dialog_cabecera("table_grups_pci_cabecera");
 }
+//////////////////////////
+
+///// DIALOG IMPUTACIÓ INGRESSOS
+function dialog_imputacio_ingressos(){
+    mostrar_dialog_cabecera("table_imputacio_ingressos");
+}
+
+function buscar_imputacio_ingressos(){
+    chivato_imputacio=true;
+    mostrar_dialog_cabecera("table_imputacio_ingressos");
+    imputacio_ingressos.clear();
+    imputacio_ingressos.draw();
+    imputacio_ingressos.ajax.url("/llista_imputacio_ingressos/"+$("#id_imputacio_select").val()+"/"+$("#id_estat_imputacio_select").val()+"/"+$("#data_min_pci").val()+"/"+$("#data_max_pci").val());
+    imputacio_ingressos.ajax.reload();
+}
 
 
+////////////////////////
 function dialog_organismes_cabecera(){
     organismes_cabecera.clear();
     organismes_cabecera.draw();

@@ -2235,6 +2235,12 @@ class GestOrganismeGrupPci(viewsets.ModelViewSet):  # gestionar ORGANISMOS GRUPO
     queryset = Organismes_GrupsPci.objects.all()
     serializer_class = GestGrupsPci
 
+##################################################### IMPUTACIÓ INGRESSOS
+@login_required(login_url='/menu/')
+def BuscarImputacioIngressos(request,id_grup,id_estat,fecha_min_imputacio,fecha_max_imputacio): # AJAX PARA LOS PROYECTOS CON X ORGANIZACION FINANCIERA (PCI CABECERA)
+    resultado=contabilitat_ajax.AjaxImputacioIngressos(request,id_grup,id_estat,fecha_min_imputacio,fecha_max_imputacio)
+    return HttpResponse(resultado, content_type='application/json;')
+
 
 
 @login_required(login_url='/menu/')

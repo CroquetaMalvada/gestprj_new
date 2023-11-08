@@ -96,6 +96,7 @@ urlpatterns = [#patterns('',
     re_path('^llista_pci_consultar/(?P<id_grup>.+)/(?P<fecha_min_pci>.+)/(?P<fecha_max_pci>.+)/$', views.ListPciCabecera),# para la cabecera
     re_path('^llista_grups_pci_consultar/', views.ListGrupsPci.as_view()),# para la datatable de grups pci cabecera
     re_path('^llista_organismes_grup_pci/(?P<id_grup>.+)/$', views.ListOrganismesGrupPci.as_view()),# para la cabecera
+    re_path('^llista_imputacio_ingressos/(?P<id_grup>.+)/(?P<id_estat>.+)/(?P<fecha_min_imputacio>.+)/(?P<fecha_max_imputacio>.+)/$', views.BuscarImputacioIngressos),
     re_path('^afegir_organisme_grup_pci/', views.AfegirOrganismeGrupPci),# para la cabecera
     re_path('^llista_usuaris_xarxa_sense_assignar/', views.ListUsuarisXarxaSenseAssignar),# para la cabecera
     re_path('^afegir_usuari_xarxa_sense_assignar/', views.AfegirUsuarisXarxaSenseAssignar),# para la cabecera

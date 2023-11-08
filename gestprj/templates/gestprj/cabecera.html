@@ -49,7 +49,8 @@
                     <!--<li><a href="/welcome/">Idioma</a></li>-->
                     <li><a href="#" onclick='dialog_justificacions_cabecera();'>Justificacions</a></li>
                     <li><a href="#" onclick='dialog_auditories_cabecera();'>Auditories</a></li>
-                    <li><a href="#" onclick='dialog_pci_cabecera();'>PCI</a></li>
+                    <li><a href="#" onclick='dialog_imputacio_ingressos();'>Imputació Ingressos</a></li>
+<!--                    <li><a href="#" onclick='dialog_pci_cabecera();'>PCI</a></li>-->
                     <li class="divider"></li>
                     <li class="dropdown-header">  Resum Projectes:</li>
                     <li><a href="#" onclick='dialog_projectes_per_responsable_cabecera();'>Projectes per responsable</a></li>
@@ -83,7 +84,7 @@
                 <ul class="dropdown-menu">
                     <!--<li><a href="/welcome/">Idioma</a></li>-->
                     <li><a href="#" onclick='dialog_organismes_cabecera();'>Organismes</a></li>
-                    <li><a href="#" onclick='dialog_grups_pci_cabecera();'>Grups PCI</a></li>
+<!--                    <li><a href="#" onclick='dialog_grups_pci_cabecera();'>Grups PCI</a></li>-->
                     <li class="divider"></li>
                     <li class="dropdown-header">  Usuaris:</li>
                     <li><a href="#" onclick='dialog_usuaris_creaf_cabecera();'>Usuaris CREAF</a></li>
@@ -168,7 +169,7 @@
     </table>
     </a>
 </div>
-<!--PCI-->
+<!--PCI( YA NO SE USA!)-->
 <!---->
 <div id="table_pci_cabecera" class="dialogcabecera" title="PCI">
     <div class="col-md-6">
@@ -190,7 +191,7 @@
             <th>Responsable</th>
             <th>Codi</th>
             <th>Acrònim</th>
-            <th>Cobrat</th>
+            <th>Ingressos</th>
             <th>Despeses</th>
             <th>Canon Aplicat</th>
             <th>Saldo</th>
@@ -201,7 +202,7 @@
     </table>
 </div>
 <!---->
-<!--GRUPS PCI-->
+<!--GRUPS PCI ( YA NO SE USA!)-->
 <div id="table_grups_pci_cabecera" class="dialogcabecera" title="Grups PCI">
     <table class="table table-striped table-bordered datatable">
         <a class="btn btn-success" id="editar_grups_pci" title="Afegir"
@@ -215,6 +216,67 @@
             <th>Nom</th>
             <th></th>
             <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+<!--    </a>-->
+</div>
+
+<!--IMPUTACIO INGRESSOS-->
+<div id="table_imputacio_ingressos" class="dialogcabecera" title="Imputació Ingressos">
+    <div class="col-md-12">
+        <div class="col-md-6">
+            Imputació: <select id="id_imputacio_select" class='select_id_pci' name="id_grup" style="max-width:300px;">
+            <option value="0">0 - Nacionales</option>
+            <option value="1">------</option>
+            <option value="2">2 - MRR</option>
+            <option value="3">3 - GENE</option>
+            <option value="4">------</option>
+            <option value="5">------</option>
+            <option value="6">6 - AGAUR</option>
+            <option value="7">7 - Fundaciones</option>
+            <option value="8">8 - Entidades Locales</option>
+            <option value="9">9 - EU</option>
+        </select>
+        </div>
+        <div class="col-md-6">
+            Des de:<input id="data_min_imputacio" name="data_min_imputacio"/><br>
+            Fins a:  <input id="data_max_imputacio" name="data_max_imputacio"/><br>
+        </div>
+    </div>
+    <br><br>
+    <div class="col-md-12">
+        <div class="col-md-6">
+            Estat del projecte:<br>
+            <select id="id_estat_imputacio_select" class='select_id_pci' name="id_grup" style="max-width:300px;">
+                <option selected value="0">OBERT</option>
+                <option selected value="1">TANCAT</option>
+                <option selected value="2">QUALSEVOL ESTAT</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <br>
+            <button class="btn btn-info" type="submit" title="Buscar projectes" href="#" onclick="buscar_imputacio_ingressos();">
+                <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Buscar Projectes
+            </button>
+        </div>
+    </div>
+    <div class="col-md-12">
+    <br>
+    </div>
+    <table class="table table-striped table-bordered datatable">
+        <thead>
+        <tr>
+            <th>Responsable</th>
+            <th>Codi</th>
+            <th>Acrònim</th>
+<!--            <th>Codi imputació</th>-->
+            <th>Ingressos</th>
+            <th>Despeses</th>
+            <th>Canon Aplicat</th>
+            <th>Saldo</th>
         </tr>
         </thead>
         <tbody>
