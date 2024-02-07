@@ -1197,8 +1197,11 @@ function dialog_projectes_per_responsable_cabecera(){
                 datatype:'json',
                 success: function(result) {
                     var html="";
-                    var titulo="<button onclick='imprimir_projectes_resp_cabecera();' class='btn btn-info'><span class='glyphicon glyphicon-print' aria-hidden='true'></span> Imprimir resultats</button>";
+                    var html_excel="";//Juntaremos todas las tablas en una sola para poder exportarla
+                    var titulo="<button onclick='imprimir_projectes_resp_cabecera();' class='btn btn-info'><span class='glyphicon glyphicon-print' aria-hidden='true'></span> Imprimir resultats</button>  <button onclick='excel_projectes_resp_cabecera();' class='btn btn-success'> Excel </button>";
 //                    html=html+'<a onclick="imprimir_projectes_resp_cabecera();" class="glyphicon glyphicon-print" aria-hidden="true">Imprimir</a>'
+
+                    //primero mostramos las tablas al usuario
                     html="<div id='contenido_projectes_responsable_consultar'><h2>PROJECTES PER RESPONSABLE ( "+$.datepicker.formatDate('dd/mm/yy', new Date())+" )</h2>"
                     $(result).each(function(){
                         html=html+"<h3>"+this.codi_investigador+" - "+this.nom_responsable+"</h3><table class='table table-striped table-bordered tabla_projectes_resp_consultar'><thead><tr><th>Codi</th><th>Nom</th><th>Entitat Finançadora</th></tr></thead>";
@@ -1209,6 +1212,18 @@ function dialog_projectes_per_responsable_cabecera(){
                     });
                     html=html+"</div>";
 
+                    //segundo hacemos la tabla "invisible" que nos permitirá exportar
+
+                    html_excel="<table class='table table-striped table-bordered tabla_excel_projectes_resp_consultar'><div id='contenido_excel_projectes_responsable_consultar'><thead><tr><th>Codi</th><th>Nom</th><th>Entitat Finançadora</th></tr></thead>";
+                    $(result).each(function(){
+                        $(this.projectes).each(function(){
+                            html_excel=html_excel+"<tr><td>"+this.codi+"</td><td>"+this.nom+"</td><td>"+this.entitats+"</td></tr>"
+                        });
+                    });
+                    html_excel=html_excel+"</div></table><br>";
+
+                    //la añadimos al final
+                    html=html+html_excel;
                  return $.confirm({
                     title:titulo,
                     content:html,
@@ -1227,7 +1242,30 @@ function dialog_projectes_per_responsable_cabecera(){
                                 language: opciones_idioma,
                             //});
                         });
+                        $(".tabla_excel_projectes_resp_consultar").DataTable({
+                            //$(this).DataTable({
+                            dom: 'Bfrtip',
+                            buttons:[{
+                                extend: 'print',
+                                header: true,
+                                footer: true,
+                                title: "projectes_per_responsable",
+                                text: '<span class="glyphicon glyphicon-print" aria-hidden="true">  Imprimir</span>',
+                                autoPrint: true
+                            },{
+                                extend: 'excel',
+                                filename: "projectes_per_responsable",
+                                text: '<span class="glyphicon glyphicon-equalizer" aria-hidden="true"> Excel</span>',
+                            }],
+                            scrollCollapse: true,
+                            paging:         false,
+                            autowidth:      true,
+                            overflow:       "auto",
+                            language: opciones_idioma,
+                            //});
+                        });
 
+                        $(".tabla_excel_projectes_resp_consultar").parents('div.dataTables_wrapper').first().hide();
                     }
                  });
 
@@ -1366,6 +1404,12 @@ function dialog_permisos_usuaris_consultar(){
 /// IMPRIMIR LOS RESULTADOS DE LA CONSULTA DE PROJECTES PER RESPONSABLE(BOTON GENERADO EN LA FUNCION)
 function imprimir_projectes_resp_cabecera(){
     $("#contenido_projectes_responsable_consultar").printArea({"mode":"popup"});
+}
+/// EXPORTAR A EXCEL LOS RESULTADOS DE LA CONSULTA DE PROJECTES PER RESPONSABLE(BOTON GENERADO EN LA FUNCION)
+function excel_projectes_resp_cabecera(){
+    //$(".tabla_excel_projectes_resp_consultar").parents('div.dataTables_wrapper').first().show();
+    $(".tabla_excel_projectes_resp_consultar").parents('div.dataTables_wrapper').first().find(".buttons-excel").click();
+    //$(".tabla_excel_projectes_resp_consultar").parents('div.dataTables_wrapper').first().hide();
 }
 
 function mostrar_permisos_usuaris_consultar(){
